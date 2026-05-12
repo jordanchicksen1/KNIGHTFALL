@@ -18,9 +18,11 @@ public class ThirdPersonCamera : MonoBehaviour
 
     private Vector3 currentVelocity;
 
+    private PlayerLockOn lockOn;
     private void Awake()
     {
         controls = new PlayerControls();
+        lockOn = target.GetComponent<PlayerLockOn>();
 
         controls.Player.Look.performed += ctx =>
             lookInput = ctx.ReadValue<Vector2>();
@@ -56,17 +58,6 @@ public class ThirdPersonCamera : MonoBehaviour
 
     void RotateCamera()
     {
-        float stickX = lookInput.x * stickSensitivity * Time.deltaTime;
-        float stickY = lookInput.y * stickSensitivity * Time.deltaTime;
-
-        yRotation += stickX;
-        xRotation -= stickY;
-
-        xRotation = Mathf.Clamp(xRotation, -35f, 60f);
-
-        transform.rotation =
-            Quaternion.Euler(xRotation, yRotation, 0);
-
         Vector3 targetPosition = target.position + pivotOffset;
 
         transform.position = Vector3.SmoothDamp(
@@ -75,5 +66,44 @@ public class ThirdPersonCamera : MonoBehaviour
             ref currentVelocity,
             smoothTime
         );
+
+        // FREE LOOK
+        if (!lockOn.IsLockedOn())
+        {
+            float stickX =
+                lookInput.x * stickSensitivity * Time.deltaTime;
+
+            float stickY =
+                lookInput.y * stickSensitivity * Time.deltaTime;
+
+            yRotation += stickX;
+            xRotation -= stickY;
+
+            xRotation = Mathf.Clamp(xRotation, -35f, 60f);
+
+            transform.rotation =
+                Quaternion.Euler(xRotation, yRotation, 0);
+        }
+
+        // LOCK-ON CAMERA
+        else if (lockOn.currentTarget != null)
+        {
+            Vector3 direction =
+                lockOn.currentTarget.position - transform.position;
+
+            Quaternion targetRotation =
+                Quaternion.LookRotation(direction);
+
+            Vector3 targetEuler = targetRotation.eulerAngles;
+
+            yRotation = Mathf.LerpAngle(
+                yRotation,
+                targetEuler.y,
+                10f * Time.deltaTime
+            );
+
+            transform.rotation =
+                Quaternion.Euler(xRotation, yRotation, 0);
+        }
     }
 }

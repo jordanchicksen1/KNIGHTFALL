@@ -91,19 +91,19 @@ public class PlayerCombat : MonoBehaviour
         Vector3 startPosition = rightHand.localPosition;
         Quaternion startRotation = rightHand.localRotation;
 
-        // Wind-up (top right)
+        // Wind-up (top-right)
         Vector3 windUpPosition =
-            startPosition + new Vector3(0.4f, 0.5f, 0);
+            startPosition + new Vector3(0.25f, 0.25f, 0);
 
         Quaternion windUpRotation =
-            Quaternion.Euler(0, 0, 20);
+            Quaternion.Euler(0, 0, -70);
 
-        // Slash follow-through (bottom left)
+        // Follow-through (bottom-left)
         Vector3 slashPosition =
-            startPosition + new Vector3(-0.7f, -0.6f, 0);
+            startPosition + new Vector3(-0.35f, -0.25f, 0);
 
         Quaternion slashRotation =
-            Quaternion.Euler(0, 0, -15);
+            Quaternion.Euler(0, 0, 110);
 
         float timer = 0;
 
@@ -153,7 +153,7 @@ public class PlayerCombat : MonoBehaviour
             yield return null;
         }
 
-        yield return new WaitForSeconds(0.05f);
+        yield return new WaitForSeconds(0.04f);
 
         timer = 0;
 

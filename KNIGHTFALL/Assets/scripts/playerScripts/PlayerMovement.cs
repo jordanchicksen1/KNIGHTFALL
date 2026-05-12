@@ -9,6 +9,7 @@ public class PlayerMovement : MonoBehaviour
     [Header("Movement")]
     public float moveSpeed = 5f;
     public float rotationSpeed = 10f;
+    private PlayerLockOn lockOn;
 
     [Header("References")]
     public Transform cameraPivot;
@@ -40,6 +41,7 @@ public class PlayerMovement : MonoBehaviour
     private void Awake()
     {
         controller = GetComponent<CharacterController>();
+        lockOn = GetComponent<PlayerLockOn>();
         controls = new PlayerControls();
         controls.Player.Move.performed += ctx => moveInput = ctx.ReadValue<Vector2>();
         controls.Player.Move.canceled += ctx => moveInput = Vector2.zero;
@@ -88,8 +90,26 @@ public class PlayerMovement : MonoBehaviour
         {
             currentState = PlayerState.Moving;
             controller.Move(moveDirection * moveSpeed * Time.deltaTime);
-            Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
-            transform.rotation = Quaternion.Slerp(transform.rotation,targetRotation,rotationSpeed * Time.deltaTime);
+            
+            if (!lockOn.IsLockedOn())
+            {
+                Quaternion targetRotation =
+                    Quaternion.LookRotation(moveDirection);
+
+                transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+            }
+            else
+            {
+                Vector3 directionToTarget =
+                    lockOn.currentTarget.position - transform.position;
+
+                directionToTarget.y = 0;
+
+                Quaternion targetRotation =
+                    Quaternion.LookRotation(directionToTarget);
+
+                transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+            }
         }
 
         if (moveDirection.magnitude < 0.1f)
