@@ -4,6 +4,8 @@ using System.Collections;
 
 public class PlayerMovement : MonoBehaviour
 {
+    public PlayerState currentState;
+
     [Header("Movement")]
     public float moveSpeed = 5f;
     public float rotationSpeed = 10f;
@@ -64,7 +66,11 @@ public class PlayerMovement : MonoBehaviour
 
     void HandleMovement()
     {
-        if (isDodging) return;
+        if (currentState == PlayerState.Dodging || currentState == PlayerState.Attacking)
+        {
+            return;
+        }
+
         Vector3 forward = cameraPivot.forward;
         Vector3 right = cameraPivot.right;
 
@@ -80,18 +86,15 @@ public class PlayerMovement : MonoBehaviour
 
         if (moveDirection.magnitude > 0.1f)
         {
-            controller.Move(
-                moveDirection * moveSpeed * Time.deltaTime
-            );
+            currentState = PlayerState.Moving;
+            controller.Move(moveDirection * moveSpeed * Time.deltaTime);
+            Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
+            transform.rotation = Quaternion.Slerp(transform.rotation,targetRotation,rotationSpeed * Time.deltaTime);
+        }
 
-            Quaternion targetRotation =
-                Quaternion.LookRotation(moveDirection);
-
-            transform.rotation = Quaternion.Slerp(
-                transform.rotation,
-                targetRotation,
-                rotationSpeed * Time.deltaTime
-            );
+        if (moveDirection.magnitude < 0.1f)
+        {
+            currentState = PlayerState.Idle;
         }
     }
 
@@ -104,7 +107,7 @@ public class PlayerMovement : MonoBehaviour
             verticalVelocity = -2f;
         }
 
-        if (jumpPressed && isGrounded)
+        if (jumpPressed && isGrounded && !isDodging)
         {
             verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
         }
@@ -120,7 +123,7 @@ public class PlayerMovement : MonoBehaviour
 
     void HandleDodge()
     {
-        if (dodgePressed && !isDodging)
+        if (dodgePressed && !isDodging && isGrounded)
         {
             StartCoroutine(DodgeRoll());
         }
@@ -130,6 +133,8 @@ public class PlayerMovement : MonoBehaviour
 
     IEnumerator DodgeRoll()
     {
+        currentState = PlayerState.Dodging;
+
         isDodging = true;
 
         Vector3 forward = cameraPivot.forward;
@@ -159,5 +164,6 @@ public class PlayerMovement : MonoBehaviour
         }
 
         isDodging = false;
+        currentState = PlayerState.Idle;
     }
 }
