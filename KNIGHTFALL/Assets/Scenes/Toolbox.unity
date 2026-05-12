@@ -2466,6 +2466,37 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 923806469}
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &967076453
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 967076454}
+  m_Layer: 0
+  m_Name: groundCheck
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &967076454
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 967076453}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -1, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1797033566}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1007499767
 GameObject:
   m_ObjectHideFlags: 0
@@ -4379,6 +4410,7 @@ Transform:
   - {fileID: 1239207467}
   - {fileID: 2098017006}
   - {fileID: 1932828254}
+  - {fileID: 967076454}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1797033567
@@ -4396,6 +4428,15 @@ MonoBehaviour:
   moveSpeed: 5
   rotationSpeed: 10
   cameraPivot: {fileID: 1932828254}
+  gravity: -20
+  jumpHeight: 2
+  groundCheck: {fileID: 967076454}
+  groundDistance: 0.3
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 64
+  dodgeForce: 16
+  dodgeDuration: 0.25
 --- !u!143 &1797033568
 CharacterController:
   m_ObjectHideFlags: 0
@@ -4662,6 +4703,7 @@ MonoBehaviour:
   target: {fileID: 1797033566}
   stickSensitivity: 100
   pivotOffset: {x: 0, y: 1.6, z: 0}
+  smoothTime: 0.05
 --- !u!1 &2035334944
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System.Collections;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -10,6 +11,25 @@ public class PlayerMovement : MonoBehaviour
     [Header("References")]
     public Transform cameraPivot;
 
+    [Header("Jumping")]
+    public float gravity = -20f;
+    public float jumpHeight = 2f;
+    private bool jumpPressed;
+    private float verticalVelocity;
+    private bool isGrounded;
+
+    [Header("Ground Check")]
+    public Transform groundCheck;
+    public float groundDistance = 0.3f;
+    public LayerMask groundMask;
+
+    [Header("Dodge")]
+    public float dodgeForce = 8f;
+    public float dodgeDuration = 0.25f;
+    private bool dodgePressed;
+    private bool isDodging;
+    private Vector3 dodgeDirection;
+
     private CharacterController controller;
     private PlayerControls controls;
 
@@ -18,14 +38,11 @@ public class PlayerMovement : MonoBehaviour
     private void Awake()
     {
         controller = GetComponent<CharacterController>();
-
         controls = new PlayerControls();
-
-        controls.Player.Move.performed += ctx =>
-            moveInput = ctx.ReadValue<Vector2>();
-
-        controls.Player.Move.canceled += ctx =>
-            moveInput = Vector2.zero;
+        controls.Player.Move.performed += ctx => moveInput = ctx.ReadValue<Vector2>();
+        controls.Player.Move.canceled += ctx => moveInput = Vector2.zero;
+        controls.Player.Jump.performed += ctx => jumpPressed = true;
+        controls.Player.Dodge.performed += ctx => dodgePressed = true;
     }
 
     private void OnEnable()
@@ -41,10 +58,13 @@ public class PlayerMovement : MonoBehaviour
     private void Update()
     {
         HandleMovement();
+        HandleGravity();
+        HandleDodge();
     }
 
     void HandleMovement()
     {
+        if (isDodging) return;
         Vector3 forward = cameraPivot.forward;
         Vector3 right = cameraPivot.right;
 
@@ -73,5 +93,71 @@ public class PlayerMovement : MonoBehaviour
                 rotationSpeed * Time.deltaTime
             );
         }
+    }
+
+    void HandleGravity()
+    {
+        isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
+
+        if (isGrounded && verticalVelocity < 0)
+        {
+            verticalVelocity = -2f;
+        }
+
+        if (jumpPressed && isGrounded)
+        {
+            verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
+        }
+
+        verticalVelocity += gravity * Time.deltaTime;
+
+        Vector3 gravityMove = Vector3.up * verticalVelocity;
+
+        controller.Move(gravityMove * Time.deltaTime);
+
+        jumpPressed = false;
+    }
+
+    void HandleDodge()
+    {
+        if (dodgePressed && !isDodging)
+        {
+            StartCoroutine(DodgeRoll());
+        }
+
+        dodgePressed = false;
+    }
+
+    IEnumerator DodgeRoll()
+    {
+        isDodging = true;
+
+        Vector3 forward = cameraPivot.forward;
+        Vector3 right = cameraPivot.right;
+
+        forward.y = 0;
+        right.y = 0;
+
+        dodgeDirection = forward * moveInput.y + right * moveInput.x;
+
+        if (dodgeDirection.magnitude < 0.1f)
+        {
+            dodgeDirection = transform.forward;
+        }
+
+        dodgeDirection.Normalize();
+
+        float timer = 0;
+
+        while (timer < dodgeDuration)
+        {
+            controller.Move(dodgeDirection * dodgeForce * Time.deltaTime);
+
+            timer += Time.deltaTime;
+
+            yield return null;
+        }
+
+        isDodging = false;
     }
 }

@@ -14,6 +14,10 @@ public class ThirdPersonCamera : MonoBehaviour
     private float yRotation;
     public Vector3 pivotOffset = new Vector3(0, 1.6f, 0);
 
+    public float smoothTime = 0.05f;
+
+    private Vector3 currentVelocity;
+
     private void Awake()
     {
         controls = new PlayerControls();
@@ -45,24 +49,31 @@ public class ThirdPersonCamera : MonoBehaviour
         xRotation = rotation.x;
     }
 
-    void Update()
+    void LateUpdate()
     {
         RotateCamera();
     }
 
     void RotateCamera()
     {
-        float mouseX = lookInput.x * stickSensitivity * Time.deltaTime;
-        float mouseY = lookInput.y * stickSensitivity * Time.deltaTime;
+        float stickX = lookInput.x * stickSensitivity * Time.deltaTime;
+        float stickY = lookInput.y * stickSensitivity * Time.deltaTime;
 
-        yRotation += mouseX;
-        xRotation -= mouseY;
+        yRotation += stickX;
+        xRotation -= stickY;
 
         xRotation = Mathf.Clamp(xRotation, -35f, 60f);
 
         transform.rotation =
             Quaternion.Euler(xRotation, yRotation, 0);
 
-        transform.position = target.position + pivotOffset;
+        Vector3 targetPosition = target.position + pivotOffset;
+
+        transform.position = Vector3.SmoothDamp(
+            transform.position,
+            targetPosition,
+            ref currentVelocity,
+            smoothTime
+        );
     }
 }
