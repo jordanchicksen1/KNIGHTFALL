@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -13,6 +14,7 @@ public class PlayerCombat : MonoBehaviour
     public Transform attackPoint;
     public Transform rightHand;
     public Transform sword;
+    private CharacterController controller;
 
     public LayerMask enemyLayers;
 
@@ -21,10 +23,14 @@ public class PlayerCombat : MonoBehaviour
 
     private bool attackPressed;
 
+    [Header("Attack Movement")]
+    public float attackLungeForce = 3f;
+    public float attackLungeDuration = 0.12f;
+
     private void Awake()
     {
         controls = new PlayerControls();
-
+        controller = GetComponent<CharacterController>();
         movement = GetComponent<PlayerMovement>();
 
         controls.Player.LightAttack.performed += ctx =>
@@ -53,6 +59,7 @@ public class PlayerCombat : MonoBehaviour
             movement.currentState != PlayerState.Dodging)
         {
             StartCoroutine(LightAttack());
+
         }
 
         attackPressed = false;
@@ -63,23 +70,12 @@ public class PlayerCombat : MonoBehaviour
         movement.currentState = PlayerState.Attacking;
 
         StartCoroutine(SwingSword());
-
-        Collider[] hitEnemies = Physics.OverlapSphere(
-            attackPoint.position,
-            attackRange,
-            enemyLayers
-        );
-
-        foreach (Collider enemy in hitEnemies)
+        StartCoroutine(ActiveAttackFrames());
+        if (movement.moveInput.magnitude > 0.1f)
         {
-            Vector3 hitDirection =
-    (enemy.transform.position - transform.position).normalized;
-
-            enemy.GetComponent<EnemyHealth>()?.TakeDamage(
-                attackDamage,
-                hitDirection
-            );
+            StartCoroutine(AttackLunge());
         }
+
 
         yield return new WaitForSeconds(attackDuration);
 
@@ -181,6 +177,73 @@ public class PlayerCombat : MonoBehaviour
 
         rightHand.localPosition = startPosition;
         rightHand.localRotation = startRotation;
+    }
+
+    IEnumerator AttackLunge()
+    {
+        float timer = 0;
+
+        while (timer < attackLungeDuration)
+        {
+            Vector3 lungeDirection = transform.forward;
+
+            lungeDirection.y = 0;
+
+            controller.Move(
+                lungeDirection.normalized *
+                attackLungeForce *
+                Time.deltaTime
+            );
+
+            timer += Time.deltaTime;
+
+            yield return null;
+        }
+    }
+
+
+    IEnumerator ActiveAttackFrames()
+    {
+        float activeTime = 0.15f;
+
+        float timer = 0;
+
+        List<EnemyHealth> hitEnemies =
+            new List<EnemyHealth>();
+
+        while (timer < activeTime)
+        {
+            Collider[] enemies = Physics.OverlapSphere(
+                attackPoint.position,
+                attackRange,
+                enemyLayers
+            );
+
+            foreach (Collider enemy in enemies)
+            {
+                EnemyHealth enemyHealth =
+                    enemy.GetComponent<EnemyHealth>();
+
+                if (enemyHealth != null &&
+                    !hitEnemies.Contains(enemyHealth))
+                {
+                    hitEnemies.Add(enemyHealth);
+
+                    Vector3 hitDirection =
+                        (enemy.transform.position -
+                        transform.position).normalized;
+
+                    enemyHealth.TakeDamage(
+                        attackDamage,
+                        hitDirection
+                    );
+                }
+            }
+
+            timer += Time.deltaTime;
+
+            yield return null;
+        }
     }
 
     private void OnDrawGizmosSelected()

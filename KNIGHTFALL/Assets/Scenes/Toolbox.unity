@@ -5083,6 +5083,7 @@ MonoBehaviour:
     m_Bits: 64
   dodgeForce: 16
   dodgeDuration: 0.25
+  moveInput: {x: 0, y: 0}
 --- !u!143 &1797033568
 CharacterController:
   m_ObjectHideFlags: 0
@@ -5209,6 +5210,8 @@ MonoBehaviour:
   enemyLayers:
     serializedVersion: 2
     m_Bits: 128
+  attackLungeForce: 6
+  attackLungeDuration: 0.18
 --- !u!114 &1797033573
 MonoBehaviour:
   m_ObjectHideFlags: 0

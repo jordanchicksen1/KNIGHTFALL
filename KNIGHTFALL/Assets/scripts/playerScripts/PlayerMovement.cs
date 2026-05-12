@@ -36,7 +36,7 @@ public class PlayerMovement : MonoBehaviour
     private CharacterController controller;
     private PlayerControls controls;
 
-    private Vector2 moveInput;
+    public Vector2 moveInput;
 
     private void Awake()
     {
@@ -68,7 +68,7 @@ public class PlayerMovement : MonoBehaviour
 
     void HandleMovement()
     {
-        if (currentState == PlayerState.Dodging || currentState == PlayerState.Attacking)
+        if (currentState == PlayerState.Dodging)
         {
             return;
         }
@@ -90,25 +90,36 @@ public class PlayerMovement : MonoBehaviour
         {
             currentState = PlayerState.Moving;
             controller.Move(moveDirection * moveSpeed * Time.deltaTime);
-            
-            if (!lockOn.IsLockedOn())
+
+            if (currentState != PlayerState.Attacking)
             {
-                Quaternion targetRotation =
-                    Quaternion.LookRotation(moveDirection);
+                if (!lockOn.IsLockedOn())
+                {
+                    Quaternion targetRotation =
+                        Quaternion.LookRotation(moveDirection);
 
-                transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
-            }
-            else
-            {
-                Vector3 directionToTarget =
-                    lockOn.currentTarget.position - transform.position;
+                    transform.rotation = Quaternion.Slerp(
+                        transform.rotation,
+                        targetRotation,
+                        rotationSpeed * Time.deltaTime
+                    );
+                }
+                else
+                {
+                    Vector3 directionToTarget =
+                        lockOn.currentTarget.position - transform.position;
 
-                directionToTarget.y = 0;
+                    directionToTarget.y = 0;
 
-                Quaternion targetRotation =
-                    Quaternion.LookRotation(directionToTarget);
+                    Quaternion targetRotation =
+                        Quaternion.LookRotation(directionToTarget);
 
-                transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+                    transform.rotation = Quaternion.Slerp(
+                        transform.rotation,
+                        targetRotation,
+                        rotationSpeed * Time.deltaTime
+                    );
+                }
             }
         }
 
