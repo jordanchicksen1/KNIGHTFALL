@@ -5,5 +5,6 @@ public enum PlayerState
     Dodging,
     Attacking,
     Blocking,
-    Jumping
+    Jumping,
+    Staggered
 }
