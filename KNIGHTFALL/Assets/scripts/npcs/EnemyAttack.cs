@@ -8,11 +8,15 @@ public class EnemyAttack : MonoBehaviour
 
     public int attackDamage = 20;
 
-    public float attackCooldown = 1.5f;
+    public float attackCooldown = 0.8f;
 
     public float attackDuration = 0.4f;
 
     public bool isAttacking;
+
+    [Header("Lunge")]
+    public float lungeForce = 5f;
+    public float lungeDuration = 0.15f;
 
     [Header("References")]
     public Transform player;
@@ -36,32 +40,16 @@ public class EnemyAttack : MonoBehaviour
         }
     }
 
-    void Update()
-    {
-        if (player == null)
-            return;
+    
 
-        float distance =
-            Vector3.Distance(
-                transform.position,
-                player.position
-            );
-
-        if (distance <= attackRange &&
-            canAttack &&
-            !isAttacking)
-        {
-            StartCoroutine(Attack());
-        }
-    }
-
-    IEnumerator Attack()
+    public IEnumerator Attack()
     {
         isAttacking = true;
 
         canAttack = false;
 
         StartCoroutine(SwingArm());
+        StartCoroutine(AttackLunge());
 
         yield return new WaitForSeconds(0.12f);
 
@@ -74,9 +62,9 @@ public class EnemyAttack : MonoBehaviour
 
         foreach (Collider playerCollider in hitPlayer)
         {
-            playerCollider
-                .GetComponent<PlayerHealth>()
-                ?.TakeDamage(attackDamage);
+            Vector3 hitDirection = (player.position - transform.position).normalized;
+
+            playerCollider.GetComponent<PlayerHealth>()?.TakeDamage(attackDamage, hitDirection);
         }
 
         yield return new WaitForSeconds(attackDuration);
@@ -181,5 +169,27 @@ public class EnemyAttack : MonoBehaviour
 
         rightHand.localPosition = startPosition;
         rightHand.localRotation = startRotation;
+    }
+
+    IEnumerator AttackLunge()
+    {
+        float timer = 0;
+
+        while (timer < lungeDuration)
+        {
+            Vector3 direction =
+                transform.forward;
+
+            direction.y = 0;
+
+            transform.position +=
+                direction.normalized *
+                lungeForce *
+                Time.deltaTime;
+
+            timer += Time.deltaTime;
+
+            yield return null;
+        }
     }
 }
