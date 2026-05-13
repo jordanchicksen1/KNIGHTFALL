@@ -5003,6 +5003,7 @@ MonoBehaviour:
   attackDuration: 0.4
   attackRange: 1
   attackDamage: 25
+  leftHand: {fileID: 1852937502}
   attackPoint: {fileID: 245485659}
   rightHand: {fileID: 1956221415}
   sword: {fileID: 176384267}

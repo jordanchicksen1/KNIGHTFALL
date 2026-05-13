@@ -13,6 +13,7 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("References")]
     public Transform cameraPivot;
+    private PlayerCombat combat;
 
     [Header("Jumping")]
     public float gravity = -20f;
@@ -42,6 +43,7 @@ public class PlayerMovement : MonoBehaviour
     {
         controller = GetComponent<CharacterController>();
         lockOn = GetComponent<PlayerLockOn>();
+        combat = GetComponent<PlayerCombat>();
         controls = new PlayerControls();
         controls.Player.Move.performed += ctx => moveInput = ctx.ReadValue<Vector2>();
         controls.Player.Move.canceled += ctx => moveInput = Vector2.zero;
@@ -88,7 +90,13 @@ public class PlayerMovement : MonoBehaviour
 
         if (moveDirection.magnitude > 0.1f)
         {
-            currentState = PlayerState.Moving;
+            if (currentState != PlayerState.Attacking &&
+                currentState != PlayerState.Dodging &&
+                currentState != PlayerState.Blocking &&
+                currentState != PlayerState.Staggered)
+            {
+                currentState = PlayerState.Moving;
+            }
             controller.Move(moveDirection * moveSpeed * Time.deltaTime);
 
             if (currentState != PlayerState.Attacking)
@@ -125,7 +133,13 @@ public class PlayerMovement : MonoBehaviour
 
         if (moveDirection.magnitude < 0.1f)
         {
-            currentState = PlayerState.Idle;
+            if (currentState != PlayerState.Attacking &&
+                currentState != PlayerState.Dodging &&
+                currentState != PlayerState.Blocking &&
+                currentState != PlayerState.Staggered)
+            {
+                currentState = PlayerState.Idle;
+            }
         }
     }
 
@@ -156,6 +170,10 @@ public class PlayerMovement : MonoBehaviour
     {
         if (dodgePressed && !isDodging && isGrounded)
         {
+            if (currentState == PlayerState.Blocking)
+            {
+                combat.StopBlocking();
+            }
             StartCoroutine(DodgeRoll());
         }
 

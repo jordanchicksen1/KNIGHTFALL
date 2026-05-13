@@ -12,14 +12,24 @@ public class PlayerHealth : MonoBehaviour
     public float knockbackDuration = 0.12f;
     private CharacterController controller;
 
+    private PlayerCombat combat;
+
     private void Awake()
     {
         movement = GetComponent<PlayerMovement>();
         controller = GetComponent<CharacterController>();
+        combat = GetComponent<PlayerCombat>();
     }
 
     public void TakeDamage(int damage,Vector3 hitDirection)
     {
+        if (combat.IsBlocking())
+        {
+            Debug.Log("Blocked Attack");
+
+            return;
+        }
+
         health -= damage;
 
         StopAllCoroutines();
@@ -70,6 +80,8 @@ public class PlayerHealth : MonoBehaviour
 
         movement.currentState = PlayerState.Idle;
     }
+
+    
 
     IEnumerator Stagger()
     {

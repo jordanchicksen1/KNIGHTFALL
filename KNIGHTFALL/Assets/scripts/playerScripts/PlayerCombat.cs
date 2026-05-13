@@ -9,6 +9,13 @@ public class PlayerCombat : MonoBehaviour
     public float attackDuration = 0.4f;
     public float attackRange = 1.5f;
     public int attackDamage = 25;
+    
+
+    [Header("Blocking")]
+    public Transform leftHand;
+    private bool isBlocking;
+    private Vector3 leftHandStartPosition;
+    private Quaternion leftHandStartRotation;
 
     [Header("References")]
     public Transform attackPoint;
@@ -33,8 +40,15 @@ public class PlayerCombat : MonoBehaviour
         controller = GetComponent<CharacterController>();
         movement = GetComponent<PlayerMovement>();
 
-        controls.Player.LightAttack.performed += ctx =>
-            attackPressed = true;
+        controls.Player.LightAttack.performed += ctx => attackPressed = true;
+
+        leftHandStartPosition = leftHand.localPosition;
+        leftHandStartRotation = leftHand.localRotation;
+
+        controls.Player.Block.performed += ctx => StartBlocking();
+
+        controls.Player.Block.canceled += ctx => StopBlocking();
+
     }
 
     private void OnEnable()
@@ -54,15 +68,58 @@ public class PlayerCombat : MonoBehaviour
 
     void HandleAttack()
     {
-        if (attackPressed &&
-            movement.currentState != PlayerState.Attacking &&
-            movement.currentState != PlayerState.Dodging)
+        if (attackPressed && movement.currentState != PlayerState.Attacking && movement.currentState != PlayerState.Dodging)
         {
+            if (isBlocking)
+            {
+                StopBlocking();
+            }
             StartCoroutine(LightAttack());
 
         }
 
         attackPressed = false;
+    }
+
+    void StartBlocking()
+    {
+        if (movement.currentState ==
+            PlayerState.Attacking ||
+            movement.currentState ==
+            PlayerState.Dodging)
+        {
+            return;
+        }
+
+        isBlocking = true;
+
+        movement.currentState =
+            PlayerState.Blocking;
+
+        leftHand.localPosition =
+            leftHandStartPosition +
+            new Vector3(0.2f, 0.15f, 0.3f);
+
+        leftHand.localRotation =
+            Quaternion.Euler(0, 0, -35);
+    }
+
+    public void StopBlocking()
+    {
+        isBlocking = false;
+
+        if (movement.currentState ==
+            PlayerState.Blocking)
+        {
+            movement.currentState =
+                PlayerState.Idle;
+        }
+
+        leftHand.localPosition =
+            leftHandStartPosition;
+
+        leftHand.localRotation =
+            leftHandStartRotation;
     }
 
     IEnumerator LightAttack()
@@ -244,6 +301,11 @@ public class PlayerCombat : MonoBehaviour
 
             yield return null;
         }
+    }
+
+    public bool IsBlocking()
+    {
+        return isBlocking;
     }
 
     private void OnDrawGizmosSelected()
