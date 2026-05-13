@@ -104,7 +104,7 @@ public class PlayerMovement : MonoBehaviour
                         rotationSpeed * Time.deltaTime
                     );
                 }
-                else
+                else if (lockOn.currentTarget != null)
                 {
                     Vector3 directionToTarget =
                         lockOn.currentTarget.position - transform.position;
