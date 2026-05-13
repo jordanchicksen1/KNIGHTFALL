@@ -185,10 +185,8 @@ public class EnemyMovement : MonoBehaviour
 
     IEnumerator Strafe()
     {
-        isStrafing = true;
-
         float duration =
-            Random.Range(0.5f, 1.2f);
+            Random.Range(0.3f, 0.6f);
 
         float direction =
             Random.Range(0, 2) == 0 ? -1 : 1;
@@ -209,16 +207,12 @@ public class EnemyMovement : MonoBehaviour
 
             yield return null;
         }
-
-        isStrafing = false;
     }
 
     IEnumerator BackAway()
     {
-        isBackingAway = true;
-
         float duration =
-            Random.Range(0.4f, 0.8f);
+            Random.Range(0.2f, 0.45f);
 
         float timer = 0;
 
@@ -233,15 +227,13 @@ public class EnemyMovement : MonoBehaviour
             transform.position +=
                 direction *
                 moveSpeed *
-                0.7f *
+                1.2f *
                 Time.deltaTime;
 
             timer += Time.deltaTime;
 
             yield return null;
         }
-
-        isBackingAway = false;
     }
 
     IEnumerator ShortRetreat()
