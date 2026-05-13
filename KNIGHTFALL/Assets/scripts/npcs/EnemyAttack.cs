@@ -107,20 +107,21 @@ public class EnemyAttack : MonoBehaviour
 
         float timer = 0;
 
-        while (timer < 0.08f)
+        // WIND-UP
+        while (timer < 0.15f)
         {
             rightHand.localPosition =
                 Vector3.Lerp(
                     startPosition,
                     windUpPosition,
-                    timer / 0.08f
+                    timer / 0.15f
                 );
 
             rightHand.localRotation =
                 Quaternion.Slerp(
                     startRotation,
                     windUpRotation,
-                    timer / 0.08f
+                    timer / 0.15f
                 );
 
             timer += Time.deltaTime;
@@ -130,20 +131,47 @@ public class EnemyAttack : MonoBehaviour
 
         timer = 0;
 
-        while (timer < 0.12f)
+        // SLASH
+        while (timer < 0.18f)
         {
             rightHand.localPosition =
                 Vector3.Lerp(
                     windUpPosition,
                     slashPosition,
-                    timer / 0.12f
+                    timer / 0.18f
                 );
 
             rightHand.localRotation =
                 Quaternion.Slerp(
                     windUpRotation,
                     slashRotation,
-                    timer / 0.12f
+                    timer / 0.18f
+                );
+
+            timer += Time.deltaTime;
+
+            yield return null;
+        }
+
+        yield return new WaitForSeconds(0.08f);
+
+        timer = 0;
+
+        // RETURN
+        while (timer < 0.2f)
+        {
+            rightHand.localPosition =
+                Vector3.Lerp(
+                    slashPosition,
+                    startPosition,
+                    timer / 0.2f
+                );
+
+            rightHand.localRotation =
+                Quaternion.Slerp(
+                    slashRotation,
+                    startRotation,
+                    timer / 0.2f
                 );
 
             timer += Time.deltaTime;
