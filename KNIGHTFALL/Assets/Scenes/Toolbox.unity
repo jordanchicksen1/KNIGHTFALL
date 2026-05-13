@@ -244,7 +244,7 @@ GameObject:
   - component: {fileID: 95964419}
   - component: {fileID: 95964418}
   - component: {fileID: 95964417}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: swordBlade
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -584,7 +584,7 @@ GameObject:
   - component: {fileID: 176384270}
   - component: {fileID: 176384269}
   - component: {fileID: 176384268}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: swordHilt
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1033,7 +1033,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 245485659}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: attackPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1237,7 +1237,7 @@ GameObject:
   - component: {fileID: 330585545}
   - component: {fileID: 330585544}
   - component: {fileID: 330585547}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Main Camera
   m_TagString: MainCamera
   m_Icon: {fileID: 0}
@@ -2790,7 +2790,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 967076454}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: groundCheck
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2823,7 +2823,7 @@ GameObject:
   - component: {fileID: 1007499768}
   - component: {fileID: 1007499770}
   - component: {fileID: 1007499769}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: eye
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3252,7 +3252,7 @@ GameObject:
   - component: {fileID: 1239207467}
   - component: {fileID: 1239207469}
   - component: {fileID: 1239207468}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: eye (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4078,7 +4078,7 @@ GameObject:
   - component: {fileID: 1592460128}
   - component: {fileID: 1592460127}
   - component: {fileID: 1592460126}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: shield
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4872,7 +4872,8 @@ GameObject:
   - component: {fileID: 1797033567}
   - component: {fileID: 1797033572}
   - component: {fileID: 1797033573}
-  m_Layer: 0
+  - component: {fileID: 1797033574}
+  m_Layer: 8
   m_Name: player
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -5072,6 +5073,20 @@ MonoBehaviour:
   currentTarget: {fileID: 0}
   switchCooldown: 0.3
   cameraPivot: {fileID: 1932828254}
+--- !u!114 &1797033574
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1797033565}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b996cf61bc68094bab67e9f96ec6cf8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerHealth
+  health: 100
+  staggerDuration: 0.25
 --- !u!1 &1852937501
 GameObject:
   m_ObjectHideFlags: 0
@@ -5083,7 +5098,7 @@ GameObject:
   - component: {fileID: 1852937502}
   - component: {fileID: 1852937504}
   - component: {fileID: 1852937503}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: leftHand
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5286,7 +5301,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1932828254}
   - component: {fileID: 1932828255}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: cameraPivot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5336,7 +5351,7 @@ GameObject:
   - component: {fileID: 1956221415}
   - component: {fileID: 1956221417}
   - component: {fileID: 1956221416}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: rightHand
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5653,7 +5668,7 @@ GameObject:
   - component: {fileID: 2098017006}
   - component: {fileID: 2098017008}
   - component: {fileID: 2098017007}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: nose
   m_TagString: Untagged
   m_Icon: {fileID: 0}
