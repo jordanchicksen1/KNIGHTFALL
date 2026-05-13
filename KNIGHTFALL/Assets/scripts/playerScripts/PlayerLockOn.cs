@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 using UnityEngine.InputSystem;
 
 public class PlayerLockOn : MonoBehaviour
@@ -7,6 +8,9 @@ public class PlayerLockOn : MonoBehaviour
     public float lockOnRadius = 15f;
 
     public Transform currentTarget;
+    private Vector2 switchInput;
+    private bool canSwitchTarget = true;
+    public float switchCooldown = 0.3f;
 
     [Header("References")]
     public Transform cameraPivot;
@@ -22,6 +26,10 @@ public class PlayerLockOn : MonoBehaviour
 
         controls.Player.LockOn.performed += ctx =>
             lockPressed = true;
+
+        controls.Player.Look.performed += ctx => switchInput = ctx.ReadValue<Vector2>();
+
+        controls.Player.Look.canceled += ctx => switchInput = Vector2.zero;
     }
 
     private void OnEnable()
@@ -37,6 +45,7 @@ public class PlayerLockOn : MonoBehaviour
     void Update()
     {
         HandleLockOn();
+        HandleTargetSwitch();
 
         if (isLockedOn)
         {
@@ -65,6 +74,78 @@ public class PlayerLockOn : MonoBehaviour
         {
             FindTarget();
         }
+    }
+
+    void HandleTargetSwitch()
+    {
+        if (!isLockedOn || currentTarget == null)
+            return;
+
+        if (!canSwitchTarget)
+            return;
+
+        if (switchInput.magnitude < 0.7f)
+            return;
+
+        Vector3 inputDirection =
+            new Vector3(
+                switchInput.x,
+                0,
+                switchInput.y
+            );
+
+        Transform bestTarget = null;
+
+        float bestScore = -1f;
+
+        Collider[] enemies =
+            Physics.OverlapSphere(
+                transform.position,
+                lockOnRadius
+            );
+
+        foreach (Collider enemy in enemies)
+        {
+            if (!enemy.CompareTag("Enemy"))
+                continue;
+
+            if (enemy.transform == currentTarget)
+                continue;
+
+            Vector3 directionToEnemy =
+                (enemy.transform.position - transform.position)
+                .normalized;
+
+            directionToEnemy.y = 0;
+
+            float score =
+                Vector3.Dot(
+                    transform.TransformDirection(inputDirection),
+                    directionToEnemy
+                );
+
+            if (score > bestScore)
+            {
+                bestScore = score;
+                bestTarget = enemy.transform;
+            }
+        }
+
+        if (bestTarget != null)
+        {
+            currentTarget = bestTarget;
+
+            StartCoroutine(SwitchCooldown());
+        }
+    }
+
+    IEnumerator SwitchCooldown()
+    {
+        canSwitchTarget = false;
+
+        yield return new WaitForSeconds(switchCooldown);
+
+        canSwitchTarget = true;
     }
 
     void FindTarget()
