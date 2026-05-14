@@ -12,7 +12,14 @@ public class ThirdPersonCamera : MonoBehaviour
 
     private float xRotation;
     private float yRotation;
+    private float displayedXRotation;
+
+    [Header("Lock-On Camera")]
+    public float lockOnAngle = 35f;
+    public float cameraTransitionSpeed = 5f;
+    private float savedFreeLookAngle;
     public Vector3 pivotOffset = new Vector3(0, 1.6f, 0);
+    private bool wasLockedOn;
 
     public float smoothTime = 0.05f;
 
@@ -49,6 +56,7 @@ public class ThirdPersonCamera : MonoBehaviour
 
         yRotation = rotation.y;
         xRotation = rotation.x;
+        displayedXRotation = xRotation;
     }
 
     void LateUpdate()
@@ -58,7 +66,11 @@ public class ThirdPersonCamera : MonoBehaviour
 
     void RotateCamera()
     {
-        Vector3 targetPosition = target.position + pivotOffset;
+        bool currentlyLockedOn =
+    lockOn.IsLockedOn();
+
+        Vector3 targetPosition =
+            target.position + pivotOffset;
 
         transform.position = Vector3.SmoothDamp(
             transform.position,
@@ -68,33 +80,73 @@ public class ThirdPersonCamera : MonoBehaviour
         );
 
         // FREE LOOK
-        if (!lockOn.IsLockedOn())
+        if (!currentlyLockedOn)
         {
             float stickX =
-                lookInput.x * stickSensitivity * Time.deltaTime;
+                lookInput.x *
+                stickSensitivity *
+                Time.deltaTime;
 
             float stickY =
-                lookInput.y * stickSensitivity * Time.deltaTime;
+                lookInput.y *
+                stickSensitivity *
+                Time.deltaTime;
 
             yRotation += stickX;
+
             xRotation -= stickY;
 
-            xRotation = Mathf.Clamp(xRotation, -35f, 60f);
+            xRotation = Mathf.Clamp(
+                xRotation,
+                -35f,
+                60f
+            );
+
+            // Save free-look angle
+            savedFreeLookAngle = xRotation;
+
+            if (wasLockedOn)
+            {
+                displayedXRotation =
+                    Mathf.Lerp(
+                        displayedXRotation,
+                        xRotation,
+                        cameraTransitionSpeed *
+                        Time.deltaTime
+                    );
+
+                if (Mathf.Abs(displayedXRotation - xRotation) < 0.5f)
+                {
+                    wasLockedOn = false;
+                }
+            }
+            else
+            {
+                displayedXRotation = xRotation;
+            }
+
+            
 
             transform.rotation =
-                Quaternion.Euler(xRotation, yRotation, 0);
+                Quaternion.Euler(
+                    displayedXRotation,
+                    yRotation,
+                    0
+                );
         }
 
         // LOCK-ON CAMERA
         else if (lockOn.currentTarget != null)
         {
             Vector3 direction =
-                lockOn.currentTarget.position - transform.position;
+                lockOn.currentTarget.position -
+                transform.position;
 
             Quaternion targetRotation =
                 Quaternion.LookRotation(direction);
 
-            Vector3 targetEuler = targetRotation.eulerAngles;
+            Vector3 targetEuler =
+                targetRotation.eulerAngles;
 
             yRotation = Mathf.LerpAngle(
                 yRotation,
@@ -102,8 +154,22 @@ public class ThirdPersonCamera : MonoBehaviour
                 10f * Time.deltaTime
             );
 
+            wasLockedOn = true;
+            // Smoothly move to lock-on angle
+            displayedXRotation =
+                Mathf.Lerp(
+                    displayedXRotation,
+                    lockOnAngle,
+                    cameraTransitionSpeed *
+                    Time.deltaTime
+                );
+
             transform.rotation =
-                Quaternion.Euler(xRotation, yRotation, 0);
+                Quaternion.Euler(
+                    displayedXRotation,
+                    yRotation,
+                    0
+                );
         }
     }
 }
