@@ -14,6 +14,11 @@ public class PlayerMovement : MonoBehaviour
     [Header("References")]
     public Transform cameraPivot;
     private PlayerCombat combat;
+    private PlayerHealth playerHealth;
+
+    [Header("Stamina Costs")]
+    public float dodgeCost = 25f;
+    public float jumpCost = 15f;
 
     [Header("Jumping")]
     public float gravity = -20f;
@@ -44,6 +49,7 @@ public class PlayerMovement : MonoBehaviour
         controller = GetComponent<CharacterController>();
         lockOn = GetComponent<PlayerLockOn>();
         combat = GetComponent<PlayerCombat>();
+        playerHealth = GetComponent<PlayerHealth>();
         controls = new PlayerControls();
         controls.Player.Move.performed += ctx => moveInput = ctx.ReadValue<Vector2>();
         controls.Player.Move.canceled += ctx => moveInput = Vector2.zero;
@@ -152,8 +158,10 @@ public class PlayerMovement : MonoBehaviour
             verticalVelocity = -2f;
         }
 
-        if (jumpPressed && isGrounded && !isDodging)
+        if (jumpPressed && isGrounded && !isDodging && playerHealth.stamina >= jumpCost)
         {
+            playerHealth.stamina -= jumpCost;
+            playerHealth.ResetStaminaRegenDelay();
             verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
         }
 
@@ -168,12 +176,15 @@ public class PlayerMovement : MonoBehaviour
 
     void HandleDodge()
     {
-        if (dodgePressed && !isDodging && isGrounded)
+        if (dodgePressed && !isDodging && isGrounded && playerHealth.stamina >= dodgeCost)
         {
             if (currentState == PlayerState.Blocking)
             {
                 combat.StopBlocking();
             }
+
+            playerHealth.stamina -= dodgeCost;
+            playerHealth.ResetStaminaRegenDelay();
             StartCoroutine(DodgeRoll());
         }
 

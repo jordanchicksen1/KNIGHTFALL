@@ -23,6 +23,10 @@ public class PlayerCombat : MonoBehaviour
     public Transform rightHand;
     public Transform sword;
     private CharacterController controller;
+    private PlayerHealth playerHealth;
+
+    [Header("Stamina Costs")]
+    public float lightAttackCost = 20f;
 
     public LayerMask enemyLayers;
 
@@ -40,7 +44,7 @@ public class PlayerCombat : MonoBehaviour
         controls = new PlayerControls();
         controller = GetComponent<CharacterController>();
         movement = GetComponent<PlayerMovement>();
-
+        playerHealth = GetComponent<PlayerHealth>();
         controls.Player.LightAttack.performed += ctx => attackPressed = true;
 
         leftHandStartPosition = leftHand.localPosition;
@@ -78,12 +82,15 @@ public class PlayerCombat : MonoBehaviour
 
     void HandleAttack()
     {
-        if (attackPressed && movement.currentState != PlayerState.Attacking && movement.currentState != PlayerState.Dodging)
+        if (attackPressed && playerHealth.stamina >= lightAttackCost && movement.currentState != PlayerState.Attacking && movement.currentState != PlayerState.Dodging)
         {
             if (isBlocking)
             {
                 StopBlocking();
             }
+
+            playerHealth.stamina -= lightAttackCost;
+            playerHealth.ResetStaminaRegenDelay();
             StartCoroutine(LightAttack());
 
         }

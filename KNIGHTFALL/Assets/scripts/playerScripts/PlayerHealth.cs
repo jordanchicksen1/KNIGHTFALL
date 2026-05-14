@@ -14,7 +14,16 @@ public class PlayerHealth : MonoBehaviour
     public float knockbackDuration = 0.12f;
     private CharacterController controller;
 
+    [Header("Stamina")]
+    public float maxStamina = 100;
+    public float stamina = 100;
+    public float staminaRegenRate = 20f;
+    public float blockingRegenMultiplier = 0.4f;
     private PlayerCombat combat;
+
+    [Header("Stamina Regen Delay")]
+    public float staminaRegenDelay = 1f;
+    private float staminaTimer;
 
     private void Awake()
     {
@@ -23,10 +32,19 @@ public class PlayerHealth : MonoBehaviour
         combat = GetComponent<PlayerCombat>();
     }
 
+    void Update()
+    {
+        RegenerateStamina();
+    }
+
     public void TakeDamage(int damage,Vector3 hitDirection)
     {
-        if (combat.IsBlocking())
+        if (combat != null && combat.IsBlocking())
         {
+            stamina -= 15f;
+            ResetStaminaRegenDelay();
+            stamina = Mathf.Max(stamina, 0);
+
             Debug.Log("Blocked Attack");
 
             return;
@@ -44,6 +62,43 @@ public class PlayerHealth : MonoBehaviour
         {
             Debug.Log("Player Died");
         }
+    }
+
+    void RegenerateStamina()
+    {
+        staminaTimer -= Time.deltaTime;
+
+        if (staminaTimer > 0)
+            return;
+
+        if (stamina >= maxStamina)
+            return;
+
+        float regenRate = staminaRegenRate;
+
+        if (combat != null &&
+            combat.IsBlocking())
+        {
+            regenRate *=
+                blockingRegenMultiplier;
+        }
+
+        stamina +=
+            regenRate *
+            Time.deltaTime;
+
+        stamina =
+            Mathf.Clamp(
+                stamina,
+                0,
+                maxStamina
+            );
+    }
+
+    public void ResetStaminaRegenDelay()
+    {
+        staminaTimer =
+            staminaRegenDelay;
     }
 
     IEnumerator Knockback(Vector3 hitDirection)
