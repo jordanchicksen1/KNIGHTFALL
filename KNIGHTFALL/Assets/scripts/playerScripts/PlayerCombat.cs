@@ -16,6 +16,7 @@ public class PlayerCombat : MonoBehaviour
     private bool isBlocking;
     private Vector3 leftHandStartPosition;
     private Quaternion leftHandStartRotation;
+    private bool blockHeld;
 
     [Header("References")]
     public Transform attackPoint;
@@ -45,9 +46,17 @@ public class PlayerCombat : MonoBehaviour
         leftHandStartPosition = leftHand.localPosition;
         leftHandStartRotation = leftHand.localRotation;
 
-        controls.Player.Block.performed += ctx => StartBlocking();
+        controls.Player.Block.performed += ctx =>
+        {
+            blockHeld = true;
+        };
 
-        controls.Player.Block.canceled += ctx => StopBlocking();
+        controls.Player.Block.canceled += ctx =>
+        {
+            blockHeld = false;
+
+            StopBlocking();
+        };
 
     }
 
@@ -64,6 +73,7 @@ public class PlayerCombat : MonoBehaviour
     void Update()
     {
         HandleAttack();
+        HandleBlocking();
     }
 
     void HandleAttack()
@@ -79,6 +89,27 @@ public class PlayerCombat : MonoBehaviour
         }
 
         attackPressed = false;
+    }
+
+    void HandleBlocking()
+    {
+        if (!blockHeld)
+            return;
+
+        if (isBlocking)
+            return;
+
+        if (movement.currentState ==
+            PlayerState.Attacking ||
+            movement.currentState ==
+            PlayerState.Dodging ||
+            movement.currentState ==
+            PlayerState.Staggered)
+        {
+            return;
+        }
+
+        StartBlocking();
     }
 
     void StartBlocking()

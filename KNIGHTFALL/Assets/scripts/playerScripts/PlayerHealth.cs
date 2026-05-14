@@ -3,7 +3,9 @@ using UnityEngine;
 
 public class PlayerHealth : MonoBehaviour
 {
-    public int health = 100;
+
+    public float maxHealth = 100f;
+    public float health = 100f;
     public float staggerDuration = 0.25f;
     private PlayerMovement movement;
     

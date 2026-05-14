@@ -3,7 +3,8 @@ using UnityEngine;
 
 public class EnemyHealth : MonoBehaviour
 {
-    public int health = 100;
+    public float maxHealth = 100f;
+    public float health = 100f;
 
     public float knockbackForce = 5f;
 

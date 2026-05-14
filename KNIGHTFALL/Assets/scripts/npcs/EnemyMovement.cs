@@ -120,7 +120,7 @@ public class EnemyMovement : MonoBehaviour
                     Random.Range(0, 100);
 
                 // ATTACK
-                if (decision < 65)
+                if (decision < 50)
                 {
                     yield return StartCoroutine(
                         enemyAttack.Attack()
@@ -128,7 +128,7 @@ public class EnemyMovement : MonoBehaviour
                 }
 
                 // STRAFE
-                else if (decision < 85)
+                else if (decision < 95)
                 {
                     yield return StartCoroutine(
                         Strafe()
@@ -144,10 +144,9 @@ public class EnemyMovement : MonoBehaviour
                 }
             }
 
-            // SHORT THINK TIME
-            yield return new WaitForSeconds(
-                Random.Range(0.08f, 0.2f)
-            );
+           
+            yield return null;
+            
         }
     }
 

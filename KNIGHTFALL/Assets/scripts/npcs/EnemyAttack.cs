@@ -40,10 +40,13 @@ public class EnemyAttack : MonoBehaviour
         }
     }
 
-    
+
 
     public IEnumerator Attack()
     {
+        if (isAttacking || !canAttack)
+            yield break;
+
         isAttacking = true;
 
         canAttack = false;
@@ -54,17 +57,33 @@ public class EnemyAttack : MonoBehaviour
         yield return new WaitForSeconds(0.12f);
 
         Collider[] hitPlayer =
-            Physics.OverlapSphere(
-                attackPoint.position,
-                attackRange,
-                playerLayer
-            );
+    Physics.OverlapSphere(
+        attackPoint.position,
+        attackRange,
+        playerLayer
+    );
+
+        PlayerHealth damagedPlayer = null;
 
         foreach (Collider playerCollider in hitPlayer)
         {
-            Vector3 hitDirection = (player.position - transform.position).normalized;
+            PlayerHealth playerHealth =
+                playerCollider.GetComponent<PlayerHealth>();
 
-            playerCollider.GetComponent<PlayerHealth>()?.TakeDamage(attackDamage, hitDirection);
+            if (playerHealth != null &&
+                damagedPlayer == null)
+            {
+                damagedPlayer = playerHealth;
+
+                Vector3 hitDirection =
+                    (player.position - transform.position)
+                    .normalized;
+
+                playerHealth.TakeDamage(
+                    attackDamage,
+                    hitDirection
+                );
+            }
         }
 
         yield return new WaitForSeconds(attackDuration);
