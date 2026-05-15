@@ -39,8 +39,6 @@ public class PlayerCombat : MonoBehaviour
     public float attackLungeForce = 3f;
     public float attackLungeDuration = 0.12f;
 
-
-
     private void Awake()
     {
         controls = new PlayerControls();
@@ -347,8 +345,6 @@ public class PlayerCombat : MonoBehaviour
     {
         return isBlocking;
     }
-
-
 
     private void OnDrawGizmosSelected()
     {
