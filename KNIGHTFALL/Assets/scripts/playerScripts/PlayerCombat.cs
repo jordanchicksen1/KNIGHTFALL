@@ -17,6 +17,9 @@ public class PlayerCombat : MonoBehaviour
     private Vector3 leftHandStartPosition;
     private Quaternion leftHandStartRotation;
     private bool blockHeld;
+    private Vector3 rightHandStartPosition;
+    private Quaternion rightHandStartRotation;
+    private Coroutine swordCoroutine;
 
     [Header("References")]
     public Transform attackPoint;
@@ -49,6 +52,8 @@ public class PlayerCombat : MonoBehaviour
 
         leftHandStartPosition = leftHand.localPosition;
         leftHandStartRotation = leftHand.localRotation;
+        rightHandStartPosition = rightHand.localPosition;
+        rightHandStartRotation = rightHand.localRotation;
 
         controls.Player.Block.performed += ctx =>
         {
@@ -82,7 +87,7 @@ public class PlayerCombat : MonoBehaviour
 
     void HandleAttack()
     {
-        if (attackPressed && playerHealth.stamina >= lightAttackCost && movement.currentState != PlayerState.Attacking && movement.currentState != PlayerState.Dodging)
+        if (attackPressed && playerHealth.stamina >= lightAttackCost && movement.currentState != PlayerState.Attacking && movement.currentState != PlayerState.Dodging && movement.currentState !=PlayerState.Staggered)
         {
             if (isBlocking)
             {
@@ -107,11 +112,12 @@ public class PlayerCombat : MonoBehaviour
             return;
 
         if (movement.currentState ==
-            PlayerState.Attacking ||
-            movement.currentState ==
-            PlayerState.Dodging ||
-            movement.currentState ==
-            PlayerState.Staggered)
+    PlayerState.Attacking ||
+    movement.currentState ==
+    PlayerState.Dodging ||
+    movement.currentState ==
+    PlayerState.Staggered ||
+    playerHealth.IsGuardBroken())
         {
             return;
         }
@@ -160,11 +166,20 @@ public class PlayerCombat : MonoBehaviour
             leftHandStartRotation;
     }
 
+
+
+    public void ResetBlockHold()
+    {
+        
+
+        isBlocking = false;
+    }
+
     IEnumerator LightAttack()
     {
         movement.currentState = PlayerState.Attacking;
 
-        StartCoroutine(SwingSword());
+        swordCoroutine = StartCoroutine(SwingSword());
         StartCoroutine(ActiveAttackFrames());
         if (movement.moveInput.magnitude > 0.1f)
         {
@@ -179,8 +194,9 @@ public class PlayerCombat : MonoBehaviour
 
     IEnumerator SwingSword()
     {
-        Vector3 startPosition = rightHand.localPosition;
-        Quaternion startRotation = rightHand.localRotation;
+        Vector3 startPosition = rightHandStartPosition;
+
+        Quaternion startRotation = rightHandStartRotation;
 
         // Wind-up (top-right)
         Vector3 windUpPosition =
@@ -296,7 +312,19 @@ public class PlayerCombat : MonoBehaviour
         }
     }
 
+    public void InterruptAttack()
+    {
+        if (swordCoroutine != null)
+        {
+            StopCoroutine(swordCoroutine);
+        }
 
+        rightHand.localPosition =
+            rightHandStartPosition;
+
+        rightHand.localRotation =
+            rightHandStartRotation;
+    }
     IEnumerator ActiveAttackFrames()
     {
         float activeTime = 0.15f;

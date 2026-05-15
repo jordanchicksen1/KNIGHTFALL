@@ -76,7 +76,7 @@ public class PlayerMovement : MonoBehaviour
 
     void HandleMovement()
     {
-        if (currentState == PlayerState.Dodging)
+        if (currentState == PlayerState.Dodging || currentState == PlayerState.Staggered)
         {
             return;
         }
@@ -158,7 +158,7 @@ public class PlayerMovement : MonoBehaviour
             verticalVelocity = -2f;
         }
 
-        if (jumpPressed && isGrounded && !isDodging && playerHealth.stamina >= jumpCost)
+        if (jumpPressed && isGrounded && !isDodging && playerHealth.stamina >= jumpCost && currentState != PlayerState.Staggered)
         {
             playerHealth.stamina -= jumpCost;
             playerHealth.ResetStaminaRegenDelay();
@@ -176,7 +176,7 @@ public class PlayerMovement : MonoBehaviour
 
     void HandleDodge()
     {
-        if (dodgePressed && !isDodging && isGrounded && playerHealth.stamina >= dodgeCost)
+        if (dodgePressed && !isDodging && isGrounded && playerHealth.stamina >= dodgeCost && currentState != PlayerState.Staggered)
         {
             if (currentState == PlayerState.Blocking)
             {

@@ -25,11 +25,29 @@ public class PlayerHealth : MonoBehaviour
     public float staminaRegenDelay = 1f;
     private float staminaTimer;
 
+    [Header("Guard Break")]
+    public float guardBreakDuration = 3f;
+    private bool isGuardBroken;
+    public Transform rightHand;
+    public Transform leftHand;
+    private Vector3 rightHandStartPos;
+    private Vector3 leftHandStartPos;
+    private Quaternion rightHandStartRot;
+    private Quaternion leftHandStartRot;
+
     private void Awake()
     {
         movement = GetComponent<PlayerMovement>();
         controller = GetComponent<CharacterController>();
         combat = GetComponent<PlayerCombat>();
+
+        rightHandStartPos = rightHand.localPosition;
+
+        leftHandStartPos = leftHand.localPosition;
+
+        rightHandStartRot = rightHand.localRotation;
+
+        leftHandStartRot = leftHand.localRotation;
     }
 
     void Update()
@@ -42,8 +60,18 @@ public class PlayerHealth : MonoBehaviour
         if (combat != null && combat.IsBlocking())
         {
             stamina -= 15f;
+
             ResetStaminaRegenDelay();
+
             stamina = Mathf.Max(stamina, 0);
+
+            if (stamina <= 0 &&
+                !isGuardBroken)
+            {
+                StartCoroutine(GuardBreak());
+
+                return;
+            }
 
             Debug.Log("Blocked Attack");
 
@@ -51,8 +79,6 @@ public class PlayerHealth : MonoBehaviour
         }
 
         health -= damage;
-
-        StopAllCoroutines();
 
         StartCoroutine(Knockback(hitDirection));
 
@@ -101,9 +127,66 @@ public class PlayerHealth : MonoBehaviour
             staminaRegenDelay;
     }
 
+    IEnumerator GuardBreak()
+    {
+        isGuardBroken = true;
+
+        movement.currentState =
+            PlayerState.Staggered;
+
+        // stop current sword attack
+        combat.InterruptAttack();
+
+        combat.ResetBlockHold();
+
+        // LOWER HANDS
+        rightHand.localPosition =
+            rightHandStartPos +
+            new Vector3(0, -0.35f, 0);
+
+        leftHand.localPosition =
+            leftHandStartPos +
+            new Vector3(0, -0.35f, 0);
+
+        rightHand.localRotation =
+            Quaternion.Euler(50, 0, 0);
+
+        leftHand.localRotation =
+            Quaternion.Euler(50, 0, 0);
+
+        yield return new WaitForSeconds(
+            guardBreakDuration
+        );
+
+        // RESTORE RIGHT HAND
+        rightHand.localPosition =
+            rightHandStartPos;
+
+        rightHand.localRotation =
+            rightHandStartRot;
+
+        // RESTORE LEFT HAND
+        leftHand.localPosition =
+            leftHandStartPos;
+
+        leftHand.localRotation =
+            leftHandStartRot;
+
+        stamina = 25f;
+
+        movement.currentState =
+            PlayerState.Idle;
+
+        isGuardBroken = false;
+    }
+
     IEnumerator Knockback(Vector3 hitDirection)
     {
-        movement.currentState = PlayerState.Staggered;
+        if (!isGuardBroken)
+        {
+            movement.currentState =
+                PlayerState.Staggered;
+        }
 
         Vector3 startPosition = transform.position;
 
@@ -135,17 +218,17 @@ public class PlayerHealth : MonoBehaviour
 
         yield return new WaitForSeconds(staggerDuration);
 
-        movement.currentState = PlayerState.Idle;
+        if (!isGuardBroken)
+        {
+            movement.currentState =
+                PlayerState.Idle;
+        }
     }
 
-    
 
-    IEnumerator Stagger()
+    public bool IsGuardBroken()
     {
-        movement.currentState = PlayerState.Staggered;
-
-        yield return new WaitForSeconds(staggerDuration);
-
-        movement.currentState = PlayerState.Idle;
+        return isGuardBroken;
     }
+
 }

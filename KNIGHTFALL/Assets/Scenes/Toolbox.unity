@@ -5508,6 +5508,10 @@ MonoBehaviour:
   stamina: 100
   staminaRegenRate: 20
   blockingRegenMultiplier: 0.4
+  staminaRegenDelay: 1
+  guardBreakDuration: 3
+  rightHand: {fileID: 1956221415}
+  leftHand: {fileID: 1852937502}
 --- !u!1 &1804726210
 GameObject:
   m_ObjectHideFlags: 0
@@ -5836,6 +5840,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ThirdPersonCamera
   target: {fileID: 1797033566}
   stickSensitivity: 100
+  lockOnAngle: 35
+  cameraTransitionSpeed: 5
   pivotOffset: {x: 0, y: 1.6, z: 0}
   smoothTime: 0.05
 --- !u!1 &1956221414
