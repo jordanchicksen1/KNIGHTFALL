@@ -137,7 +137,7 @@ public class PlayerHealth : MonoBehaviour
         // stop current sword attack
         combat.InterruptAttack();
 
-        combat.ResetBlockHold();
+        combat.ForceStopBlocking();
 
         // LOWER HANDS
         rightHand.localPosition =

@@ -64,7 +64,10 @@ public class PlayerCombat : MonoBehaviour
         {
             blockHeld = false;
 
-            StopBlocking();
+            if (!playerHealth.IsGuardBroken())
+            {
+                StopBlocking();
+            }
         };
 
     }
@@ -105,6 +108,11 @@ public class PlayerCombat : MonoBehaviour
 
     void HandleBlocking()
     {
+        if (playerHealth.IsGuardBroken())
+        {
+            return;
+        }
+
         if (!blockHeld)
             return;
 
@@ -168,11 +176,20 @@ public class PlayerCombat : MonoBehaviour
 
 
 
-    public void ResetBlockHold()
+    
+
+    public void ForceStopBlocking()
     {
-        
+        blockHeld = false;
 
         isBlocking = false;
+
+        if (movement.currentState ==
+            PlayerState.Blocking)
+        {
+            movement.currentState =
+                PlayerState.Idle;
+        }
     }
 
     IEnumerator LightAttack()
