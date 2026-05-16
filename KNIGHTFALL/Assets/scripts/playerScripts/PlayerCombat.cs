@@ -23,9 +23,12 @@ public class PlayerCombat : MonoBehaviour
     private Vector3 leftHandStartPosition;
     private Quaternion leftHandStartRotation;
     private bool blockHeld;
+   
     private Vector3 rightHandStartPosition;
     private Quaternion rightHandStartRotation;
     private Coroutine swordCoroutine;
+    private bool isHeavyAttacking;
+    private bool canMoveDuringHeavyAttack;
 
     [Header("References")]
     public Transform attackPoint;
@@ -244,13 +247,10 @@ public class PlayerCombat : MonoBehaviour
 
     IEnumerator HeavyAttack()
     {
-        movement.currentState =
-            PlayerState.Attacking;
-
-        swordCoroutine =
-            StartCoroutine(HeavySwing());
-
-
+        movement.currentState = PlayerState.Attacking;
+        isHeavyAttacking = true;
+        canMoveDuringHeavyAttack = true;
+        swordCoroutine = StartCoroutine(HeavySwing());
 
         if (movement.moveInput.magnitude > 0.1f)
         {
@@ -267,8 +267,8 @@ public class PlayerCombat : MonoBehaviour
             heavyAttackDuration
         );
 
-        movement.currentState =
-            PlayerState.Idle;
+        isHeavyAttacking = false;
+        movement.currentState = PlayerState.Idle;
     }
 
     IEnumerator HeavySwing()
@@ -509,8 +509,7 @@ public class PlayerCombat : MonoBehaviour
     {
         float timer = 0;
 
-        while (timer <
-            heavyAttackLungeDuration)
+        while (timer < heavyAttackLungeDuration)
         {
             Vector3 lungeDirection =
                 transform.forward;
@@ -527,6 +526,8 @@ public class PlayerCombat : MonoBehaviour
 
             yield return null;
         }
+
+        canMoveDuringHeavyAttack = false;
     }
 
     public void InterruptAttack()
@@ -643,9 +644,35 @@ public class PlayerCombat : MonoBehaviour
         }
     }
 
+    public void CancelHeavyAttack()
+    {
+        StopAllCoroutines();
+
+        isHeavyAttacking = false;
+
+        movement.currentState =
+            PlayerState.Idle;
+
+        rightHand.localPosition =
+            rightHandStartPosition;
+
+        rightHand.localRotation =
+            rightHandStartRotation;
+    }
+
     public bool IsBlocking()
     {
         return isBlocking;
+    }
+
+    public bool IsHeavyAttacking()
+    {
+        return isHeavyAttacking;
+    }
+
+    public bool CanMoveDuringHeavyAttack()
+    {
+        return canMoveDuringHeavyAttack;
     }
 
     private void OnDrawGizmosSelected()

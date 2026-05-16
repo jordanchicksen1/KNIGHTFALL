@@ -51,7 +51,24 @@ public class PlayerLockOn : MonoBehaviour
         {
             if (currentTarget == null)
             {
-                ClearTarget();
+                FindNextTarget();
+
+                if (currentTarget == null)
+                {
+                    ClearTarget();
+                }
+
+                return;
+            }
+
+            EnemyHealth targetHealth =
+                currentTarget.GetComponent<EnemyHealth>();
+
+            if (targetHealth == null ||
+                targetHealth.health <= 0)
+            {
+                FindNextTarget();
+
                 return;
             }
 
@@ -182,6 +199,61 @@ public class PlayerLockOn : MonoBehaviour
         {
             currentTarget = closestTarget;
             isLockedOn = true;
+        }
+    }
+
+    void FindNextTarget()
+    {
+        Collider[] enemies =
+            Physics.OverlapSphere(
+                transform.position,
+                lockOnRadius
+            );
+
+        float closestDistance =
+            Mathf.Infinity;
+
+        Transform closestTarget = null;
+
+        foreach (Collider enemy in enemies)
+        {
+            if (!enemy.CompareTag("Enemy"))
+                continue;
+
+            EnemyHealth enemyHealth =
+                enemy.GetComponentInParent<EnemyHealth>();
+
+            if (enemyHealth == null)
+                continue;
+
+            // Skip dead enemies
+            if (enemyHealth.health <= 0)
+                continue;
+
+            // Skip current target
+            if (enemyHealth.transform == currentTarget)
+                continue;
+
+            float distance =
+                Vector3.Distance(
+                    transform.position,
+                    enemyHealth.transform.position
+                );
+
+            if (distance < closestDistance)
+            {
+                closestDistance = distance;
+                closestTarget = enemyHealth.transform;
+            }
+        }
+
+        if (closestTarget != null)
+        {
+            currentTarget = closestTarget;
+        }
+        else
+        {
+            ClearTarget();
         }
     }
 

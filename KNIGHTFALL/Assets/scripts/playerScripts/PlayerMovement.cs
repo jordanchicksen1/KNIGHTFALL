@@ -103,9 +103,18 @@ public class PlayerMovement : MonoBehaviour
             {
                 currentState = PlayerState.Moving;
             }
-            controller.Move(moveDirection * moveSpeed * Time.deltaTime);
 
-            if (currentState != PlayerState.Attacking)
+            if (!combat.IsHeavyAttacking() || combat.CanMoveDuringHeavyAttack())
+            {
+                controller.Move(
+                    moveDirection *
+                    moveSpeed *
+                    Time.deltaTime
+                );
+            }
+
+
+            if (currentState != PlayerState.Attacking && !combat.IsHeavyAttacking())
             {
                 if (!lockOn.IsLockedOn())
                 {
@@ -185,6 +194,11 @@ public class PlayerMovement : MonoBehaviour
 
             playerHealth.stamina -= dodgeCost;
             playerHealth.ResetStaminaRegenDelay();
+
+            if (combat.IsHeavyAttacking())
+            {
+                combat.CancelHeavyAttack();
+            }
             StartCoroutine(DodgeRoll());
         }
 
