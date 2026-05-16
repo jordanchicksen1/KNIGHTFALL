@@ -5464,8 +5464,8 @@ MonoBehaviour:
   heavyAttackDuration: 1.1
   heavyAttackDamage: 45
   heavyAttackCost: 40
-  heavyAttackLungeForce: 5
-  heavyAttackLungeDuration: 0.18
+  heavyAttackLungeForce: 10
+  heavyAttackLungeDuration: 0.2
   leftHand: {fileID: 1852937502}
   attackPoint: {fileID: 245485659}
   rightHand: {fileID: 1956221415}
@@ -5474,8 +5474,8 @@ MonoBehaviour:
   enemyLayers:
     serializedVersion: 2
     m_Bits: 128
-  attackLungeForce: 6
-  attackLungeDuration: 0.18
+  attackLungeForce: 7
+  attackLungeDuration: 0.185
 --- !u!114 &1797033573
 MonoBehaviour:
   m_ObjectHideFlags: 0

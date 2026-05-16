@@ -29,6 +29,7 @@ public class PlayerCombat : MonoBehaviour
     private Coroutine swordCoroutine;
     private bool isHeavyAttacking;
     private bool canMoveDuringHeavyAttack;
+    private bool heavyAttackStartedMoving;
 
     [Header("References")]
     public Transform attackPoint;
@@ -136,6 +137,7 @@ public class PlayerCombat : MonoBehaviour
 
             playerHealth.ResetStaminaRegenDelay();
 
+            heavyAttackStartedMoving = movement.moveInput.magnitude > 0.1f;
             StartCoroutine(HeavyAttack());
         }
 
@@ -249,11 +251,13 @@ public class PlayerCombat : MonoBehaviour
     {
         movement.currentState = PlayerState.Attacking;
         isHeavyAttacking = true;
-        canMoveDuringHeavyAttack = true;
+        canMoveDuringHeavyAttack = false;
         swordCoroutine = StartCoroutine(HeavySwing());
 
-        if (movement.moveInput.magnitude > 0.1f)
+        if (heavyAttackStartedMoving)
         {
+            
+
             StartCoroutine(
                 HeavyAttackLunge()
             );

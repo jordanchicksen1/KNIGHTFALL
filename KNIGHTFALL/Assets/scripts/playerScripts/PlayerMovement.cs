@@ -104,7 +104,7 @@ public class PlayerMovement : MonoBehaviour
                 currentState = PlayerState.Moving;
             }
 
-            if (!combat.IsHeavyAttacking() || combat.CanMoveDuringHeavyAttack())
+            if (!combat.IsHeavyAttacking())
             {
                 controller.Move(
                     moveDirection *
