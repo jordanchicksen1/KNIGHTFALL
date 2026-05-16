@@ -293,7 +293,7 @@ public class PlayerCombat : MonoBehaviour
             new Vector3(0f, -0.45f, 0.15f);
 
         Quaternion slamRotation =
-    Quaternion.Euler(40, 40, -10);
+    Quaternion.Euler(0, 20, 110);
 
         float timer = 0;
 
@@ -396,7 +396,7 @@ public class PlayerCombat : MonoBehaviour
             startPosition + new Vector3(0.25f, 0.25f, 0);
 
         Quaternion windUpRotation =
-            Quaternion.Euler(0, 0, -70);
+            Quaternion.Euler(0, 70, 0);
 
         // Follow-through (bottom-left)
         Vector3 slashPosition =
