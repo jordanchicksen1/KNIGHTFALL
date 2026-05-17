@@ -695,8 +695,10 @@ MonoBehaviour:
   moveSpeed: 5
   preferredDistance: 10
   retreatDistance: 6
-  chaseDistance: 16
+  detectionRange: 16
+  chaseDistance: 17
   preferredCombatDistance: 8
+  aggroMemoryTime: 60
   attackCooldown: 1.2
   rotationSpeed: 8
   isAttacking: 0

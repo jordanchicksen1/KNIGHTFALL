@@ -12,6 +12,8 @@ public class EnemyMovement : MonoBehaviour
 
     [Header("Combat")]
     public float detectionRange = 10f;
+    public float aggroMemoryTime = 5f;
+    private float aggroTimer;
     public float attackRange = 2f;
     public float engageAttackRange = 4f;
     private bool isDeciding;
@@ -45,7 +47,22 @@ public class EnemyMovement : MonoBehaviour
         if (player == null || !canMove)
             return;
 
-        RotateTowardsPlayer();
+        float distance =
+            Vector3.Distance(
+                transform.position,
+                player.position
+            );
+
+        bool playerDetected =
+            distance <= detectionRange;
+
+        bool remembersPlayer =
+            aggroTimer > 0;
+
+        if (playerDetected || remembersPlayer)
+        {
+            RotateTowardsPlayer();
+        }
     }
 
     IEnumerator CombatBehaviour()
@@ -60,16 +77,24 @@ public class EnemyMovement : MonoBehaviour
                 continue;
             }
 
-            float distance =
-                Vector3.Distance(
-                    transform.position,
-                    player.position
-                );
+            float distance = Vector3.Distance(transform.position, player.position);
+           
+            // PLAYER DETECTED
+            if (distance <= detectionRange)
+            {
+                aggroTimer = aggroMemoryTime;
+            }
+            else
+            {
+                aggroTimer -= Time.deltaTime;
+            }
 
-            // OUTSIDE DETECTION
-            if (distance > detectionRange)
+            // LOST PLAYER
+            if (aggroTimer <= 0)
             {
                 yield return null;
+
+                continue;
             }
 
             // FAR RANGE → AGGRESSIVE CHASE

@@ -14,8 +14,13 @@ public class EnemyRangeAI : MonoBehaviour
     public float moveSpeed = 3f;
     public float preferredDistance = 8f;
     public float retreatDistance = 4f;
+    public float detectionRange = 10f;
     public float chaseDistance = 12f;
     public float preferredCombatDistance = 8f;
+
+    [Header("Awareness")]
+    public float aggroMemoryTime = 4f;
+    private float aggroTimer;
 
     [Header("Combat")]
     public float attackCooldown = 2f;
@@ -57,6 +62,25 @@ public class EnemyRangeAI : MonoBehaviour
 
         if (enemyHealth.health <= 0)
             return;
+
+        //AGGRO
+        float distanceToPlayer = Vector3.Distance(transform.position, player.position);
+
+        // PLAYER DETECTED
+        if (distanceToPlayer <= detectionRange)
+        {
+            aggroTimer = aggroMemoryTime;
+        }
+        else
+        {
+            aggroTimer -= Time.deltaTime;
+        }
+
+        // LOST PLAYER
+        if (aggroTimer <= 0)
+        {
+            return;
+        }
 
         HandleRotation();
         HandleCrossbowVisual();
