@@ -11,6 +11,12 @@ public class PlayerMovement : MonoBehaviour
     public float rotationSpeed = 10f;
     private PlayerLockOn lockOn;
 
+    [Header("Sprint")]
+    public float sprintSpeed = 8f;
+    public float sprintStaminaDrain = 20f;
+    private bool sprintHeld;
+    private bool isSprinting;
+
     [Header("References")]
     public Transform cameraPivot;
     private PlayerCombat combat;
@@ -54,7 +60,16 @@ public class PlayerMovement : MonoBehaviour
         controls.Player.Move.performed += ctx => moveInput = ctx.ReadValue<Vector2>();
         controls.Player.Move.canceled += ctx => moveInput = Vector2.zero;
         controls.Player.Jump.performed += ctx => jumpPressed = true;
-        controls.Player.Dodge.performed += ctx => dodgePressed = true;
+        controls.Player.Dodge.performed += ctx =>
+        {
+            dodgePressed = true;
+            sprintHeld = true;
+        };
+
+        controls.Player.Dodge.canceled += ctx =>
+        {
+            sprintHeld = false;
+        };
     }
 
     private void OnEnable()
@@ -90,9 +105,9 @@ public class PlayerMovement : MonoBehaviour
         forward.Normalize();
         right.Normalize();
 
-        Vector3 moveDirection =
-            forward * moveInput.y +
-            right * moveInput.x;
+        Vector3 moveDirection = forward * moveInput.y + right * moveInput.x;
+
+        isSprinting = sprintHeld && moveDirection.magnitude > 0.1f && currentState != PlayerState.Attacking && currentState != PlayerState.Dodging && currentState != PlayerState.Blocking && currentState != PlayerState.Staggered;
 
         if (moveDirection.magnitude > 0.1f)
         {
@@ -106,13 +121,26 @@ public class PlayerMovement : MonoBehaviour
 
             if (!combat.IsHeavyAttacking())
             {
+                float currentSpeed = isSprinting ? sprintSpeed : moveSpeed;
+
                 controller.Move(
                     moveDirection *
-                    moveSpeed *
+                    currentSpeed *
                     Time.deltaTime
                 );
             }
 
+            if (isSprinting && IsPlayerDetected())
+            {
+                playerHealth.stamina -= sprintStaminaDrain * Time.deltaTime;
+                playerHealth.ResetStaminaRegenDelay();
+
+                if (playerHealth.stamina <= 0)
+                {
+                    playerHealth.stamina = 0;
+                    isSprinting = false;
+                }
+            }
 
             if (currentState != PlayerState.Attacking && !combat.IsHeavyAttacking())
             {
@@ -156,6 +184,43 @@ public class PlayerMovement : MonoBehaviour
                 currentState = PlayerState.Idle;
             }
         }
+    }
+
+    bool IsPlayerDetected()
+    {
+        EnemyMovement[] meleeEnemies = FindObjectsByType<EnemyMovement>(FindObjectsSortMode.None);
+
+        foreach (EnemyMovement enemy in meleeEnemies)
+        {
+            float distance =
+                Vector3.Distance(
+                    transform.position,
+                    enemy.transform.position
+                );
+
+            if (distance <= enemy.detectionRange)
+            {
+                return true;
+            }
+        }
+
+        EnemyRangeAI[] rangedEnemies = FindObjectsByType<EnemyRangeAI>(FindObjectsSortMode.None);
+
+        foreach (EnemyRangeAI enemy in rangedEnemies)
+        {
+            float distance =
+                Vector3.Distance(
+                    transform.position,
+                    enemy.transform.position
+                );
+
+            if (distance <= enemy.chaseDistance)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     void HandleGravity()
