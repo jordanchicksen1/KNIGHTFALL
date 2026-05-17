@@ -1148,7 +1148,7 @@ MonoBehaviour:
   player: {fileID: 0}
   moveSpeed: 3
   rotationSpeed: 5
-  detectionRange: 10
+  detectionRange: 12
   attackRange: 2
   engageAttackRange: 4
   strafeSpeed: 1.5
