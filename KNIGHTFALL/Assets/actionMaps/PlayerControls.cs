@@ -163,6 +163,15 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""UseItem"",
+                    ""type"": ""Button"",
+                    ""id"": ""53655ab2-0e4e-4b99-b12f-18b345149e18"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -253,6 +262,17 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""action"": ""HeavyAttack"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""913cbe48-5b43-4f29-a204-dd78c7d70a59"",
+                    ""path"": ""<Gamepad>/buttonWest"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""UseItem"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -269,6 +289,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         m_Player_LockOn = m_Player.FindAction("LockOn", throwIfNotFound: true);
         m_Player_Block = m_Player.FindAction("Block", throwIfNotFound: true);
         m_Player_HeavyAttack = m_Player.FindAction("HeavyAttack", throwIfNotFound: true);
+        m_Player_UseItem = m_Player.FindAction("UseItem", throwIfNotFound: true);
     }
 
     ~@PlayerControls()
@@ -357,6 +378,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_LockOn;
     private readonly InputAction m_Player_Block;
     private readonly InputAction m_Player_HeavyAttack;
+    private readonly InputAction m_Player_UseItem;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -400,6 +422,10 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/HeavyAttack".
         /// </summary>
         public InputAction @HeavyAttack => m_Wrapper.m_Player_HeavyAttack;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/UseItem".
+        /// </summary>
+        public InputAction @UseItem => m_Wrapper.m_Player_UseItem;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -450,6 +476,9 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @HeavyAttack.started += instance.OnHeavyAttack;
             @HeavyAttack.performed += instance.OnHeavyAttack;
             @HeavyAttack.canceled += instance.OnHeavyAttack;
+            @UseItem.started += instance.OnUseItem;
+            @UseItem.performed += instance.OnUseItem;
+            @UseItem.canceled += instance.OnUseItem;
         }
 
         /// <summary>
@@ -485,6 +514,9 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @HeavyAttack.started -= instance.OnHeavyAttack;
             @HeavyAttack.performed -= instance.OnHeavyAttack;
             @HeavyAttack.canceled -= instance.OnHeavyAttack;
+            @UseItem.started -= instance.OnUseItem;
+            @UseItem.performed -= instance.OnUseItem;
+            @UseItem.canceled -= instance.OnUseItem;
         }
 
         /// <summary>
@@ -581,5 +613,12 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnHeavyAttack(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "UseItem" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnUseItem(InputAction.CallbackContext context);
     }
 }

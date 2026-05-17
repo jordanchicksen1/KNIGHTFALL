@@ -264,6 +264,12 @@ public class PlayerMovement : MonoBehaviour
             {
                 combat.CancelHeavyAttack();
             }
+
+            if (combat.IsHealing())
+            {
+                combat.CancelHealing();
+            }
+
             StartCoroutine(DodgeRoll());
         }
 
