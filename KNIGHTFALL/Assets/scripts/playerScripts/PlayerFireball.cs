@@ -18,6 +18,8 @@ public class PlayerFireball : MonoBehaviour
     public void SetDirection(Vector3 dir)
     {
         direction = dir.normalized;
+
+        transform.forward = direction;
     }
 
     void Update()

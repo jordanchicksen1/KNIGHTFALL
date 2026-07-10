@@ -57,6 +57,8 @@ public class PlayerCombat : MonoBehaviour
 
     private PlayerControls controls;
     private PlayerMovement movement;
+    private PlayerLockOn lockOn;
+    private Camera mainCamera;
 
     private bool attackPressed;
     private bool heavyAttackPressed;
@@ -72,6 +74,8 @@ public class PlayerCombat : MonoBehaviour
         controller = GetComponent<CharacterController>();
         movement = GetComponent<PlayerMovement>();
         playerHealth = GetComponent<PlayerHealth>();
+        lockOn = GetComponent<PlayerLockOn>();
+        mainCamera = Camera.main;
 
         UpdateWeaponVisuals();
 
@@ -717,6 +721,8 @@ public class PlayerCombat : MonoBehaviour
 
         GameObject spell = Instantiate(fireballPrefab, spellSpawnPoint.position, Quaternion.identity);
 
+        spell.GetComponent<PlayerFireball>().SetDirection(GetSpellDirection());
+
         movement.currentState = PlayerState.Idle;
     }
 
@@ -751,7 +757,45 @@ public class PlayerCombat : MonoBehaviour
         return canMoveDuringHeavyAttack;
     }
 
-    
+    Vector3 GetSpellDirection()
+    {
+        // LOCK ON
+        if (lockOn.IsLockedOn() &&
+            lockOn.currentTarget != null)
+        {
+            return (
+                lockOn.currentTarget.position -
+                spellSpawnPoint.position
+            ).normalized;
+        }
+
+        // FREE AIM
+        Ray ray =
+            mainCamera.ViewportPointToRay(
+                new Vector3(0.5f, 0.5f)
+            );
+
+        Vector3 targetPoint;
+
+        if (Physics.Raycast(
+            ray,
+            out RaycastHit hit,
+            100f))
+        {
+            targetPoint = hit.point;
+        }
+        else
+        {
+            targetPoint =
+                ray.origin +
+                ray.direction * 100f;
+        }
+
+        return (
+            targetPoint -
+            spellSpawnPoint.position
+        ).normalized;
+    }
 
     private void OnDrawGizmosSelected()
     {
