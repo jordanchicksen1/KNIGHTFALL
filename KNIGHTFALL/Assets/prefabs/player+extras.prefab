@@ -1548,6 +1548,10 @@ MonoBehaviour:
   heavyAttackCost: 40
   heavyAttackLungeForce: 10
   heavyAttackLungeDuration: 0.2
+  fireballPrefab: {fileID: 7326038338454319048, guid: b06d5cb175d87584385336f73565009f, type: 3}
+  spellSpawnPoint: {fileID: 7133561635116157327}
+  spellCost: 25
+  spellCastTime: 0.45
   leftHand: {fileID: 7838158848324070243}
   currentWeapon: 0
   swordModel: {fileID: 407132973092657530}

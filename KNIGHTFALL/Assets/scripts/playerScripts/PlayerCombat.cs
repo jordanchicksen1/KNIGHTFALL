@@ -17,6 +17,12 @@ public class PlayerCombat : MonoBehaviour
     public float heavyAttackLungeForce = 3.5f;
     public float heavyAttackLungeDuration = 0.12f;
 
+    [Header("Magic")]
+    public GameObject fireballPrefab;
+    public Transform spellSpawnPoint;
+    public float spellCost = 25f;
+    public float spellCastTime = 0.45f;
+
     [Header("Blocking")]
     public Transform leftHand;
     private bool isBlocking;
@@ -156,9 +162,17 @@ public class PlayerCombat : MonoBehaviour
                 StopBlocking();
             }
 
-            playerHealth.stamina -= lightAttackCost;
-            playerHealth.ResetStaminaRegenDelay();
-            StartCoroutine(LightAttack());
+            if (currentWeapon == WeaponType.Sword)
+            {
+                playerHealth.stamina -= lightAttackCost;
+                playerHealth.ResetStaminaRegenDelay();
+
+                StartCoroutine(LightAttack());
+            }
+            else
+            {
+                StartCoroutine(CastSpell());
+            }
 
         }
 
@@ -688,6 +702,22 @@ public class PlayerCombat : MonoBehaviour
 
             yield return null;
         }
+    }
+
+    IEnumerator CastSpell()
+    {
+        if (playerHealth.mp < spellCost)
+            yield break;
+
+        movement.currentState = PlayerState.Attacking;
+
+        playerHealth.mp -= spellCost;
+
+        yield return new WaitForSeconds(spellCastTime);
+
+        GameObject spell = Instantiate(fireballPrefab, spellSpawnPoint.position, Quaternion.identity);
+
+        movement.currentState = PlayerState.Idle;
     }
 
     public void CancelHeavyAttack()
