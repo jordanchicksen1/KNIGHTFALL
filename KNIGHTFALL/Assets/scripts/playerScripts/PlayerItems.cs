@@ -63,12 +63,6 @@ public class PlayerItems : MonoBehaviour
 
     void UseHealingFlask()
     {
-        if (!useItemPressed)
-            return;
-
-        Debug.Log("Heal button pressed");
-
-        useItemPressed = false;
 
         if (isHealing)
             return;
