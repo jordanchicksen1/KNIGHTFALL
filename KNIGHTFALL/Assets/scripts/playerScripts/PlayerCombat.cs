@@ -31,6 +31,12 @@ public class PlayerCombat : MonoBehaviour
     private bool canMoveDuringHeavyAttack;
     private bool heavyAttackStartedMoving;
 
+    [Header("Weapons")]
+    public WeaponType currentWeapon = WeaponType.Sword;
+    public GameObject swordModel;
+    public GameObject staffModel;
+    private bool switchWeaponPressed;
+
     [Header("References")]
     public Transform attackPoint;
     public Transform rightHand;
@@ -53,7 +59,6 @@ public class PlayerCombat : MonoBehaviour
     public float attackLungeForce = 3f;
     public float attackLungeDuration = 0.12f;
 
-    
 
     private void Awake()
     {
@@ -61,8 +66,12 @@ public class PlayerCombat : MonoBehaviour
         controller = GetComponent<CharacterController>();
         movement = GetComponent<PlayerMovement>();
         playerHealth = GetComponent<PlayerHealth>();
+
+        UpdateWeaponVisuals();
+
         controls.Player.LightAttack.performed += ctx => attackPressed = true;
         controls.Player.HeavyAttack.performed += ctx => heavyAttackPressed = true;
+        controls.Player.SwitchWeapon.performed += ctx => switchWeaponPressed = true;
 
         leftHandStartPosition = leftHand.localPosition;
         leftHandStartRotation = leftHand.localRotation;
@@ -100,6 +109,42 @@ public class PlayerCombat : MonoBehaviour
         HandleAttack();
         HandleHeavyAttack();
         HandleBlocking();
+        HandleWeaponSwitch();
+    }
+
+    void HandleWeaponSwitch()
+    {
+        if (!switchWeaponPressed)
+            return;
+
+        switchWeaponPressed = false;
+
+        if (currentWeapon ==
+            WeaponType.Sword)
+        {
+            currentWeapon =
+                WeaponType.Staff;
+        }
+        else
+        {
+            currentWeapon =
+                WeaponType.Sword;
+        }
+
+        UpdateWeaponVisuals();
+    }
+
+    void UpdateWeaponVisuals()
+    {
+        swordModel.SetActive(
+            currentWeapon ==
+            WeaponType.Sword
+        );
+
+        staffModel.SetActive(
+            currentWeapon ==
+            WeaponType.Staff
+        );
     }
 
     void HandleAttack()

@@ -8,6 +8,17 @@ public class PlayerItems : MonoBehaviour
     public int maxHealingFlasks = 5;
     public int currentHealingFlasks = 5;
 
+    [Header("Mana Flask")]
+    public int maxManaFlasks = 5;
+    public int currentManaFlasks = 5;
+
+    public int manaRestoreAmount = 50;
+
+    [Header("Selected Item")]
+    public ItemType currentItem = ItemType.HealingFlask;
+
+    private bool switchItemPressed;
+
     public int healAmount = 40;
     public float healDuration = 1.2f;
     public float healingMoveSpeedMultiplier = 0.25f;
@@ -28,8 +39,9 @@ public class PlayerItems : MonoBehaviour
         playerHealth =
             GetComponent<PlayerHealth>();
 
-        controls.Player.UseItem.performed +=
-            ctx => useItemPressed = true;
+        controls.Player.UseItem.performed += ctx => useItemPressed = true;
+
+        controls.Player.SwitchItem.performed += ctx => switchItemPressed = true;
     }
 
     void OnEnable()
@@ -44,10 +56,12 @@ public class PlayerItems : MonoBehaviour
 
     void Update()
     {
-        HandleHealing();
+        HandleItemSwitch();
+
+        HandleUseItem();
     }
 
-    void HandleHealing()
+    void UseHealingFlask()
     {
         if (!useItemPressed)
             return;
@@ -76,6 +90,37 @@ public class PlayerItems : MonoBehaviour
             );
     }
 
+    void UseManaFlask()
+    {
+        if (isHealing)
+            return;
+
+        if (currentManaFlasks <= 0)
+            return;
+
+        healingCoroutine =
+            StartCoroutine(
+                DrinkManaFlask()
+            );
+    }
+
+    void HandleUseItem()
+    {
+        if (!useItemPressed)
+            return;
+
+        useItemPressed = false;
+
+        if (currentItem == ItemType.HealingFlask)
+        {
+            UseHealingFlask();
+        }
+        else
+        {
+            UseManaFlask();
+        }
+    }
+
     public void CancelHealing()
     {
         if (healingCoroutine != null)
@@ -89,6 +134,26 @@ public class PlayerItems : MonoBehaviour
             PlayerState.Idle;
 
         isHealing = false;
+    }
+
+    void HandleItemSwitch()
+    {
+        if (!switchItemPressed)
+            return;
+
+        switchItemPressed = false;
+
+        if (currentItem ==
+            ItemType.HealingFlask)
+        {
+            currentItem =
+                ItemType.ManaFlask;
+        }
+        else
+        {
+            currentItem =
+                ItemType.HealingFlask;
+        }
     }
 
     public bool IsHealing()
@@ -131,6 +196,59 @@ public class PlayerItems : MonoBehaviour
             {
                 playerHealth.health =
                     playerHealth.maxHealth;
+            }
+
+            timer += Time.deltaTime;
+
+            yield return null;
+        }
+
+        yield return new WaitForSeconds(
+            healDuration - totalHealTime
+        );
+
+        movement.moveSpeed =
+            originalSpeed;
+
+        movement.currentState =
+            PlayerState.Idle;
+
+        isHealing = false;
+    }
+
+    IEnumerator DrinkManaFlask()
+    {
+        isHealing = true;
+
+        movement.currentState =
+            PlayerState.Attacking;
+
+        currentManaFlasks--;
+
+        float originalSpeed =
+            movement.moveSpeed;
+
+        movement.moveSpeed *=
+            healingMoveSpeedMultiplier;
+
+        float totalHealTime = 0.7f;
+
+        float timer = 0;
+
+        int totalHealing = healAmount;
+
+        while (timer < totalHealTime)
+        {
+            float healPerSecond =
+                totalHealing / totalHealTime;
+
+            playerHealth.mp += healPerSecond * Time.deltaTime;
+
+            if (playerHealth.mp >
+                playerHealth.maxMP)
+            {
+                playerHealth.mp =
+                    playerHealth.maxMP;
             }
 
             timer += Time.deltaTime;

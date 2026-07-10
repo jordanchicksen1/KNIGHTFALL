@@ -7,6 +7,7 @@ public class PlayerHealthUI : MonoBehaviour
 
     public Image healthFill;
     public Image staminaFill;
+    public Image mpFill;
 
     void Update()
     {
@@ -19,6 +20,11 @@ public class PlayerHealthUI : MonoBehaviour
         float currentStamina = playerHealth.stamina;
         float maxStamina = playerHealth.maxStamina;
 
-        staminaFill.fillAmount = playerHealth.stamina /playerHealth.maxStamina;
+        staminaFill.fillAmount = currentStamina /maxStamina;
+
+        float currentMP = playerHealth.mp;
+        float maxMP = playerHealth.maxMP;
+
+        mpFill.fillAmount = currentMP/maxMP;
     }
 }
