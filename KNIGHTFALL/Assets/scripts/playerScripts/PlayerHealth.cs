@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class PlayerHealth : MonoBehaviour
 {
-
+    [Header("Health")]
     public float maxHealth = 100f;
     public float health = 100f;
     public float staggerDuration = 0.25f;
@@ -13,6 +13,10 @@ public class PlayerHealth : MonoBehaviour
     public float knockbackDistance = 1f;
     public float knockbackDuration = 0.12f;
     private CharacterController controller;
+
+    [Header("Magic")]
+    public float maxMP = 100f;
+    public float mp = 100f;
 
     [Header("Stamina")]
     public float maxStamina = 100;

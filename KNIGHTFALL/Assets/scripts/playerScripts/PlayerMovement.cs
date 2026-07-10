@@ -21,6 +21,7 @@ public class PlayerMovement : MonoBehaviour
     public Transform cameraPivot;
     private PlayerCombat combat;
     private PlayerHealth playerHealth;
+    private PlayerItems items;
 
     [Header("Stamina Costs")]
     public float dodgeCost = 25f;
@@ -56,6 +57,7 @@ public class PlayerMovement : MonoBehaviour
         lockOn = GetComponent<PlayerLockOn>();
         combat = GetComponent<PlayerCombat>();
         playerHealth = GetComponent<PlayerHealth>();
+        items = GetComponent<PlayerItems>();
         controls = new PlayerControls();
         controls.Player.Move.performed += ctx => moveInput = ctx.ReadValue<Vector2>();
         controls.Player.Move.canceled += ctx => moveInput = Vector2.zero;
@@ -184,6 +186,8 @@ public class PlayerMovement : MonoBehaviour
                 currentState = PlayerState.Idle;
             }
         }
+
+    
     }
 
     bool IsPlayerDetected()
@@ -265,9 +269,9 @@ public class PlayerMovement : MonoBehaviour
                 combat.CancelHeavyAttack();
             }
 
-            if (combat.IsHealing())
+            if (items.IsHealing())
             {
-                combat.CancelHealing();
+                items.CancelHealing();
             }
 
             StartCoroutine(DodgeRoll());

@@ -1101,6 +1101,7 @@ GameObject:
   - component: {fileID: 304829772491968127}
   - component: {fileID: 2507304556310425873}
   - component: {fileID: 9059113433260588373}
+  - component: {fileID: 2037519055559237337}
   m_Layer: 8
   m_Name: player
   m_TagString: Player
@@ -1296,11 +1297,6 @@ MonoBehaviour:
     m_Bits: 128
   attackLungeForce: 7
   attackLungeDuration: 0.185
-  maxHealingFlasks: 5
-  currentHealingFlasks: 5
-  healAmount: 40
-  healDuration: 1.2
-  healingMoveSpeedMultiplier: 0.25
 --- !u!114 &2507304556310425873
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1334,6 +1330,8 @@ MonoBehaviour:
   staggerDuration: 0.25
   knockbackDistance: 1
   knockbackDuration: 0.12
+  maxMP: 100
+  mp: 100
   maxStamina: 100
   stamina: 100
   staminaRegenRate: 20
@@ -1342,6 +1340,23 @@ MonoBehaviour:
   guardBreakDuration: 3
   rightHand: {fileID: 7872699624191109778}
   leftHand: {fileID: 7838158848324070243}
+--- !u!114 &2037519055559237337
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5569346895538298136}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8f3df8548d454f47b61b700befce473, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerItems
+  maxHealingFlasks: 5
+  currentHealingFlasks: 5
+  healAmount: 35
+  healDuration: 1.2
+  healingMoveSpeedMultiplier: 0.25
 --- !u!1 &6744291552969641856
 GameObject:
   m_ObjectHideFlags: 0
