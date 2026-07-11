@@ -19,9 +19,12 @@ public class PlayerCombat : MonoBehaviour
 
     [Header("Magic")]
     public GameObject fireballPrefab;
+    public GameObject iceSpearPrefab;
+    public GameObject lightningBoltPrefab;
     public Transform spellSpawnPoint;
     public float spellCost = 25f;
     public float spellCastTime = 0.45f;
+    public SpellType currentSpell = SpellType.Fireball;
 
     [Header("Blocking")]
     public Transform leftHand;
@@ -708,6 +711,23 @@ public class PlayerCombat : MonoBehaviour
         }
     }
 
+    GameObject GetCurrentSpellPrefab()
+    {
+        switch (currentSpell)
+        {
+            case SpellType.Fireball:
+                return fireballPrefab;
+
+            case SpellType.IceSpear:
+                return iceSpearPrefab;
+
+            case SpellType.LightningBolt:
+                return lightningBoltPrefab;
+        }
+
+        return fireballPrefab;
+    }
+
     IEnumerator CastSpell()
     {
         if (playerHealth.mp < spellCost)
@@ -719,7 +739,7 @@ public class PlayerCombat : MonoBehaviour
 
         yield return new WaitForSeconds(spellCastTime);
 
-        GameObject spell = Instantiate(fireballPrefab, spellSpawnPoint.position, Quaternion.identity);
+        GameObject spell = Instantiate(GetCurrentSpellPrefab(),spellSpawnPoint.position,Quaternion.identity);
 
         spell.GetComponent<PlayerFireball>().SetDirection(GetSpellDirection());
 

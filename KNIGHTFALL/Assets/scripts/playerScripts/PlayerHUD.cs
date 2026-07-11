@@ -41,23 +41,12 @@ public class PlayerHUD : MonoBehaviour
 
     void UpdateWeapon()
     {
-        weaponText.text =
-            combat.currentWeapon.ToString();
+        weaponText.text = combat.currentWeapon.ToString();
     }
 
     void UpdateSpell()
     {
-        if (combat.currentWeapon ==
-            WeaponType.Staff)
-        {
-            spellText.text =
-                "Fireball";
-        }
-        else
-        {
-            spellText.text =
-                "-";
-        }
+        spellText.text = combat.currentSpell.ToString();
     }
 
     void UpdateItem()
