@@ -60,11 +60,13 @@ public class PlayerCombat : MonoBehaviour
 
     private PlayerControls controls;
     private PlayerMovement movement;
+    private PlayerInteraction interaction;
     private PlayerLockOn lockOn;
     private Camera mainCamera;
 
     private bool attackPressed;
     private bool heavyAttackPressed;
+    private bool interactPressed;
 
     [Header("Attack Movement")]
     public float attackLungeForce = 3f;
@@ -76,6 +78,7 @@ public class PlayerCombat : MonoBehaviour
         controls = new PlayerControls();
         controller = GetComponent<CharacterController>();
         movement = GetComponent<PlayerMovement>();
+        interaction = GetComponent<PlayerInteraction>();
         playerHealth = GetComponent<PlayerHealth>();
         lockOn = GetComponent<PlayerLockOn>();
         mainCamera = Camera.main;
@@ -86,6 +89,7 @@ public class PlayerCombat : MonoBehaviour
         controls.Player.HeavyAttack.performed += ctx => heavyAttackPressed = true;
         controls.Player.SwitchWeapon.performed += ctx => switchWeaponPressed = true;
         controls.Player.SwitchSpell.performed += ctx => switchSpellPressed = true;
+        controls.Player.Interact.performed += ctx => interactPressed = true;
 
         leftHandStartPosition = leftHand.localPosition;
         leftHandStartRotation = leftHand.localRotation;
@@ -125,6 +129,7 @@ public class PlayerCombat : MonoBehaviour
         HandleBlocking();
         HandleWeaponSwitch();
         HandleSpellSwitch();
+        HandleInteraction();
     }
 
     void HandleWeaponSwitch()
@@ -183,6 +188,16 @@ public class PlayerCombat : MonoBehaviour
             currentWeapon ==
             WeaponType.Staff
         );
+    }
+
+    void HandleInteraction()
+    {
+        if (!interactPressed)
+            return;
+
+        interactPressed = false;
+
+        interaction.TryInteract();
     }
 
     void HandleAttack()
