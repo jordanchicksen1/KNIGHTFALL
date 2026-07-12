@@ -22,9 +22,9 @@ public class PlayerCombat : MonoBehaviour
     public GameObject iceSpearPrefab;
     public GameObject lightningBoltPrefab;
     public Transform spellSpawnPoint;
-    public float spellCost = 25f;
     public float spellCastTime = 0.45f;
     public SpellType currentSpell = SpellType.Fireball;
+    private bool switchSpellPressed;
 
     [Header("Blocking")]
     public Transform leftHand;
@@ -85,6 +85,7 @@ public class PlayerCombat : MonoBehaviour
         controls.Player.LightAttack.performed += ctx => attackPressed = true;
         controls.Player.HeavyAttack.performed += ctx => heavyAttackPressed = true;
         controls.Player.SwitchWeapon.performed += ctx => switchWeaponPressed = true;
+        controls.Player.SwitchSpell.performed += ctx => switchSpellPressed = true;
 
         leftHandStartPosition = leftHand.localPosition;
         leftHandStartRotation = leftHand.localRotation;
@@ -123,6 +124,7 @@ public class PlayerCombat : MonoBehaviour
         HandleHeavyAttack();
         HandleBlocking();
         HandleWeaponSwitch();
+        HandleSpellSwitch();
     }
 
     void HandleWeaponSwitch()
@@ -145,6 +147,29 @@ public class PlayerCombat : MonoBehaviour
         }
 
         UpdateWeaponVisuals();
+    }
+
+    void HandleSpellSwitch()
+    {
+        if (!switchSpellPressed)
+            return;
+
+        switchSpellPressed = false;
+
+        switch (currentSpell)
+        {
+            case SpellType.Fireball:
+                currentSpell = SpellType.IceSpear;
+                break;
+
+            case SpellType.IceSpear:
+                currentSpell = SpellType.LightningBolt;
+                break;
+
+            case SpellType.LightningBolt:
+                currentSpell = SpellType.Fireball;
+                break;
+        }
     }
 
     void UpdateWeaponVisuals()
@@ -730,16 +755,20 @@ public class PlayerCombat : MonoBehaviour
 
     IEnumerator CastSpell()
     {
-        if (playerHealth.mp < spellCost)
+        GameObject currentSpellPrefab = GetCurrentSpellPrefab();
+
+        PlayerSpellProjectile spellData = currentSpellPrefab.GetComponent<PlayerSpellProjectile>();
+
+        if (playerHealth.mp < spellData.mpCost)
             yield break;
 
         movement.currentState = PlayerState.Attacking;
 
-        playerHealth.mp -= spellCost;
+        playerHealth.mp -= spellData.mpCost;
 
         yield return new WaitForSeconds(spellCastTime);
 
-        GameObject spell = Instantiate(GetCurrentSpellPrefab(),spellSpawnPoint.position,Quaternion.identity);
+        GameObject spell = Instantiate(currentSpellPrefab, spellSpawnPoint.position, Quaternion.identity);
 
         spell.GetComponent<PlayerSpellProjectile>().SetDirection(GetSpellDirection());
 
