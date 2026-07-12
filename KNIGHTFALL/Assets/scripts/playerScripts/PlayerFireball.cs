@@ -1,14 +1,17 @@
 using UnityEngine;
 
-public class PlayerFireball : MonoBehaviour
+public class PlayerSpellProjectile : MonoBehaviour
 {
+    [Header("Spell Stats")]
+    public int mpCost = 20;
     public float speed = 20f;
-
     public int damage = 35;
-
     public float lifeTime = 5f;
-
+    public SpellType spellType;
     private Vector3 direction;
+
+    [Header("Future")]
+    public int statusBuildup = 20;
 
     void Start()
     {

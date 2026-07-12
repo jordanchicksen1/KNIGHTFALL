@@ -741,7 +741,7 @@ public class PlayerCombat : MonoBehaviour
 
         GameObject spell = Instantiate(GetCurrentSpellPrefab(),spellSpawnPoint.position,Quaternion.identity);
 
-        spell.GetComponent<PlayerFireball>().SetDirection(GetSpellDirection());
+        spell.GetComponent<PlayerSpellProjectile>().SetDirection(GetSpellDirection());
 
         movement.currentState = PlayerState.Idle;
     }

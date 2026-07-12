@@ -2354,9 +2354,12 @@ MonoBehaviour:
   heavyAttackLungeForce: 10
   heavyAttackLungeDuration: 0.2
   fireballPrefab: {fileID: 7326038338454319048, guid: b06d5cb175d87584385336f73565009f, type: 3}
+  iceSpearPrefab: {fileID: 7326038338454319048, guid: f4a3d4754b24c2c4ba8a716255935532, type: 3}
+  lightningBoltPrefab: {fileID: 7326038338454319048, guid: b06d5cb175d87584385336f73565009f, type: 3}
   spellSpawnPoint: {fileID: 7133561635116157327}
   spellCost: 25
   spellCastTime: 0.45
+  currentSpell: 0
   leftHand: {fileID: 7838158848324070243}
   currentWeapon: 0
   swordModel: {fileID: 407132973092657530}
