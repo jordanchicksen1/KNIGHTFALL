@@ -14,16 +14,13 @@ public class PlayerHUD : MonoBehaviour
 
     void Start()
     {
-        GameObject player =
-            GameObject.FindGameObjectWithTag("Player");
+        GameObject player = GameObject.FindGameObjectWithTag("Player");
 
         if (player != null)
         {
-            combat =
-                player.GetComponent<PlayerCombat>();
+            combat = player.GetComponent<PlayerCombat>();
 
-            items =
-                player.GetComponent<PlayerItems>();
+            items = player.GetComponent<PlayerItems>();
         }
     }
 
@@ -51,22 +48,17 @@ public class PlayerHUD : MonoBehaviour
 
     void UpdateItem()
     {
-        if (items.currentItem ==
-            ItemType.HealingFlask)
+        if (items.currentItem == ItemType.HealingFlask)
         {
-            itemText.text =
-                "Healing Flask";
+            itemText.text = "Healing Flask";
 
-            itemCountText.text =
-                items.currentHealingFlasks.ToString();
+            itemCountText.text = items.currentHealingFlasks.ToString();
         }
         else
         {
-            itemText.text =
-                "Mana Flask";
+            itemText.text = "Mana Flask";
 
-            itemCountText.text =
-                items.currentManaFlasks.ToString();
+            itemCountText.text = items.currentManaFlasks.ToString();
         }
     }
 }
