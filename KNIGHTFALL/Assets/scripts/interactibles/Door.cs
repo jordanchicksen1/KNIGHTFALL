@@ -10,10 +10,13 @@ public class Door : Interactable
     private bool isOpen;
     private Quaternion targetRotation;
 
+    [Header("Door Type")]
+    public bool isOneWayDoor;
+    public Transform allowedSide;
+
     void Start()
     {
-        closedRotation =
-            doorPivot.localRotation;
+        closedRotation = doorPivot.localRotation;
 
         targetRotation = closedRotation;
     }
@@ -21,32 +24,26 @@ public class Door : Interactable
     void Update()
     {
 
-        doorPivot.localRotation =
-            Quaternion.Slerp(doorPivot.localRotation, targetRotation, openSpeed * Time.deltaTime);
+        doorPivot.localRotation = Quaternion.Slerp(doorPivot.localRotation, targetRotation, openSpeed * Time.deltaTime);
     }
 
     public override void Interact()
     {
-        if (!isOpen)
+        if (isOpen)
+            return;
+
+        if (isOneWayDoor)
         {
-            GameObject player =
-                GameObject.FindGameObjectWithTag("Player");
+            GameObject player = GameObject.FindGameObjectWithTag("Player");
 
-            Vector3 toPlayer = player.transform.position - doorPivot.position;
+            float distance = Vector3.Distance(player.transform.position, allowedSide.position);
 
-            float side = Vector3.Dot(transform.right, toPlayer);
-
-            float angle = side > 0 ? -openAngle : openAngle;
-
-            targetRotation = closedRotation * Quaternion.Euler(0, angle, 0);
-
-            isOpen = true;
+            if (distance > 1f)
+                return;
         }
-        else
-        {
-            targetRotation = closedRotation;
 
-            isOpen = false;
-        }
+        isOpen = true;
+
+        targetRotation = closedRotation * Quaternion.Euler(0, openAngle,0);
     }
 }
