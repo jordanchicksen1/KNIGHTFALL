@@ -63,6 +63,7 @@ public class PlayerCombat : MonoBehaviour
     private PlayerInteraction interaction;
     private PlayerLockOn lockOn;
     private Camera mainCamera;
+    private PlayerInventory inventory;
 
     private bool attackPressed;
     private bool heavyAttackPressed;
@@ -82,6 +83,7 @@ public class PlayerCombat : MonoBehaviour
         playerHealth = GetComponent<PlayerHealth>();
         lockOn = GetComponent<PlayerLockOn>();
         mainCamera = Camera.main;
+        inventory = GetComponent<PlayerInventory>();
 
         UpdateWeaponVisuals();
 
@@ -139,17 +141,16 @@ public class PlayerCombat : MonoBehaviour
 
         switchWeaponPressed = false;
 
-        if (currentWeapon ==
-            WeaponType.Sword)
+        int currentIndex = inventory.unlockedWeapons.IndexOf(currentWeapon);
+
+        currentIndex++;
+
+        if (currentIndex >= inventory.unlockedWeapons.Count)
         {
-            currentWeapon =
-                WeaponType.Staff;
+            currentIndex = 0;
         }
-        else
-        {
-            currentWeapon =
-                WeaponType.Sword;
-        }
+
+        currentWeapon = inventory.unlockedWeapons[currentIndex];
 
         UpdateWeaponVisuals();
     }
