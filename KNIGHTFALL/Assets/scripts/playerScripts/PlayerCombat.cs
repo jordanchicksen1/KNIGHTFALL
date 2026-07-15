@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -25,6 +26,13 @@ public class PlayerCombat : MonoBehaviour
     public float spellCastTime = 0.45f;
     public SpellType currentSpell = SpellType.Fireball;
     private bool switchSpellPressed;
+
+    [Header("Staff Heavy Attack")]
+    public int heavySpellCount = 3;
+    public float heavySpellDelay = 3f;
+    public float orbitRadius = 0.8f;
+    public float orbitHeight = 2f;
+    public float orbitSpeed = 120f;
 
     [Header("Blocking")]
     public Transform leftHand;
@@ -162,33 +170,33 @@ public class PlayerCombat : MonoBehaviour
 
         switchSpellPressed = false;
 
-        switch (currentSpell)
+        if (inventory.unlockedSpells.Count == 0)
+            return;
+
+        int currentIndex = inventory.unlockedSpells.IndexOf(currentSpell);
+
+        if (currentIndex == -1)
         {
-            case SpellType.Fireball:
-                currentSpell = SpellType.IceSpear;
-                break;
+            currentSpell = inventory.unlockedSpells[0];
 
-            case SpellType.IceSpear:
-                currentSpell = SpellType.LightningBolt;
-                break;
-
-            case SpellType.LightningBolt:
-                currentSpell = SpellType.Fireball;
-                break;
+            return;
         }
+
+        currentIndex++;
+
+        if (currentIndex >= inventory.unlockedSpells.Count)
+        {
+            currentIndex = 0;
+        }
+
+        currentSpell = inventory.unlockedSpells[currentIndex];
     }
 
     void UpdateWeaponVisuals()
     {
-        swordModel.SetActive(
-            currentWeapon ==
-            WeaponType.Sword
-        );
+        swordModel.SetActive(currentWeapon == WeaponType.Sword);
 
-        staffModel.SetActive(
-            currentWeapon ==
-            WeaponType.Staff
-        );
+        staffModel.SetActive(currentWeapon == WeaponType.Staff);
     }
 
     void HandleInteraction()
@@ -219,7 +227,10 @@ public class PlayerCombat : MonoBehaviour
             }
             else
             {
-                StartCoroutine(CastSpell());
+                if (currentSpell != SpellType.None)
+                {
+                    StartCoroutine(CastSpell());
+                }
             }
 
         }
@@ -240,13 +251,20 @@ public class PlayerCombat : MonoBehaviour
                 StopBlocking();
             }
 
-            playerHealth.stamina -=
-                heavyAttackCost;
+            if (currentWeapon == WeaponType.Sword)
+            {
+                playerHealth.stamina -= heavyAttackCost;
 
-            playerHealth.ResetStaminaRegenDelay();
+                playerHealth.ResetStaminaRegenDelay();
 
-            heavyAttackStartedMoving = movement.moveInput.magnitude > 0.1f;
-            StartCoroutine(HeavyAttack());
+                heavyAttackStartedMoving = movement.moveInput.magnitude > 0.1f;
+
+                StartCoroutine(HeavyAttack());
+            }
+            else
+            {
+                StartCoroutine(HeavySpellAttack());
+            }
         }
 
         heavyAttackPressed = false;
@@ -475,8 +493,7 @@ public class PlayerCombat : MonoBehaviour
                 );
 
             rightHand.localRotation =
-                Quaternion.Slerp(
-                    slamRotation,
+                Quaternion.Slerp(slamRotation,
                     startRotation,
                     timer / 0.28f
                 );
@@ -486,11 +503,9 @@ public class PlayerCombat : MonoBehaviour
             yield return null;
         }
 
-        rightHand.localPosition =
-            startPosition;
+        rightHand.localPosition = startPosition;
 
-        rightHand.localRotation =
-            startRotation;
+        rightHand.localRotation = startRotation;
     }
 
     IEnumerator SwingSword()
@@ -764,14 +779,19 @@ public class PlayerCombat : MonoBehaviour
 
             case SpellType.LightningBolt:
                 return lightningBoltPrefab;
-        }
 
-        return fireballPrefab;
+            case SpellType.None:
+            default:
+                return null;
+        }
     }
 
     IEnumerator CastSpell()
     {
         GameObject currentSpellPrefab = GetCurrentSpellPrefab();
+
+        if (currentSpellPrefab == null)
+            yield break;
 
         PlayerSpellProjectile spellData = currentSpellPrefab.GetComponent<PlayerSpellProjectile>();
 
@@ -786,7 +806,57 @@ public class PlayerCombat : MonoBehaviour
 
         GameObject spell = Instantiate(currentSpellPrefab, spellSpawnPoint.position, Quaternion.identity);
 
-        spell.GetComponent<PlayerSpellProjectile>().SetDirection(GetSpellDirection());
+        PlayerSpellProjectile projectile = spell.GetComponent<PlayerSpellProjectile>();
+
+        projectile.isOrbiting = false;
+
+        projectile.SetDirection(GetSpellDirection(spellSpawnPoint.position));
+
+        movement.currentState = PlayerState.Idle;
+    }
+
+    IEnumerator HeavySpellAttack()
+    {
+        GameObject spellPrefab = GetCurrentSpellPrefab();
+
+        if (spellPrefab == null)
+            yield break;
+
+        PlayerSpellProjectile spellData =
+            spellPrefab.GetComponent<PlayerSpellProjectile>();
+
+        int totalCost =
+            spellData.mpCost *
+            heavySpellCount;
+
+        if (playerHealth.mp < totalCost)
+            yield break;
+
+        playerHealth.mp -= totalCost;
+
+        movement.currentState = PlayerState.Attacking;
+
+        List<OrbitingSpell> orbitingSpells = new List<OrbitingSpell>();
+
+        for (int i = 0; i < heavySpellCount; i++)
+        {
+            GameObject spell = Instantiate(spellPrefab, transform.position, Quaternion.identity);
+            OrbitingSpell orbit = spell.AddComponent<OrbitingSpell>();
+            spell.GetComponent<PlayerSpellProjectile>().isOrbiting = true;
+            orbitingSpells.Add(orbit);
+            orbit.Initialise(transform, orbitRadius, orbitHeight, orbitSpeed, i * (360f / heavySpellCount));
+        }
+
+        yield return new WaitForSeconds(heavySpellDelay);
+
+        foreach (OrbitingSpell spell in orbitingSpells)
+        {
+            if (spell != null)
+            {
+                spell.Launch(GetSpellDirection(spell.transform.position));
+                yield return new WaitForSeconds( 0.2f);
+            }
+        }
 
         movement.currentState = PlayerState.Idle;
     }
@@ -794,17 +864,10 @@ public class PlayerCombat : MonoBehaviour
     public void CancelHeavyAttack()
     {
         StopAllCoroutines();
-
         isHeavyAttacking = false;
-
-        movement.currentState =
-            PlayerState.Idle;
-
-        rightHand.localPosition =
-            rightHandStartPosition;
-
-        rightHand.localRotation =
-            rightHandStartRotation;
+        movement.currentState = PlayerState.Idle;
+        rightHand.localPosition = rightHandStartPosition;
+        rightHand.localRotation = rightHandStartRotation;
     }
 
     public bool IsBlocking()
@@ -822,7 +885,7 @@ public class PlayerCombat : MonoBehaviour
         return canMoveDuringHeavyAttack;
     }
 
-    Vector3 GetSpellDirection()
+    Vector3 GetSpellDirection(Vector3 origin)
     {
         // LOCK ON
         if (lockOn.IsLockedOn() &&
@@ -830,7 +893,7 @@ public class PlayerCombat : MonoBehaviour
         {
             return (
                 lockOn.currentTarget.position -
-                spellSpawnPoint.position
+                origin
             ).normalized;
         }
 
@@ -858,7 +921,7 @@ public class PlayerCombat : MonoBehaviour
 
         return (
             targetPoint -
-            spellSpawnPoint.position
+            origin
         ).normalized;
     }
 

@@ -136,7 +136,8 @@ MonoBehaviour:
   speed: 25
   damage: 40
   lifeTime: 5
-  spellType: 2
+  spellType: 3
+  isOrbiting: 0
   statusBuildup: 20
 --- !u!65 &1703533618306736664
 BoxCollider:

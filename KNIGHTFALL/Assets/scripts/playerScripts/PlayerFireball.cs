@@ -9,8 +9,9 @@ public class PlayerSpellProjectile : MonoBehaviour
     public float lifeTime = 5f;
     public SpellType spellType;
     private Vector3 direction;
+    public bool isOrbiting;
 
-    [Header("Future")]
+    [Header("Status Effects")]
     public int statusBuildup = 20;
 
     void Start()
@@ -27,10 +28,10 @@ public class PlayerSpellProjectile : MonoBehaviour
 
     void Update()
     {
-        transform.position +=
-            direction *
-            speed *
-            Time.deltaTime;
+        if (isOrbiting)
+            return;
+
+        transform.position += direction * speed * Time.deltaTime;
     }
 
     private void OnTriggerEnter(Collider other)

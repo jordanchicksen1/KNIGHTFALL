@@ -32,10 +32,17 @@ public class ItemPickup : Interactable
     {
         if (pickupType == PickupType.Weapon)
         {
-            if (!inventory.unlockedWeapons.Contains(weapon))
-            {
-                inventory.unlockedWeapons.Add(weapon);
-            }
+            inventory.UnlockWeapon(weapon);
+        }
+
+        if (pickupType == PickupType.Spell)
+        {
+            inventory.UnlockSpell(spell);
+        }
+
+        if (pickupType == PickupType.Key)
+        {
+            inventory.UnlockKey(key);
         }
 
         Destroy(gameObject);

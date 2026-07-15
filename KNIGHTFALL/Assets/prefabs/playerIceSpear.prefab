@@ -157,5 +157,6 @@ MonoBehaviour:
   speed: 15
   damage: 25
   lifeTime: 5
-  spellType: 1
+  spellType: 2
+  isOrbiting: 0
   statusBuildup: 20
