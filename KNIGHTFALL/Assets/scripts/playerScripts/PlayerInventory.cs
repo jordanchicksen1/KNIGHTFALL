@@ -10,7 +10,7 @@ public class PlayerInventory : MonoBehaviour
     public List<SpellType> unlockedSpells = new List<SpellType>();
 
     [Header("Keys")]
-    public List<KeyType> keys = new List<KeyType>();
+    public int keys = 0;
 
     private PlayerCombat combat;
 
@@ -53,17 +53,24 @@ public class PlayerInventory : MonoBehaviour
         }
     }
 
-    public bool HasKey(KeyType key)
+    
+
+    public void AddKey()
     {
-        return keys.Contains(key);
+        keys++;
+
+        Debug.Log(
+            "Picked up a Key"
+        );
     }
 
-    public void UnlockKey(KeyType key)
+    public bool UseKey()
     {
-        if (!HasKey(key))
-        {
-            keys.Add(key);
-            Debug.Log("Picked up Key: " + key);
-        }
+        if (keys <= 0)
+            return false;
+
+        keys--;
+
+        return true;
     }
 }

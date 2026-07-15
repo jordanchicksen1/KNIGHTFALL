@@ -13,12 +13,21 @@ public class Door : Interactable
     [Header("Door Type")]
     public bool isOneWayDoor;
     public Transform allowedSide;
+    public bool requiresKey;
+    private PlayerInventory inventory;
 
     void Start()
     {
         closedRotation = doorPivot.localRotation;
 
         targetRotation = closedRotation;
+
+        GameObject player = GameObject.FindGameObjectWithTag("Player");
+
+        if (player != null)
+        {
+            inventory = player.GetComponent<PlayerInventory>();
+        }
     }
 
     void Update()
@@ -31,6 +40,16 @@ public class Door : Interactable
     {
         if (isOpen)
             return;
+
+        if (requiresKey)
+        {
+            if (!inventory.UseKey())
+            {
+                Debug.Log("Door is locked.");
+
+                return;
+            }
+        }
 
         if (isOneWayDoor)
         {

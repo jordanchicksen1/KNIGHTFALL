@@ -42,7 +42,7 @@ public class ItemPickup : Interactable
 
         if (pickupType == PickupType.Key)
         {
-            inventory.UnlockKey(key);
+            inventory.AddKey();
         }
 
         Destroy(gameObject);
