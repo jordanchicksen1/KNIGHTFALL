@@ -1,0 +1,222 @@
+using System.Collections;
+using UnityEngine;
+
+public class SpearEnemyAttack : MonoBehaviour
+{
+    [Header("Attack")]
+    public float attackRange = 1.5f;
+
+    public int attackDamage = 20;
+
+    public float attackCooldown = 0.8f;
+
+    public float attackDuration = 0.4f;
+
+    public bool isAttacking;
+
+    [Header("Lunge")]
+    public float lungeForce = 5f;
+    public float lungeDuration = 0.15f;
+
+    [Header("References")]
+    public Transform player;
+
+    public Transform attackPoint;
+
+    public Transform rightHand;
+
+    public LayerMask playerLayer;
+
+    private bool canAttack = true;
+
+    void Start()
+    {
+        GameObject playerObject =
+            GameObject.FindGameObjectWithTag("Player");
+
+        if (playerObject != null)
+        {
+            player = playerObject.transform;
+        }
+    }
+
+
+
+    public IEnumerator Attack()
+    {
+        if (isAttacking || !canAttack)
+            yield break;
+
+        isAttacking = true;
+
+        canAttack = false;
+
+        StartCoroutine(SwingArm());
+        StartCoroutine(AttackLunge());
+
+        yield return new WaitForSeconds(0.12f);
+
+        Collider[] hitPlayer =
+    Physics.OverlapSphere(
+        attackPoint.position,
+        attackRange,
+        playerLayer
+    );
+
+        PlayerHealth damagedPlayer = null;
+
+        foreach (Collider playerCollider in hitPlayer)
+        {
+            PlayerHealth playerHealth =
+                playerCollider.GetComponent<PlayerHealth>();
+
+            if (playerHealth != null &&
+                damagedPlayer == null)
+            {
+                damagedPlayer = playerHealth;
+
+                Vector3 hitDirection =
+                    (player.position - transform.position)
+                    .normalized;
+
+                playerHealth.TakeDamage(
+                    attackDamage,
+                    hitDirection
+                );
+            }
+        }
+
+        yield return new WaitForSeconds(attackDuration);
+
+        isAttacking = false;
+
+        yield return new WaitForSeconds(attackCooldown);
+
+        canAttack = true;
+    }
+
+    IEnumerator SwingArm()
+    {
+        Vector3 startPosition =
+            rightHand.localPosition;
+
+        Quaternion startRotation =
+            rightHand.localRotation;
+
+        // WIND-UP
+        Vector3 windUpPosition =
+            startPosition +
+            new Vector3(0.25f, 0.25f, 0);
+
+        Quaternion windUpRotation = Quaternion.Euler(-45, 0, 25);
+
+        // DIAGONAL SLASH
+        Vector3 slashPosition =
+            startPosition +
+            new Vector3(-0.35f, -0.25f, 0);
+
+        Quaternion slashRotation = Quaternion.Euler(45, 0, -40);
+
+        float timer = 0;
+
+        // WIND-UP
+        while (timer < 0.1f)
+        {
+            rightHand.localPosition =
+                Vector3.Lerp(
+                    startPosition,
+                    windUpPosition,
+                    timer / 0.1f
+                );
+
+            rightHand.localRotation =
+                Quaternion.Slerp(
+                    startRotation,
+                    windUpRotation,
+                    timer / 0.1f
+                );
+
+            timer += Time.deltaTime;
+
+            yield return null;
+        }
+
+        timer = 0;
+
+        // SLASH
+        while (timer < 0.14f)
+        {
+            rightHand.localPosition =
+                Vector3.Lerp(
+                    windUpPosition,
+                    slashPosition,
+                    timer / 0.14f
+                );
+
+            rightHand.localRotation =
+                Quaternion.Slerp(
+                    windUpRotation,
+                    slashRotation,
+                    timer / 0.14f
+                );
+
+            timer += Time.deltaTime;
+
+            yield return null;
+        }
+
+        yield return new WaitForSeconds(0.05f);
+
+        timer = 0;
+
+        // RETURN
+        while (timer < 0.15f)
+        {
+            rightHand.localPosition =
+                Vector3.Lerp(
+                    slashPosition,
+                    startPosition,
+                    timer / 0.15f
+                );
+
+            rightHand.localRotation =
+                Quaternion.Slerp(
+                    slashRotation,
+                    startRotation,
+                    timer / 0.15f
+                );
+
+            timer += Time.deltaTime;
+
+            yield return null;
+        }
+
+        rightHand.localPosition =
+            startPosition;
+
+        rightHand.localRotation =
+            startRotation;
+    }
+
+    IEnumerator AttackLunge()
+    {
+        float timer = 0;
+
+        while (timer < lungeDuration)
+        {
+            Vector3 direction =
+                transform.forward;
+
+            direction.y = 0;
+
+            transform.position +=
+                direction.normalized *
+                lungeForce *
+                Time.deltaTime;
+
+            timer += Time.deltaTime;
+
+            yield return null;
+        }
+    }
+}
