@@ -97,105 +97,92 @@ public class SpearEnemyAttack : MonoBehaviour
 
     IEnumerator SwingArm()
     {
-        Vector3 startPosition =
-            rightHand.localPosition;
+        Vector3 startWorldPos = rightHand.position;
+        Quaternion startRotation = rightHand.localRotation;
 
-        Quaternion startRotation =
-            rightHand.localRotation;
+        Quaternion thrustRotation = Quaternion.Euler(90f, 0f, 0f);
 
+        // Pull the hand back slightly
+        Vector3 windUpPos =
+            startWorldPos - transform.forward * 0.15f;
+
+        // Thrust the hand towards the player
+        Vector3 thrustPos =
+            startWorldPos + transform.forward * 0.75f;
+
+        float timer = 0f;
+
+        // -------------------------
         // WIND-UP
-        Vector3 windUpPosition =
-            startPosition +
-            new Vector3(0.25f, 0.25f, 0);
-
-        Quaternion windUpRotation = Quaternion.Euler(-45, 0, 25);
-
-        // DIAGONAL SLASH
-        Vector3 slashPosition =
-            startPosition +
-            new Vector3(-0.35f, -0.25f, 0);
-
-        Quaternion slashRotation = Quaternion.Euler(45, 0, -40);
-
-        float timer = 0;
-
-        // WIND-UP
-        while (timer < 0.1f)
+        // -------------------------
+        while (timer < 0.15f)
         {
-            rightHand.localPosition =
-                Vector3.Lerp(
-                    startPosition,
-                    windUpPosition,
-                    timer / 0.1f
-                );
+            float t = timer / 0.15f;
 
-            rightHand.localRotation =
-                Quaternion.Slerp(
-                    startRotation,
-                    windUpRotation,
-                    timer / 0.1f
-                );
+            rightHand.position = Vector3.Lerp(
+                startWorldPos,
+                windUpPos,
+                t);
+
+            rightHand.localRotation = Quaternion.Slerp(
+                startRotation,
+                startRotation,
+                t);
 
             timer += Time.deltaTime;
-
             yield return null;
         }
 
-        timer = 0;
+        timer = 0f;
 
-        // SLASH
-        while (timer < 0.14f)
+        // -------------------------
+        // THRUST
+        // -------------------------
+        while (timer < 0.10f)
         {
-            rightHand.localPosition =
-                Vector3.Lerp(
-                    windUpPosition,
-                    slashPosition,
-                    timer / 0.14f
-                );
+            float t = timer / 0.10f;
 
-            rightHand.localRotation =
-                Quaternion.Slerp(
-                    windUpRotation,
-                    slashRotation,
-                    timer / 0.14f
-                );
+            rightHand.position = Vector3.Lerp(
+                windUpPos,
+                thrustPos,
+                t);
+
+            rightHand.localRotation = Quaternion.Slerp(
+                startRotation,
+                thrustRotation,
+                t);
 
             timer += Time.deltaTime;
-
             yield return null;
         }
 
         yield return new WaitForSeconds(0.05f);
 
-        timer = 0;
+        timer = 0f;
 
+        // -------------------------
         // RETURN
-        while (timer < 0.15f)
+        // -------------------------
+        while (timer < 0.20f)
         {
-            rightHand.localPosition =
-                Vector3.Lerp(
-                    slashPosition,
-                    startPosition,
-                    timer / 0.15f
-                );
+            float t = timer / 0.20f;
 
-            rightHand.localRotation =
-                Quaternion.Slerp(
-                    slashRotation,
-                    startRotation,
-                    timer / 0.15f
-                );
+            rightHand.position = Vector3.Lerp(
+                thrustPos,
+                startWorldPos,
+                t);
+
+            rightHand.localRotation = Quaternion.Slerp(
+                thrustRotation,
+                startRotation,
+                t);
 
             timer += Time.deltaTime;
-
             yield return null;
         }
 
-        rightHand.localPosition =
-            startPosition;
-
-        rightHand.localRotation =
-            startRotation;
+        rightHand.position = startWorldPos;
+        rightHand.localRotation = startRotation;
     }
 
     IEnumerator AttackLunge()
