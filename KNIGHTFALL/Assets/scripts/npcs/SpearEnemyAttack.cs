@@ -54,7 +54,7 @@ public class SpearEnemyAttack : MonoBehaviour
         StartCoroutine(SwingArm());
         StartCoroutine(AttackLunge());
 
-        yield return new WaitForSeconds(0.12f);
+        yield return new WaitForSeconds(0.8f);
 
         Collider[] hitPlayer =
     Physics.OverlapSphere(
@@ -97,37 +97,32 @@ public class SpearEnemyAttack : MonoBehaviour
 
     IEnumerator SwingArm()
     {
-        Vector3 startWorldPos = rightHand.position;
-        Quaternion startRotation = rightHand.localRotation;
+        Vector3 startPos = rightHand.localPosition;
+        Quaternion startRot = rightHand.localRotation;
 
-        Quaternion thrustRotation = Quaternion.Euler(90f, 0f, 0f);
+        // Idle is 25°, thrust is 90°
+        Quaternion thrustRot = Quaternion.Euler(90f, 0f, 0f);
 
-        // Pull the hand back slightly
-        Vector3 windUpPos =
-            startWorldPos - transform.forward * 0.15f;
+        Vector3 forward = Vector3.forward;
 
-        // Thrust the hand towards the player
-        Vector3 thrustPos =
-            startWorldPos + transform.forward * 0.75f;
+        Vector3 windUpPos = startPos - forward * 1f;
+        Vector3 thrustPos = startPos + forward * 1f;
+
+        Debug.Log("Start: " + startPos);
+        Debug.Log("WindUp: " + windUpPos);
+        Debug.Log("Thrust: " + thrustPos);
 
         float timer = 0f;
 
         // -------------------------
         // WIND-UP
         // -------------------------
-        while (timer < 0.15f)
+        while (timer < 0.60f)
         {
-            float t = timer / 0.15f;
+            float t = timer / 0.60f;
 
-            rightHand.position = Vector3.Lerp(
-                startWorldPos,
-                windUpPos,
-                t);
-
-            rightHand.localRotation = Quaternion.Slerp(
-                startRotation,
-                startRotation,
-                t);
+            rightHand.localPosition = Vector3.Lerp(startPos, windUpPos, t);
+            rightHand.localRotation = Quaternion.Slerp(startRot, thrustRot, t);
 
             timer += Time.deltaTime;
             yield return null;
@@ -138,51 +133,37 @@ public class SpearEnemyAttack : MonoBehaviour
         // -------------------------
         // THRUST
         // -------------------------
-        while (timer < 0.10f)
+        while (timer < 0.2f)
         {
-            float t = timer / 0.10f;
+            float t = timer / 0.2f;
 
-            rightHand.position = Vector3.Lerp(
-                windUpPos,
-                thrustPos,
-                t);
-
-            rightHand.localRotation = Quaternion.Slerp(
-                startRotation,
-                thrustRotation,
-                t);
+            rightHand.localPosition = Vector3.Lerp(windUpPos, thrustPos, t);
+            
 
             timer += Time.deltaTime;
             yield return null;
         }
 
-        yield return new WaitForSeconds(0.05f);
+        yield return new WaitForSeconds(0.1f);
 
         timer = 0f;
 
         // -------------------------
         // RETURN
         // -------------------------
-        while (timer < 0.20f)
+        while (timer < 0.3f)
         {
-            float t = timer / 0.20f;
+            float t = timer / 0.3f;
 
-            rightHand.position = Vector3.Lerp(
-                thrustPos,
-                startWorldPos,
-                t);
-
-            rightHand.localRotation = Quaternion.Slerp(
-                thrustRotation,
-                startRotation,
-                t);
+            rightHand.localPosition = Vector3.Lerp(thrustPos, startPos, t);
+            rightHand.localRotation = Quaternion.Slerp(thrustRot, startRot, t);
 
             timer += Time.deltaTime;
             yield return null;
         }
 
-        rightHand.position = startWorldPos;
-        rightHand.localRotation = startRotation;
+        rightHand.localPosition = startPos;
+        rightHand.localRotation = startRot;
     }
 
     IEnumerator AttackLunge()
