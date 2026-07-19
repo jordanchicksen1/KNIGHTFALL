@@ -10,5 +10,7 @@ public class PlayerInteraction : MonoBehaviour
             return;
 
         currentInteractable.Interact();
+
+        InteractionUI.Instance.HidePrompt();
     }
 }

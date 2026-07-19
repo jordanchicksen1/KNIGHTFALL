@@ -35,6 +35,7 @@ public class Bonfire : Interactable
             playerHealth.vitality = Mathf.Min(playerHealth.vitality,playerHealth.maxVitality);
         }
 
+
         Debug.Log("Checkpoint Saved: " + spawnPoint.position);
 
         // Restore player

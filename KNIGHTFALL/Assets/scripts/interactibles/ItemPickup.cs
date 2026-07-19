@@ -45,6 +45,8 @@ public class ItemPickup : Interactable
             inventory.AddKey();
         }
 
+        InteractionUI.Instance.HidePrompt();
+
         Destroy(gameObject);
     }
 }

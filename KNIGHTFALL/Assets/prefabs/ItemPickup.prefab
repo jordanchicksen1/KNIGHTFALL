@@ -113,7 +113,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6271c8371d9661a4887e0d564eab7af6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ItemPickup
-  interactionText: Interact
+  interactionText: Pick Up
   pickupType: 0
   weapon: 1
   spell: 0

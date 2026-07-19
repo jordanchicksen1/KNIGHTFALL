@@ -47,7 +47,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2424b9df097e934997cbf3dafad4c36, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Bonfire
-  interactionText: Interact
+  interactionText: Rest
   spawnPoint: {fileID: 3427358722845084464}
 --- !u!1 &6092566341572242595
 GameObject:

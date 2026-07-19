@@ -14,8 +14,8 @@ public class InteractionTrigger : MonoBehaviour
 
         if (interaction != null)
         {
-            interaction.currentInteractable =
-                interactable;
+            interaction.currentInteractable = interactable;
+            InteractionUI.Instance.ShowPrompt(interactable.interactionText);
         }
     }
 
@@ -27,12 +27,10 @@ public class InteractionTrigger : MonoBehaviour
         PlayerInteraction interaction =
             other.GetComponent<PlayerInteraction>();
 
-        if (interaction != null &&
-            interaction.currentInteractable ==
-            interactable)
+        if (interaction != null && interaction.currentInteractable == interactable)
         {
-            interaction.currentInteractable =
-                null;
+            InteractionUI.Instance.HidePrompt();
+            interaction.currentInteractable = null;
         }
     }
 }

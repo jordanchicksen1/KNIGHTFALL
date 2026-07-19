@@ -487,10 +487,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7291b5d7365955945991ca504cd11568, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Door
-  interactionText: Interact
+  interactionText: Open Door
   doorPivot: {fileID: 2368131008409062720}
   openAngle: 90
   openSpeed: 4
+  isOneWayDoor: 0
+  allowedSide: {fileID: 0}
+  requiresKey: 0
 --- !u!1 &6269949871243854135
 GameObject:
   m_ObjectHideFlags: 0
