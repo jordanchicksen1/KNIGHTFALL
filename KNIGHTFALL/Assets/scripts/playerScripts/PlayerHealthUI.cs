@@ -6,6 +6,7 @@ public class PlayerHealthUI : MonoBehaviour
     public PlayerHealth playerHealth;
 
     public Image healthFill;
+    public Image vitalityFill;
     public Image staminaFill;
     public Image mpFill;
 
@@ -26,5 +27,7 @@ public class PlayerHealthUI : MonoBehaviour
         float maxMP = playerHealth.maxMP;
 
         mpFill.fillAmount = currentMP/maxMP;
+
+        vitalityFill.fillAmount = 1f - (playerHealth.vitality / playerHealth.maxVitality);
     }
 }
