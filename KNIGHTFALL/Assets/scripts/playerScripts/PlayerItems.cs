@@ -187,15 +187,11 @@ public class PlayerItems : MonoBehaviour
             float healPerSecond =
                 totalHealing / totalHealTime;
 
-            playerHealth.health +=
-                healPerSecond *
-                Time.deltaTime;
+            playerHealth.health += healPerSecond * Time.deltaTime;
 
-            if (playerHealth.health >
-                playerHealth.maxHealth)
+            if (playerHealth.health > playerHealth.GetEffectiveMaxHealth())
             {
-                playerHealth.health =
-                    playerHealth.maxHealth;
+                playerHealth.health = playerHealth.GetEffectiveMaxHealth();
             }
 
             timer += Time.deltaTime;
@@ -235,7 +231,7 @@ public class PlayerItems : MonoBehaviour
 
         float timer = 0;
 
-        int totalHealing = healAmount;
+        int totalHealing = manaRestoreAmount;
 
         while (timer < totalHealTime)
         {

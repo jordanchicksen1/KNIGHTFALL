@@ -28,7 +28,7 @@ public class Bonfire : Interactable
         Debug.Log("Checkpoint Saved: " + spawnPoint.position);
 
         // Restore player
-        playerHealth.health = playerHealth.maxHealth;
+        playerHealth.health = playerHealth.GetEffectiveMaxHealth();
         playerHealth.stamina = playerHealth.maxStamina;
         playerHealth.mp = playerHealth.maxMP;
         playerItems.RefillFlasks();

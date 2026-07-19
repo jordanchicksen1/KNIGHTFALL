@@ -48,7 +48,7 @@ public class CheckpointManager : MonoBehaviour
         if (controller != null)
             controller.enabled = true;
 
-        playerHealth.health = playerHealth.maxHealth;
+        playerHealth.health = playerHealth.GetEffectiveMaxHealth();
         playerHealth.stamina = playerHealth.maxStamina;
         playerHealth.mp = playerHealth.maxMP;
 

@@ -8,7 +8,14 @@ public class PlayerHealth : MonoBehaviour
     public float health = 100f;
     public float staggerDuration = 0.25f;
     private PlayerMovement movement;
-    
+   
+    [Header("Vitality")]
+    public float vitality = 100f;
+    public float maxVitality = 100f;
+    public float minimumVitality = 50f;
+    public float vitalityLoss = 10f;
+    public float vitalityRestore = 10f;
+
     [Header("Knockback")]
     public float knockbackDistance = 1f;
     public float knockbackDuration = 0.12f;
@@ -59,6 +66,16 @@ public class PlayerHealth : MonoBehaviour
         RegenerateStamina();
     }
 
+    public float GetEffectiveMaxHealth()
+    {
+        return maxHealth * (vitality / 100f);
+    }
+
+    public void ClampHealthToVitality()
+    {
+        health = Mathf.Min(health, GetEffectiveMaxHealth());
+    }
+
     public void TakeDamage(int damage,Vector3 hitDirection)
     {
         if (combat != null && combat.IsBlocking())
@@ -86,6 +103,10 @@ public class PlayerHealth : MonoBehaviour
 
         if (health <= 0)
         {
+            vitality -= vitalityLoss;
+
+            vitality = Mathf.Max(minimumVitality, vitality);
+
             CheckpointManager.Instance.RespawnPlayer(this);
             return;
         }

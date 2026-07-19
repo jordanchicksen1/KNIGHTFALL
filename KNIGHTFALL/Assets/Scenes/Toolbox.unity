@@ -17040,6 +17040,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2037519055559237337, guid: 78226dce441929546a7cbd66100c994c, type: 3}
+      propertyPath: manaRestoreAmount
+      value: 35
+      objectReference: {fileID: 0}
     - target: {fileID: 6744291552969641856, guid: 78226dce441929546a7cbd66100c994c, type: 3}
       propertyPath: m_Name
       value: player+extras
