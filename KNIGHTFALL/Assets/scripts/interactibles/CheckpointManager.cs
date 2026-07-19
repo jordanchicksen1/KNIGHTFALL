@@ -5,6 +5,7 @@ public class CheckpointManager : MonoBehaviour
     public static CheckpointManager Instance;
 
     public Transform currentCheckpoint;
+    public Transform startingCheckpoint;
 
     private void Awake()
     {
@@ -16,6 +17,7 @@ public class CheckpointManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
+        currentCheckpoint = startingCheckpoint;
     }
 
     public void SetCheckpoint(Transform checkpoint)
@@ -31,17 +33,17 @@ public class CheckpointManager : MonoBehaviour
             return;
         }
 
+
+
         Debug.Log("Checkpoint Position: " + currentCheckpoint.position);
         Debug.Log("Player Position Before: " + playerHealth.transform.position);
 
-        CharacterController controller =
-            playerHealth.GetComponent<CharacterController>();
+        CharacterController controller = playerHealth.GetComponent<CharacterController>();
 
         if (controller != null)
             controller.enabled = false;
 
-        playerHealth.transform.position =
-            currentCheckpoint.position;
+        playerHealth.transform.position = currentCheckpoint.position;
 
         Debug.Log("Player Position After: " + playerHealth.transform.position);
 
@@ -57,6 +59,8 @@ public class CheckpointManager : MonoBehaviour
         if (movement != null)
         {
             movement.currentState = PlayerState.Idle;
+            movement.StopAllCoroutines();
+            movement.ResetMovement();
         }
 
 
@@ -65,16 +69,21 @@ public class CheckpointManager : MonoBehaviour
         if (items != null)
         {
             items.RefillFlasks();
+            items.StopAllCoroutines();
         }
 
-        EnemySpawner[] spawners =
-            FindObjectsByType<EnemySpawner>(FindObjectsSortMode.None);
+        playerHealth.StopAllCoroutines();
+
+      
+
+        EnemySpawner[] spawners = FindObjectsByType<EnemySpawner>(FindObjectsSortMode.None);
 
         foreach (EnemySpawner spawner in spawners)
         {
             spawner.RespawnEnemy();
         }
 
-        Debug.Log("Player Respawned");
+        Debug.Log("Final Respawn Position: " + playerHealth.transform.position);
+
     }
 }

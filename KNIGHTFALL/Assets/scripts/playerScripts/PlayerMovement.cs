@@ -315,4 +315,16 @@ public class PlayerMovement : MonoBehaviour
         isDodging = false;
         currentState = PlayerState.Idle;
     }
+
+    public void ResetMovement()
+    {
+        moveInput = Vector2.zero;
+        verticalVelocity = 0f;
+
+        isDodging = false;
+        sprintHeld = false;
+        isSprinting = false;
+
+        currentState = PlayerState.Idle;
+    }
 }

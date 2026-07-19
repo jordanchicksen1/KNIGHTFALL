@@ -39,9 +39,7 @@ public class EnemyRangeAI : MonoBehaviour
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
-
         enemyHealth = GetComponent<EnemyHealth>();
-
         GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
 
         if (playerObject != null)
@@ -85,62 +83,32 @@ public class EnemyRangeAI : MonoBehaviour
         HandleRotation();
         HandleCrossbowVisual();
 
-        if (!isAttacking &&
-    !isDodging &&
-    !isMakingDecision)
+        if (!isAttacking && !isDodging && !isMakingDecision)
         {
-            StartCoroutine(
-                MakeCombatDecision()
-            );
+            StartCoroutine(MakeCombatDecision());
         }
     }
 
     void HandleRotation()
     {
-        Vector3 direction =
-            player.position - transform.position;
-
+        Vector3 direction = player.position - transform.position;
         direction.y = 0;
-
-        Quaternion targetRotation =
-            Quaternion.LookRotation(direction);
-
-        transform.rotation =
-            Quaternion.Slerp(
-                transform.rotation,
-                targetRotation,
-                rotationSpeed * Time.deltaTime
-            );
+        Quaternion targetRotation = Quaternion.LookRotation(direction);
+        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
     }
 
     void HandleCrossbowVisual()
     {
-        Quaternion targetRotation =
-            isAttacking ?
-            aimingRotation :
-            relaxedRotation;
-
-        crossbowHolder.localRotation =
-            Quaternion.Slerp(
-                crossbowHolder.localRotation,
-                targetRotation,
-                12f * Time.deltaTime
-            );
+        Quaternion targetRotation = isAttacking ? aimingRotation : relaxedRotation;
+        crossbowHolder.localRotation = Quaternion.Slerp(crossbowHolder.localRotation,targetRotation, 12f * Time.deltaTime);
     }
 
 
     IEnumerator MakeCombatDecision()
     {
         isMakingDecision = true;
-
-        float distance =
-            Vector3.Distance(
-                transform.position,
-                player.position
-            );
-
-        int decision =
-            Random.Range(0, 100);
+        float distance = Vector3.Distance(transform.position, player.position);
+        int decision = Random.Range(0, 100);
 
         // VERY FAR
         if (distance > chaseDistance)
@@ -149,23 +117,10 @@ public class EnemyRangeAI : MonoBehaviour
 
             while (timer < 1f)
             {
-                Vector3 direction =
-                    (
-                        player.position -
-                        transform.position
-                    ).normalized;
-
+                Vector3 direction = (player.position - transform.position).normalized;
                 direction.y = 0;
-
-                rb.MovePosition(
-                    transform.position +
-                    direction *
-                    moveSpeed *
-                    Time.deltaTime
-                );
-
+                rb.MovePosition(transform.position + direction * moveSpeed * Time.deltaTime);
                 timer += Time.deltaTime;
-
                 yield return null;
             }
         }
@@ -177,15 +132,11 @@ public class EnemyRangeAI : MonoBehaviour
             // MOSTLY DODGE
             if (decision < 70)
             {
-                yield return StartCoroutine(
-                    DodgeAway()
-                );
+                yield return StartCoroutine(DodgeAway());
             }
             else
             {
-                yield return StartCoroutine(
-                    Strafe()
-                );
+                yield return StartCoroutine(Strafe());
             }
         }
 
@@ -233,15 +184,11 @@ public class EnemyRangeAI : MonoBehaviour
             {
                 if (decision < 25)
                 {
-                    yield return StartCoroutine(
-                        Strafe()
-                    );
+                    yield return StartCoroutine(Strafe());
                 }
                 else if (decision < 40)
                 {
-                    yield return StartCoroutine(
-                        DodgeAway()
-                    );
+                    yield return StartCoroutine(DodgeAway());
                 }
                 else if (decision < 85)
                 {
@@ -251,9 +198,7 @@ public class EnemyRangeAI : MonoBehaviour
                 }
                 else
                 {
-                    yield return StartCoroutine(
-                        BurstShot()
-                    );
+                    yield return StartCoroutine(BurstShot() );
                 }
             }
         }
@@ -268,26 +213,15 @@ public class EnemyRangeAI : MonoBehaviour
     IEnumerator Strafe()
     {
         isDodging = true;
-
-        float duration =
-            Random.Range(0.4f, 1f);
-
-        float direction =
-            Random.Range(0, 2) == 0 ? -1 : 1;
-
+        float duration = Random.Range(0.4f, 1f);
+        float direction = Random.Range(0, 2) == 0 ? -1 : 1;
         float timer = 0;
 
         while (timer < duration)
         {
-            Vector3 strafeDirection =
-                transform.right * direction;
+            Vector3 strafeDirection = transform.right * direction;
 
-            rb.MovePosition(
-                transform.position +
-                strafeDirection *
-                moveSpeed * 1.8f *
-                Time.deltaTime
-            );
+            rb.MovePosition(transform.position + strafeDirection * moveSpeed * 1.8f * Time.deltaTime);
 
             timer += Time.deltaTime;
 
@@ -300,7 +234,6 @@ public class EnemyRangeAI : MonoBehaviour
     IEnumerator SingleShot()
     {
         canAttack = false;
-
         isAttacking = true;
 
         yield return new WaitForSeconds(0.35f);
@@ -310,14 +243,12 @@ public class EnemyRangeAI : MonoBehaviour
         yield return new WaitForSeconds(attackCooldown);
 
         isAttacking = false;
-
         canAttack = true;
     }
 
     IEnumerator BurstShot()
     {
         canAttack = false;
-
         isAttacking = true;
 
         yield return new WaitForSeconds(0.35f);
@@ -329,80 +260,37 @@ public class EnemyRangeAI : MonoBehaviour
             yield return new WaitForSeconds(0.18f);
         }
 
-        yield return new WaitForSeconds(
-            attackCooldown + 1f
-        );
+        yield return new WaitForSeconds(attackCooldown + 1f);
 
         isAttacking = false;
-
         canAttack = true;
     }
 
     void FireProjectile()
     {
-        GameObject projectile =
-            Instantiate(
-                projectilePrefab,
-                firePoint.position,
-                Quaternion.identity
-            );
+        GameObject projectile = Instantiate(projectilePrefab, firePoint.position, Quaternion.identity);
+        Vector3 direction = (player.position - firePoint.position).normalized;
 
-        Vector3 direction =
-            (
-                player.position -
-                firePoint.position
-            ).normalized;
-
-        projectile
-            .GetComponent<EnemyProjectile>()
-            .SetDirection(direction);
+        projectile.GetComponent<EnemyProjectile>().SetDirection(direction);
     }
 
     IEnumerator DodgeAway()
     {
         isDodging = true;
-
-        Vector3 dodgeDirection =
-            (
-                transform.position -
-                player.position
-            ).normalized;
-
-        dodgeDirection +=
-            transform.right *
-            Random.Range(-1.5f, 1.5f);
-
+        Vector3 dodgeDirection = ( transform.position - player.position).normalized;
+        dodgeDirection += transform.right * Random.Range(-1.5f, 1.5f);
         dodgeDirection.y = 0;
-
         dodgeDirection.Normalize();
-
-        Vector3 startPosition =
-            transform.position;
-
+        Vector3 startPosition = transform.position;
         float dodgeDistance = 5f;
-
         float duration = 0.22f;
-
         float timer = 0;
 
         while (timer < duration)
         {
-            float progress =
-                timer / duration;
-
-            Vector3 targetPosition =
-                startPosition +
-                dodgeDirection *
-                dodgeDistance;
-
-            rb.MovePosition(
-                Vector3.Lerp(
-                    startPosition,
-                    targetPosition,
-                    progress
-                )
-            );
-
+            float progress = timer / duration;
+            Vector3 targetPosition = startPosition + dodgeDirection * dodgeDistance;
+            rb.MovePosition(Vector3.Lerp(startPosition, targetPosition, progress));
             timer += Time.deltaTime;
 
             yield return null;

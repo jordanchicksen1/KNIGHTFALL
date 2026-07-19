@@ -17297,6 +17297,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: CheckpointManager
       objectReference: {fileID: 0}
+    - target: {fileID: 6551755144234793699, guid: 513b8fd69874e9845851c9a90978743c, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.9
+      objectReference: {fileID: 0}
+    - target: {fileID: 6551755144234793699, guid: 513b8fd69874e9845851c9a90978743c, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -8.53
+      objectReference: {fileID: 0}
     - target: {fileID: 8417678589216478713, guid: 513b8fd69874e9845851c9a90978743c, type: 3}
       propertyPath: m_LocalPosition.x
       value: -5.12

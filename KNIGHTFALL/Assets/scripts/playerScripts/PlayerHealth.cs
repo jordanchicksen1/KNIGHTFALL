@@ -86,11 +86,9 @@ public class PlayerHealth : MonoBehaviour
 
             stamina = Mathf.Max(stamina, 0);
 
-            if (stamina <= 0 &&
-                !isGuardBroken)
+            if (stamina <= 0 && !isGuardBroken)
             {
                 StartCoroutine(GuardBreak());
-
                 return;
             }
 
@@ -126,81 +124,46 @@ public class PlayerHealth : MonoBehaviour
 
         float regenRate = staminaRegenRate;
 
-        if (combat != null &&
-            combat.IsBlocking())
+        if (combat != null && combat.IsBlocking())
         {
-            regenRate *=
-                blockingRegenMultiplier;
+            regenRate *= blockingRegenMultiplier;
         }
 
-        stamina +=
-            regenRate *
-            Time.deltaTime;
-
-        stamina =
-            Mathf.Clamp(
-                stamina,
-                0,
-                maxStamina
-            );
+        stamina += regenRate * Time.deltaTime;
+        stamina = Mathf.Clamp( stamina, 0, maxStamina);
     }
 
     public void ResetStaminaRegenDelay()
     {
-        staminaTimer =
-            staminaRegenDelay;
+        staminaTimer = staminaRegenDelay;
     }
 
     IEnumerator GuardBreak()
     {
         isGuardBroken = true;
-
-        movement.currentState =
-            PlayerState.Staggered;
+        movement.currentState = PlayerState.Staggered;
 
         // stop current sword attack
         combat.InterruptAttack();
-
         combat.ForceStopBlocking();
 
         // LOWER HANDS
-        rightHand.localPosition =
-            rightHandStartPos +
-            new Vector3(0, -0.35f, 0);
+        rightHand.localPosition = rightHandStartPos + new Vector3(0, -0.35f, 0);
+        leftHand.localPosition = leftHandStartPos + new Vector3(0, -0.35f, 0);
+        rightHand.localRotation = Quaternion.Euler(50, 0, 0);
+        leftHand.localRotation = Quaternion.Euler(50, 0, 0);
 
-        leftHand.localPosition =
-            leftHandStartPos +
-            new Vector3(0, -0.35f, 0);
-
-        rightHand.localRotation =
-            Quaternion.Euler(50, 0, 0);
-
-        leftHand.localRotation =
-            Quaternion.Euler(50, 0, 0);
-
-        yield return new WaitForSeconds(
-            guardBreakDuration
-        );
+        yield return new WaitForSeconds(guardBreakDuration);
 
         // RESTORE RIGHT HAND
-        rightHand.localPosition =
-            rightHandStartPos;
-
-        rightHand.localRotation =
-            rightHandStartRot;
+        rightHand.localPosition = rightHandStartPos;
+        rightHand.localRotation = rightHandStartRot;
 
         // RESTORE LEFT HAND
-        leftHand.localPosition =
-            leftHandStartPos;
-
-        leftHand.localRotation =
-            leftHandStartRot;
-
+        leftHand.localPosition = leftHandStartPos;
+        leftHand.localRotation = leftHandStartRot;
         stamina = 25f;
-
-        movement.currentState =
-            PlayerState.Idle;
-
+        movement.currentState = PlayerState.Idle;
         isGuardBroken = false;
     }
 
@@ -208,31 +171,19 @@ public class PlayerHealth : MonoBehaviour
     {
         if (!isGuardBroken)
         {
-            movement.currentState =
-                PlayerState.Staggered;
+            movement.currentState = PlayerState.Staggered;
         }
 
         Vector3 startPosition = transform.position;
-
-        Vector3 targetPosition =
-            startPosition +
-            (hitDirection * knockbackDistance);
+        Vector3 targetPosition = startPosition + (hitDirection * knockbackDistance);
 
         float timer = 0;
 
         while (timer < knockbackDuration)
         {
-            Vector3 move =
-                Vector3.Lerp(
-                    startPosition,
-                    targetPosition,
-                    timer / knockbackDuration
-                );
-
+            Vector3 move = Vector3.Lerp(startPosition, targetPosition, timer / knockbackDuration);
             controller.enabled = false;
-
             transform.position = move;
-
             controller.enabled = true;
 
             timer += Time.deltaTime;
@@ -244,8 +195,7 @@ public class PlayerHealth : MonoBehaviour
 
         if (!isGuardBroken)
         {
-            movement.currentState =
-                PlayerState.Idle;
+            movement.currentState = PlayerState.Idle;
         }
     }
 

@@ -33,11 +33,9 @@ public class EnemyProjectile : MonoBehaviour
         // SHIELD BLOCK
         if (other.CompareTag("Shield"))
         {
-            PlayerCombat combat =
-                other.GetComponentInParent<PlayerCombat>();
+            PlayerCombat combat = other.GetComponentInParent<PlayerCombat>();
 
-            PlayerHealth playerHealth =
-                other.GetComponentInParent<PlayerHealth>();
+            PlayerHealth playerHealth = other.GetComponentInParent<PlayerHealth>();
 
             if (combat != null &&
                 combat.IsBlocking())
@@ -53,8 +51,7 @@ public class EnemyProjectile : MonoBehaviour
         }
 
         // PLAYER HIT
-        PlayerHealth player =
-            other.GetComponent<PlayerHealth>();
+        PlayerHealth player = other.GetComponent<PlayerHealth>();
 
         if (player != null)
         {

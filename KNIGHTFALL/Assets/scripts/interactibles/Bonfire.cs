@@ -23,8 +23,18 @@ public class Bonfire : Interactable
     {
         Debug.Log("Rested at Bonfire");
 
+        // Different checkpoint?
+        bool isNewCheckpoint = CheckpointManager.Instance.currentCheckpoint != spawnPoint;
+
         // Save checkpoint
         CheckpointManager.Instance.SetCheckpoint(spawnPoint);
+
+        if (isNewCheckpoint)
+        {
+            playerHealth.vitality += playerHealth.vitalityRestore;
+            playerHealth.vitality = Mathf.Min(playerHealth.vitality,playerHealth.maxVitality);
+        }
+
         Debug.Log("Checkpoint Saved: " + spawnPoint.position);
 
         // Restore player
@@ -35,8 +45,7 @@ public class Bonfire : Interactable
         Debug.Log(playerItems.currentHealingFlasks);
 
         // Respawn every enemy
-        EnemySpawner[] spawners =
-            FindObjectsByType<EnemySpawner>(FindObjectsSortMode.None);
+        EnemySpawner[] spawners = FindObjectsByType<EnemySpawner>(FindObjectsSortMode.None);
 
         foreach (EnemySpawner spawner in spawners)
         {
