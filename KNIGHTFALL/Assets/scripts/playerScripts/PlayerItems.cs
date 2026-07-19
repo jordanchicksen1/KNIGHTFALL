@@ -115,6 +115,12 @@ public class PlayerItems : MonoBehaviour
         }
     }
 
+    public void RefillFlasks()
+    {
+        currentHealingFlasks = maxHealingFlasks;
+        currentManaFlasks = maxManaFlasks;
+    }
+
     public void CancelHealing()
     {
         if (healingCoroutine != null)

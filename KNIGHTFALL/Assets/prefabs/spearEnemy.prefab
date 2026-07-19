@@ -1104,8 +1104,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c667b113216bd04408022bd9ef04c4b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyHealth
-  maxHealth: 100
-  health: 100
+  maxHealth: 150
+  health: 150
   knockbackForce: 5
   staggerDuration: 0.25
 --- !u!114 &7407382345486195958

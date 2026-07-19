@@ -84,14 +84,13 @@ public class PlayerHealth : MonoBehaviour
 
         health -= damage;
 
-        StartCoroutine(Knockback(hitDirection));
-
-        Debug.Log("Player took damage");
-
         if (health <= 0)
         {
-            Debug.Log("Player Died");
+            CheckpointManager.Instance.RespawnPlayer(this);
+            return;
         }
+
+        StartCoroutine(Knockback(hitDirection));
     }
 
     void RegenerateStamina()
