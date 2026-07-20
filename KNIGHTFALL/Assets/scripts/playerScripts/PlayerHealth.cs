@@ -211,6 +211,19 @@ public class PlayerHealth : MonoBehaviour
     {
         yield return StartCoroutine(InteractionUI.Instance.DeathRoutine());
         CheckpointManager.Instance.RespawnPlayer(this);
+        BossController boss = FindFirstObjectByType<BossController>();
+
+        if (boss != null)
+        {
+            boss.ResetBoss();
+        }
+
+        PlayerLockOn lockOn = GetComponent<PlayerLockOn>();
+
+        if (lockOn != null)
+        {
+            lockOn.ClearTarget();
+        }
     }
 
 }

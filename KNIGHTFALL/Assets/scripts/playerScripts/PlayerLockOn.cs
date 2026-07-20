@@ -257,7 +257,7 @@ public class PlayerLockOn : MonoBehaviour
         }
     }
 
-    void ClearTarget()
+    public void ClearTarget()
     {
         currentTarget = null;
         isLockedOn = false;

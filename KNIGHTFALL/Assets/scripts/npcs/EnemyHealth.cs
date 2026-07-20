@@ -28,7 +28,9 @@ public class EnemyHealth : MonoBehaviour
     private EnemyMovement enemyMovement;
     private SpearEnemyMovement spearMovement;
     private EnemyRangeAI rangedMovement;
+    private MageBossAI mageBossAI;
     private EnemyHealthUI healthUI;
+    private BossHealthUI bossHealthUI;
 
     private bool isStaggered;
 
@@ -39,13 +41,17 @@ public class EnemyHealth : MonoBehaviour
         enemyMovement = GetComponent<EnemyMovement>();
         spearMovement = GetComponent<SpearEnemyMovement>();
         rangedMovement = GetComponent<EnemyRangeAI>();
+        mageBossAI = GetComponent<MageBossAI>();
         healthUI = GetComponentInChildren<EnemyHealthUI>();
+        bossHealthUI = FindFirstObjectByType<BossHealthUI>();
 
         if (enemyMovement != null) originalMoveSpeed = enemyMovement.moveSpeed;
 
         else if (spearMovement != null) originalMoveSpeed = spearMovement.moveSpeed;
 
         else if (rangedMovement != null) originalMoveSpeed = rangedMovement.moveSpeed;
+
+        else if (mageBossAI != null) originalMoveSpeed = mageBossAI.moveSpeed;
     }
 
     public void TakeDamage(int damage, Vector3 hitDirection)
@@ -56,6 +62,8 @@ public class EnemyHealth : MonoBehaviour
         health -= damage;
 
         if (healthUI != null) healthUI.ShowDamage(damage);
+
+        if (bossHealthUI != null && bossHealthUI.bossHealth == this) bossHealthUI.ShowDamage(damage);
 
         rb.AddForce( hitDirection * knockbackForce, ForceMode.Impulse);
 
@@ -70,6 +78,13 @@ public class EnemyHealth : MonoBehaviour
 
         if (health <= 0)
         {
+            BossController boss = GetComponent<BossController>();
+
+            if (boss != null)
+            {
+                boss.EndBossFight();
+            }
+
             Destroy(gameObject);
         }
     }
@@ -130,35 +145,42 @@ public class EnemyHealth : MonoBehaviour
     {
         currentStatus = StatusEffect.Burning;
         if (healthUI != null) healthUI.ShowStatus(currentStatus);
+        if (bossHealthUI != null && bossHealthUI.bossHealth == this) bossHealthUI.ShowStatus(currentStatus);
         TakeDamage(statusProcDamage, Vector3.zero);
         Debug.Log(gameObject.name + " is Burning!");
         yield return new WaitForSeconds(burnDuration);
         currentStatus = StatusEffect.None;
         if (healthUI != null) healthUI.HideStatus();
+        if (bossHealthUI != null && bossHealthUI.bossHealth == this) bossHealthUI.HideStatus();
     }
 
     IEnumerator Frozen()
     {
         currentStatus = StatusEffect.Frozen;
         if (healthUI != null) healthUI.ShowStatus(currentStatus);
+        if (bossHealthUI != null && bossHealthUI.bossHealth == this) bossHealthUI.ShowStatus(currentStatus);
         TakeDamage(statusProcDamage, Vector3.zero);
         Debug.Log(gameObject.name + " is Frozen!");
         if (enemyMovement != null) enemyMovement.moveSpeed = originalMoveSpeed * frozenSpeedMultiplier;
         if (spearMovement != null) spearMovement.moveSpeed = originalMoveSpeed * frozenSpeedMultiplier;
         if (rangedMovement != null) rangedMovement.moveSpeed = originalMoveSpeed * frozenSpeedMultiplier;
+        if(mageBossAI != null) mageBossAI.moveSpeed = originalMoveSpeed * frozenSpeedMultiplier;
 
         yield return new WaitForSeconds(frozenDuration);
         if (enemyMovement != null) enemyMovement.moveSpeed = originalMoveSpeed;
         if (spearMovement != null) spearMovement.moveSpeed = originalMoveSpeed;
         if (rangedMovement != null) rangedMovement.moveSpeed = originalMoveSpeed;
+        if (mageBossAI != null) mageBossAI.moveSpeed = originalMoveSpeed;
         currentStatus = StatusEffect.None;
         if (healthUI != null) healthUI.HideStatus();
+        if (bossHealthUI != null && bossHealthUI.bossHealth == this) bossHealthUI.HideStatus();
     }
 
     IEnumerator Shocked()
     {
         currentStatus = StatusEffect.Shocked;
         if (healthUI != null) healthUI.ShowStatus(currentStatus);
+        if (bossHealthUI != null && bossHealthUI.bossHealth == this) bossHealthUI.ShowStatus(currentStatus);
         TakeDamage(statusProcDamage, Vector3.zero);
         Debug.Log(gameObject.name + " is Shocked!");
         if (enemyMovement != null) enemyMovement.canMove = false;
@@ -166,6 +188,10 @@ public class EnemyHealth : MonoBehaviour
         if (rangedMovement != null)
         {
             rangedMovement.enabled = false;
+        }
+        if (mageBossAI != null)
+        {
+            mageBossAI.enabled = false;
         }
         if (enemyAttack != null) enemyAttack.StopAllCoroutines();
         SpearEnemyAttack spearAttack = GetComponent<SpearEnemyAttack>();
@@ -178,8 +204,13 @@ public class EnemyHealth : MonoBehaviour
         {
             rangedMovement.enabled = true;
         }
+        if (mageBossAI != null)
+        {
+            mageBossAI.enabled = true;
+        }
         currentStatus = StatusEffect.None;
         if (healthUI != null) healthUI.HideStatus();
+        if (bossHealthUI != null && bossHealthUI.bossHealth == this) bossHealthUI.HideStatus();
     }
 
     IEnumerator Stagger()
