@@ -31,8 +31,15 @@ public class Bonfire : Interactable
 
         if (isNewCheckpoint)
         {
+            float previousVitality = playerHealth.vitality;
             playerHealth.vitality += playerHealth.vitalityRestore;
-            playerHealth.vitality = Mathf.Min(playerHealth.vitality,playerHealth.maxVitality);
+            playerHealth.vitality = Mathf.Min(playerHealth.vitality, playerHealth.maxVitality);
+            float restoredAmount = playerHealth.vitality - previousVitality;
+
+            if (restoredAmount > 0)
+            {
+                InteractionUI.Instance.ShowNotification("Vitality Restored +" + restoredAmount);
+            }
         }
 
 

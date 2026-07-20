@@ -45,7 +45,7 @@ public class Door : Interactable
         {
             if (!inventory.UseKey())
             {
-                Debug.Log("Door is locked.");
+                InteractionUI.Instance.ShowNotification("The door is locked.");
 
                 return;
             }
@@ -58,7 +58,12 @@ public class Door : Interactable
             float distance = Vector3.Distance(player.transform.position, allowedSide.position);
 
             if (distance > 1f)
+            {
+                InteractionUI.Instance.ShowNotification("Opens from the other side.");
                 return;
+            }
+            
+           
         }
 
         isOpen = true;

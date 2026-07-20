@@ -81,9 +81,7 @@ public class PlayerHealth : MonoBehaviour
         if (combat != null && combat.IsBlocking())
         {
             stamina -= 15f;
-
             ResetStaminaRegenDelay();
-
             stamina = Mathf.Max(stamina, 0);
 
             if (stamina <= 0 && !isGuardBroken)
@@ -102,10 +100,9 @@ public class PlayerHealth : MonoBehaviour
         if (health <= 0)
         {
             vitality -= vitalityLoss;
-
             vitality = Mathf.Max(minimumVitality, vitality);
-
-            CheckpointManager.Instance.RespawnPlayer(this);
+            movement.currentState = PlayerState.Staggered;
+            StartCoroutine(DeathSequence());
             return;
         }
 
@@ -203,6 +200,12 @@ public class PlayerHealth : MonoBehaviour
     public bool IsGuardBroken()
     {
         return isGuardBroken;
+    }
+
+    private IEnumerator DeathSequence()
+    {
+        yield return StartCoroutine(InteractionUI.Instance.DeathRoutine());
+        CheckpointManager.Instance.RespawnPlayer(this);
     }
 
 }

@@ -18,13 +18,11 @@ public class ItemPickup : Interactable
 
     void Start()
     {
-        GameObject player =
-            GameObject.FindGameObjectWithTag("Player");
+        GameObject player = GameObject.FindGameObjectWithTag("Player");
 
         if (player != null)
         {
-            inventory =
-                player.GetComponent<PlayerInventory>();
+            inventory = player.GetComponent<PlayerInventory>();
         }
     }
 
@@ -33,16 +31,19 @@ public class ItemPickup : Interactable
         if (pickupType == PickupType.Weapon)
         {
             inventory.UnlockWeapon(weapon);
+            InteractionUI.Instance.ShowNotification("Obtained " + weapon + "!");
         }
 
         if (pickupType == PickupType.Spell)
         {
             inventory.UnlockSpell(spell);
+            InteractionUI.Instance.ShowNotification("Obtained " + spell + "!");
         }
 
         if (pickupType == PickupType.Key)
         {
             inventory.AddKey();
+            InteractionUI.Instance.ShowNotification("Obtained " + key + "!");
         }
 
         InteractionUI.Instance.HidePrompt();
