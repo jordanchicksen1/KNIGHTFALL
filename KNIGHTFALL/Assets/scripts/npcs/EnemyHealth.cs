@@ -82,7 +82,7 @@ public class EnemyHealth : MonoBehaviour
 
             if (boss != null)
             {
-                boss.EndBossFight();
+                boss.BossDied();
             }
 
             Destroy(gameObject);
