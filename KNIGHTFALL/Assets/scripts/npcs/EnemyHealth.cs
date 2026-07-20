@@ -28,18 +28,18 @@ public class EnemyHealth : MonoBehaviour
     private EnemyMovement enemyMovement;
     private SpearEnemyMovement spearMovement;
     private EnemyRangeAI rangedMovement;
+    private EnemyHealthUI healthUI;
 
     private bool isStaggered;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
-
         enemyAttack = GetComponent<EnemyAttack>();
-
         enemyMovement = GetComponent<EnemyMovement>();
         spearMovement = GetComponent<SpearEnemyMovement>();
         rangedMovement = GetComponent<EnemyRangeAI>();
+        healthUI = GetComponentInChildren<EnemyHealthUI>();
 
         if (enemyMovement != null) originalMoveSpeed = enemyMovement.moveSpeed;
 
@@ -54,6 +54,8 @@ public class EnemyHealth : MonoBehaviour
             return;
 
         health -= damage;
+
+        if (healthUI != null) healthUI.ShowDamage(damage);
 
         rb.AddForce( hitDirection * knockbackForce, ForceMode.Impulse);
 
