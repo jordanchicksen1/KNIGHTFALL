@@ -22,6 +22,7 @@ public class PlayerMovement : MonoBehaviour
     private PlayerCombat combat;
     private PlayerHealth playerHealth;
     private PlayerItems items;
+    private PauseMenu pauseMenu;
 
     [Header("Stamina Costs")]
     public float dodgeCost = 25f;
@@ -58,6 +59,7 @@ public class PlayerMovement : MonoBehaviour
         combat = GetComponent<PlayerCombat>();
         playerHealth = GetComponent<PlayerHealth>();
         items = GetComponent<PlayerItems>();
+        pauseMenu = GetComponent<PauseMenu>();
         controls = new PlayerControls();
         controls.Player.Move.performed += ctx => moveInput = ctx.ReadValue<Vector2>();
         controls.Player.Move.canceled += ctx => moveInput = Vector2.zero;
@@ -72,6 +74,8 @@ public class PlayerMovement : MonoBehaviour
         {
             sprintHeld = false;
         };
+
+        controls.Player.Pause.performed += pauseMenu.TogglePause;
     }
 
     private void OnEnable()
