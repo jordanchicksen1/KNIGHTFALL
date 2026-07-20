@@ -399,46 +399,28 @@ public class PlayerCombat : MonoBehaviour
 
     IEnumerator HeavySwing()
     {
-        Vector3 startPosition =
-            rightHandStartPosition;
+        Vector3 startPosition = rightHandStartPosition;
 
-        Quaternion startRotation =
-            rightHandStartRotation;
+        Quaternion startRotation = rightHandStartRotation;
 
         // OVERHEAD POSITION
-        Vector3 overheadPosition =
-            startPosition +
-            new Vector3(0f, 0.35f, -0.1f);
+        Vector3 overheadPosition = startPosition + new Vector3(0f, 0.35f, -0.1f);
 
-        Quaternion overheadRotation =
-     Quaternion.Euler(-40, -120, 20);
+        Quaternion overheadRotation = Quaternion.Euler(-40, -120, 20);
 
         // DOWNWARD SLAM
-        Vector3 slamPosition =
-            startPosition +
-            new Vector3(0f, -0.45f, 0.15f);
+        Vector3 slamPosition = startPosition + new Vector3(0f, -0.45f, 0.15f);
 
-        Quaternion slamRotation =
-    Quaternion.Euler(0, 20, 110);
+        Quaternion slamRotation = Quaternion.Euler(0, 20, 110);
 
         float timer = 0;
 
         // RAISE SWORD
         while (timer < 0.35f)
         {
-            rightHand.localPosition =
-                Vector3.Lerp(
-                    startPosition,
-                    overheadPosition,
-                    timer / 0.35f
-                );
+            rightHand.localPosition = Vector3.Lerp(startPosition, overheadPosition,timer / 0.35f);
 
-            rightHand.localRotation =
-                Quaternion.Slerp(
-                    startRotation,
-                    overheadRotation,
-                    timer / 0.35f
-                );
+            rightHand.localRotation = Quaternion.Slerp(startRotation, overheadRotation, timer / 0.35f);
 
             timer += Time.deltaTime;
 
@@ -446,11 +428,9 @@ public class PlayerCombat : MonoBehaviour
         }
 
         // HOLD ANTICIPATION
-        rightHand.localPosition =
-            overheadPosition;
+        rightHand.localPosition = overheadPosition;
 
-        rightHand.localRotation =
-            overheadRotation;
+        rightHand.localRotation = overheadRotation;
 
         yield return new WaitForSeconds(0.25f);
 
@@ -459,19 +439,9 @@ public class PlayerCombat : MonoBehaviour
         // FAST DOWNWARD CHOP
         while (timer < 0.12f)
         {
-            rightHand.localPosition =
-                Vector3.Lerp(
-                    overheadPosition,
-                    slamPosition,
-                    timer / 0.12f
-                );
+            rightHand.localPosition = Vector3.Lerp(overheadPosition, slamPosition, timer / 0.12f);
 
-            rightHand.localRotation =
-                Quaternion.Slerp(
-                    overheadRotation,
-                    slamRotation,
-                    timer / 0.12f
-                );
+            rightHand.localRotation = Quaternion.Slerp(overheadRotation, slamRotation, timer / 0.12f);
 
             timer += Time.deltaTime;
 
@@ -485,18 +455,9 @@ public class PlayerCombat : MonoBehaviour
         // RECOVERY
         while (timer < 0.28f)
         {
-            rightHand.localPosition =
-                Vector3.Lerp(
-                    slamPosition,
-                    startPosition,
-                    timer / 0.28f
-                );
+            rightHand.localPosition = Vector3.Lerp(slamPosition, startPosition, timer / 0.28f);
 
-            rightHand.localRotation =
-                Quaternion.Slerp(slamRotation,
-                    startRotation,
-                    timer / 0.28f
-                );
+            rightHand.localRotation = Quaternion.Slerp(slamRotation, startRotation, timer / 0.28f);
 
             timer += Time.deltaTime;
 
@@ -515,37 +476,23 @@ public class PlayerCombat : MonoBehaviour
         Quaternion startRotation = rightHandStartRotation;
 
         // Wind-up (top-right)
-        Vector3 windUpPosition =
-            startPosition + new Vector3(0.25f, 0.25f, 0);
+        Vector3 windUpPosition = startPosition + new Vector3(0.25f, 0.25f, 0);
 
-        Quaternion windUpRotation =
-            Quaternion.Euler(0, 70, 0);
+        Quaternion windUpRotation = Quaternion.Euler(0, 70, 0);
 
         // Follow-through (bottom-left)
-        Vector3 slashPosition =
-            startPosition + new Vector3(-0.35f, -0.25f, 0);
+        Vector3 slashPosition = startPosition + new Vector3(-0.35f, -0.25f, 0);
 
-        Quaternion slashRotation =
-            Quaternion.Euler(0, 0, 110);
+        Quaternion slashRotation = Quaternion.Euler(0, 0, 110);
 
         float timer = 0;
 
         // WIND-UP
         while (timer < 0.08f)
         {
-            rightHand.localPosition =
-                Vector3.Lerp(
-                    startPosition,
-                    windUpPosition,
-                    timer / 0.08f
-                );
+            rightHand.localPosition = Vector3.Lerp( startPosition, windUpPosition,timer / 0.08f);
 
-            rightHand.localRotation =
-                Quaternion.Slerp(
-                    startRotation,
-                    windUpRotation,
-                    timer / 0.08f
-                );
+            rightHand.localRotation = Quaternion.Slerp(startRotation, windUpRotation, timer / 0.08f);
 
             timer += Time.deltaTime;
 
@@ -557,19 +504,9 @@ public class PlayerCombat : MonoBehaviour
         // SLASH
         while (timer < 0.12f)
         {
-            rightHand.localPosition =
-                Vector3.Lerp(
-                    windUpPosition,
-                    slashPosition,
-                    timer / 0.12f
-                );
+            rightHand.localPosition = Vector3.Lerp(windUpPosition, slashPosition, timer / 0.12f);
 
-            rightHand.localRotation =
-                Quaternion.Slerp(
-                    windUpRotation,
-                    slashRotation,
-                    timer / 0.12f
-                );
+            rightHand.localRotation = Quaternion.Slerp(windUpRotation, slashRotation, timer / 0.12f );
 
             timer += Time.deltaTime;
 
@@ -583,19 +520,8 @@ public class PlayerCombat : MonoBehaviour
         // RETURN
         while (timer < 0.15f)
         {
-            rightHand.localPosition =
-                Vector3.Lerp(
-                    slashPosition,
-                    startPosition,
-                    timer / 0.15f
-                );
-
-            rightHand.localRotation =
-                Quaternion.Slerp(
-                    slashRotation,
-                    startRotation,
-                    timer / 0.15f
-                );
+            rightHand.localPosition = Vector3.Lerp(slashPosition, startPosition,timer / 0.15f);
+            rightHand.localRotation = Quaternion.Slerp(slashRotation, startRotation, timer / 0.15f);
 
             timer += Time.deltaTime;
 
@@ -616,11 +542,7 @@ public class PlayerCombat : MonoBehaviour
 
             lungeDirection.y = 0;
 
-            controller.Move(
-                lungeDirection.normalized *
-                attackLungeForce *
-                Time.deltaTime
-            );
+            controller.Move(lungeDirection.normalized * attackLungeForce * Time.deltaTime);
 
             timer += Time.deltaTime;
 
@@ -634,16 +556,11 @@ public class PlayerCombat : MonoBehaviour
 
         while (timer < heavyAttackLungeDuration)
         {
-            Vector3 lungeDirection =
-                transform.forward;
+            Vector3 lungeDirection = transform.forward;
 
             lungeDirection.y = 0;
 
-            controller.Move(
-                lungeDirection.normalized *
-                heavyAttackLungeForce *
-                Time.deltaTime
-            );
+            controller.Move(lungeDirection.normalized * heavyAttackLungeForce * Time.deltaTime );
 
             timer += Time.deltaTime;
 
@@ -660,11 +577,9 @@ public class PlayerCombat : MonoBehaviour
             StopCoroutine(swordCoroutine);
         }
 
-        rightHand.localPosition =
-            rightHandStartPosition;
+        rightHand.localPosition = rightHandStartPosition;
 
-        rightHand.localRotation =
-            rightHandStartRotation;
+        rightHand.localRotation = rightHandStartRotation;
     }
     IEnumerator ActiveAttackFrames()
     {
@@ -672,35 +587,30 @@ public class PlayerCombat : MonoBehaviour
 
         float timer = 0;
 
-        List<EnemyHealth> hitEnemies =
-            new List<EnemyHealth>();
+        List<EnemyHealth> hitEnemies = new List<EnemyHealth>();
 
         while (timer < activeTime)
         {
-            Collider[] enemies = Physics.OverlapSphere(
-                attackPoint.position,
-                attackRange,
-                enemyLayers
-            );
+            Collider[] enemies = Physics.OverlapSphere(attackPoint.position, attackRange, enemyLayers);
 
             foreach (Collider enemy in enemies)
             {
-                EnemyHealth enemyHealth =
-                    enemy.GetComponent<EnemyHealth>();
+                EnemyHealth enemyHealth = enemy.GetComponent<EnemyHealth>();
 
-                if (enemyHealth != null &&
-                    !hitEnemies.Contains(enemyHealth))
+                if (enemyHealth != null && !hitEnemies.Contains(enemyHealth))
                 {
                     hitEnemies.Add(enemyHealth);
 
-                    Vector3 hitDirection =
-                        (enemy.transform.position -
-                        transform.position).normalized;
+                    Vector3 hitDirection = (enemy.transform.position - transform.position).normalized;
 
-                    enemyHealth.TakeDamage(
-                        attackDamage,
-                        hitDirection
-                    );
+                    int damage = attackDamage;
+
+                    if (enemyHealth.IsBurning())
+                    {
+                        damage = Mathf.RoundToInt(damage * 1.5f);
+                    }
+
+                    enemyHealth.TakeDamage(damage, hitDirection);
                 }
             }
 
@@ -715,9 +625,7 @@ public class PlayerCombat : MonoBehaviour
         // wait for anticipation
         yield return new WaitForSeconds(0.48f);
 
-        StartCoroutine(
-            HeavyAttackFrames()
-        );
+        StartCoroutine(HeavyAttackFrames());
     }
 
     IEnumerator HeavyAttackFrames()
@@ -726,38 +634,30 @@ public class PlayerCombat : MonoBehaviour
 
         float timer = 0;
 
-        List<EnemyHealth> hitEnemies =
-            new List<EnemyHealth>();
+        List<EnemyHealth> hitEnemies = new List<EnemyHealth>();
 
         while (timer < activeTime)
         {
-            Collider[] enemies =
-                Physics.OverlapSphere(
-                    attackPoint.position,
-                    attackRange,
-                    enemyLayers
-                );
+            Collider[] enemies = Physics.OverlapSphere(attackPoint.position, attackRange, enemyLayers);
 
             foreach (Collider enemy in enemies)
             {
-                EnemyHealth enemyHealth =
-                    enemy.GetComponent<EnemyHealth>();
+                EnemyHealth enemyHealth = enemy.GetComponent<EnemyHealth>();
 
-                if (enemyHealth != null &&
-                    !hitEnemies.Contains(enemyHealth))
+                if (enemyHealth != null && !hitEnemies.Contains(enemyHealth))
                 {
                     hitEnemies.Add(enemyHealth);
 
-                    Vector3 hitDirection =
-                        (
-                            enemy.transform.position -
-                            transform.position
-                        ).normalized;
+                    Vector3 hitDirection = (enemy.transform.position -transform.position).normalized;
 
-                    enemyHealth.TakeDamage(
-                        heavyAttackDamage,
-                        hitDirection
-                    );
+                    int damage = heavyAttackDamage;
+
+                    if (enemyHealth.IsBurning())
+                    {
+                        damage = Mathf.RoundToInt(damage * 1.5f);
+                    }
+
+                    enemyHealth.TakeDamage(damage,hitDirection);
                 }
             }
 
@@ -898,31 +798,20 @@ public class PlayerCombat : MonoBehaviour
         }
 
         // FREE AIM
-        Ray ray =
-            mainCamera.ViewportPointToRay(
-                new Vector3(0.5f, 0.5f)
-            );
+        Ray ray = mainCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f));
 
         Vector3 targetPoint;
 
-        if (Physics.Raycast(
-            ray,
-            out RaycastHit hit,
-            100f))
+        if (Physics.Raycast(ray, out RaycastHit hit,100f))
         {
             targetPoint = hit.point;
         }
         else
         {
-            targetPoint =
-                ray.origin +
-                ray.direction * 100f;
+            targetPoint = ray.origin + ray.direction * 100f;
         }
 
-        return (
-            targetPoint -
-            origin
-        ).normalized;
+        return (targetPoint - origin).normalized;
     }
 
     private void OnDrawGizmosSelected()

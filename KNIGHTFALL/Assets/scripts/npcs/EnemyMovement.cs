@@ -177,6 +177,9 @@ public class EnemyMovement : MonoBehaviour
 
     void MoveTowardsPlayer()
     {
+        if (!canMove)
+            return;
+
         Vector3 direction =
             (player.position - transform.position)
             .normalized;
@@ -191,6 +194,9 @@ public class EnemyMovement : MonoBehaviour
 
     void RotateTowardsPlayer()
     {
+        if (!canMove)
+            return;
+
         Vector3 direction =
             player.position - transform.position;
 
@@ -209,6 +215,9 @@ public class EnemyMovement : MonoBehaviour
 
     IEnumerator Strafe()
     {
+        if (!canMove)
+        yield break;
+
         float duration =
             Random.Range(0.3f, 0.6f);
 
@@ -235,24 +244,21 @@ public class EnemyMovement : MonoBehaviour
 
     IEnumerator BackAway()
     {
-        float duration =
-            Random.Range(0.2f, 0.45f);
+        if (!canMove)
+            yield break;
+
+
+        float duration = Random.Range(0.2f, 0.45f);
 
         float timer = 0;
 
         while (timer < duration)
         {
-            Vector3 direction =
-                (transform.position - player.position)
-                .normalized;
+            Vector3 direction = (transform.position - player.position).normalized;
 
             direction.y = 0;
 
-            transform.position +=
-                direction *
-                moveSpeed *
-                1.2f *
-                Time.deltaTime;
+            transform.position += direction * moveSpeed * 1.2f * Time.deltaTime;
 
             timer += Time.deltaTime;
 

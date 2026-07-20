@@ -132,13 +132,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 03d66e2a4eb6d5b40ae0f969c72922cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerFireball
-  mpCost: 20
+  mpCost: 15
   speed: 25
-  damage: 40
+  damage: 5
   lifeTime: 5
   spellType: 3
   isOrbiting: 0
-  statusBuildup: 20
+  statusBuildup: 35
 --- !u!65 &1703533618306736664
 BoxCollider:
   m_ObjectHideFlags: 0

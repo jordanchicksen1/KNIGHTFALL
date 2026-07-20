@@ -177,6 +177,9 @@ public class SpearEnemyMovement : MonoBehaviour
 
     void MoveTowardsPlayer()
     {
+        if (!canMove)
+            return;
+
         Vector3 direction =
             (player.position - transform.position)
             .normalized;
@@ -191,6 +194,9 @@ public class SpearEnemyMovement : MonoBehaviour
 
     void RotateTowardsPlayer()
     {
+        if (!canMove)
+            return;
+
         Vector3 direction =
             player.position - transform.position;
 
@@ -209,18 +215,18 @@ public class SpearEnemyMovement : MonoBehaviour
 
     IEnumerator Strafe()
     {
-        float duration =
-            Random.Range(0.3f, 0.6f);
+        if (!canMove)
+        yield break;
 
-        float direction =
-            Random.Range(0, 2) == 0 ? -1 : 1;
+        float duration = Random.Range(0.3f, 0.6f);
+
+        float direction = Random.Range(0, 2) == 0 ? -1 : 1;
 
         float timer = 0;
 
         while (timer < duration)
         {
-            Vector3 strafeDirection =
-                transform.right * direction;
+            Vector3 strafeDirection = transform.right * direction;
 
             transform.position +=
                 strafeDirection *
@@ -235,16 +241,16 @@ public class SpearEnemyMovement : MonoBehaviour
 
     IEnumerator BackAway()
     {
-        float duration =
-            Random.Range(0.2f, 0.45f);
+        if (!canMove)
+            yield break;
+
+        float duration = Random.Range(0.2f, 0.45f);
 
         float timer = 0;
 
         while (timer < duration)
         {
-            Vector3 direction =
-                (transform.position - player.position)
-                .normalized;
+            Vector3 direction = (transform.position - player.position).normalized;
 
             direction.y = 0;
 

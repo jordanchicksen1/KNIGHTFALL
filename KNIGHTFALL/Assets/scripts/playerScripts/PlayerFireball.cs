@@ -22,7 +22,6 @@ public class PlayerSpellProjectile : MonoBehaviour
     public void SetDirection(Vector3 dir)
     {
         direction = dir.normalized;
-
         transform.forward = direction;
     }
 
@@ -36,22 +35,13 @@ public class PlayerSpellProjectile : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        EnemyHealth enemy =
-            other.GetComponent<EnemyHealth>();
+        EnemyHealth enemy = other.GetComponent<EnemyHealth>();
 
         if (enemy != null)
         {
-            Vector3 hitDirection =
-                (
-                    other.transform.position -
-                    transform.position
-                ).normalized;
-
-            enemy.TakeDamage(
-                damage,
-                hitDirection
-            );
-
+            Vector3 hitDirection = (other.transform.position - transform.position).normalized;
+            enemy.TakeDamage(damage, hitDirection);
+            enemy.ApplyStatusBuildup(spellType, statusBuildup);
             Destroy(gameObject);
         }
     }
