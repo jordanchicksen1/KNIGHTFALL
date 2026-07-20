@@ -77,6 +77,8 @@ public class EnemyHealth : MonoBehaviour
     public bool IsBurning()
     {
         return currentStatus == StatusEffect.Burning;
+
+
     }
 
     public void ApplyStatusBuildup(SpellType spell, int amount)
@@ -127,72 +129,57 @@ public class EnemyHealth : MonoBehaviour
     IEnumerator Burning()
     {
         currentStatus = StatusEffect.Burning;
+        if (healthUI != null) healthUI.ShowStatus(currentStatus);
         TakeDamage(statusProcDamage, Vector3.zero);
         Debug.Log(gameObject.name + " is Burning!");
         yield return new WaitForSeconds(burnDuration);
         currentStatus = StatusEffect.None;
+        if (healthUI != null) healthUI.HideStatus();
     }
 
     IEnumerator Frozen()
     {
         currentStatus = StatusEffect.Frozen;
-
+        if (healthUI != null) healthUI.ShowStatus(currentStatus);
         TakeDamage(statusProcDamage, Vector3.zero);
-
         Debug.Log(gameObject.name + " is Frozen!");
-
         if (enemyMovement != null) enemyMovement.moveSpeed = originalMoveSpeed * frozenSpeedMultiplier;
-
         if (spearMovement != null) spearMovement.moveSpeed = originalMoveSpeed * frozenSpeedMultiplier;
-
         if (rangedMovement != null) rangedMovement.moveSpeed = originalMoveSpeed * frozenSpeedMultiplier;
 
         yield return new WaitForSeconds(frozenDuration);
-
         if (enemyMovement != null) enemyMovement.moveSpeed = originalMoveSpeed;
-
         if (spearMovement != null) spearMovement.moveSpeed = originalMoveSpeed;
-
         if (rangedMovement != null) rangedMovement.moveSpeed = originalMoveSpeed;
-
         currentStatus = StatusEffect.None;
+        if (healthUI != null) healthUI.HideStatus();
     }
 
     IEnumerator Shocked()
     {
         currentStatus = StatusEffect.Shocked;
-
+        if (healthUI != null) healthUI.ShowStatus(currentStatus);
         TakeDamage(statusProcDamage, Vector3.zero);
-
         Debug.Log(gameObject.name + " is Shocked!");
-
         if (enemyMovement != null) enemyMovement.canMove = false;
-
         if (spearMovement != null) spearMovement.canMove = false;
-
         if (rangedMovement != null)
         {
             rangedMovement.enabled = false;
         }
-
         if (enemyAttack != null) enemyAttack.StopAllCoroutines();
-
         SpearEnemyAttack spearAttack = GetComponent<SpearEnemyAttack>();
-
         if (spearAttack != null) spearAttack.StopAllCoroutines();
 
         yield return new WaitForSeconds(shockedDuration);
-
         if (enemyMovement != null) enemyMovement.canMove = true;
-
         if (spearMovement != null) spearMovement.canMove = true;
-
         if (rangedMovement != null)
         {
             rangedMovement.enabled = true;
         }
-
         currentStatus = StatusEffect.None;
+        if (healthUI != null) healthUI.HideStatus();
     }
 
     IEnumerator Stagger()

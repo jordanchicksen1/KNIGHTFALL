@@ -15,6 +15,12 @@ public class EnemyHealthUI : MonoBehaviour
     private int displayedDamage;
     private Coroutine damageRoutine;
 
+    [Header("Status Effects")]
+    [SerializeField] private Image statusIcon;
+    [SerializeField] private Sprite fireSprite;
+    [SerializeField] private Sprite iceSprite;
+    [SerializeField] private Sprite lightningSprite;
+
     void Start()
     {
         mainCamera = Camera.main;
@@ -22,6 +28,8 @@ public class EnemyHealthUI : MonoBehaviour
         GameObject player = GameObject.FindGameObjectWithTag("Player");
 
         damageText.gameObject.SetActive(false);
+
+        statusIcon.gameObject.SetActive(false);
 
         if (player != null)
         {
@@ -66,5 +74,34 @@ public class EnemyHealthUI : MonoBehaviour
         damageText.text = "";
         damageText.gameObject.SetActive(false);
         damageRoutine = null;
+    }
+
+    public void ShowStatus(StatusEffect status)
+    {
+        switch (status)
+        {
+            case StatusEffect.Burning:
+                statusIcon.sprite = fireSprite;
+                break;
+
+            case StatusEffect.Frozen:
+                statusIcon.sprite = iceSprite;
+                break;
+
+            case StatusEffect.Shocked:
+                statusIcon.sprite = lightningSprite;
+                break;
+
+            default:
+                statusIcon.gameObject.SetActive(false);
+                return;
+        }
+
+        statusIcon.gameObject.SetActive(true);
+    }
+
+    public void HideStatus()
+    {
+        statusIcon.gameObject.SetActive(false);
     }
 }
