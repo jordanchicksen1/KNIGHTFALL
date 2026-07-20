@@ -33,7 +33,7 @@ public class CheckpointManager : MonoBehaviour
             return;
         }
 
-
+        playerHealth.isDead = false;
 
         Debug.Log("Checkpoint Position: " + currentCheckpoint.position);
         Debug.Log("Player Position Before: " + playerHealth.transform.position);

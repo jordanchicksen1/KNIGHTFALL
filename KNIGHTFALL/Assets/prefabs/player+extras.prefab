@@ -1444,9 +1444,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerHUD
   weaponText: {fileID: 4579544196128544713}
+  weaponIcon: {fileID: 8610160687359435080}
   spellText: {fileID: 2786284062426532378}
+  spellIcon: {fileID: 7821689758439643217}
   itemText: {fileID: 3472210055733478501}
+  itemIcon: {fileID: 996988991104993794}
   itemCountText: {fileID: 6059649943393429220}
+  swordIcon: {fileID: 21300000, guid: 023effda8d2682840952380e2e5faf7d, type: 3}
+  staffIcon: {fileID: 21300000, guid: 05b6e3855ccd7784090e43ee4f908f9e, type: 3}
+  fireballIcon: {fileID: 21300000, guid: 4fafe3de03e69294abde5db7c0343d3c, type: 3}
+  iceSpearIcon: {fileID: 21300000, guid: 5897f90273d01df41b297c30ec4600d7, type: 3}
+  lightningBoltIcon: {fileID: 21300000, guid: 88fdda0c016ffd44a88004723cfdaffc, type: 3}
+  noSpellIcon: {fileID: 21300000, guid: 027ace8874c71ec4d9cf2e338d9d23f6, type: 3}
+  healingFlaskIcon: {fileID: 21300000, guid: 12690e4dc3c04ec44b6b0a7736f6dc21, type: 3}
+  manaFlaskIcon: {fileID: 21300000, guid: a1275d16526eb554787245d00c68e85b, type: 3}
 --- !u!114 &4016552190366476929
 MonoBehaviour:
   m_ObjectHideFlags: 0

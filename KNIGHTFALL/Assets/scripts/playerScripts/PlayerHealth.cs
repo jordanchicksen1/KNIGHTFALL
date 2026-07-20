@@ -8,7 +8,8 @@ public class PlayerHealth : MonoBehaviour
     public float health = 100f;
     public float staggerDuration = 0.25f;
     private PlayerMovement movement;
-   
+    public bool isDead;
+
     [Header("Vitality")]
     public float vitality = 100f;
     public float maxVitality = 100f;
@@ -78,6 +79,9 @@ public class PlayerHealth : MonoBehaviour
 
     public void TakeDamage(int damage,Vector3 hitDirection)
     {
+        if (isDead)
+            return;
+
         if (combat != null && combat.IsBlocking())
         {
             stamina -= 15f;
@@ -99,6 +103,7 @@ public class PlayerHealth : MonoBehaviour
 
         if (health <= 0)
         {
+            isDead = true;
             vitality -= vitalityLoss;
             vitality = Mathf.Max(minimumVitality, vitality);
             movement.currentState = PlayerState.Staggered;
