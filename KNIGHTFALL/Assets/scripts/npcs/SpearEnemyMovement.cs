@@ -23,6 +23,7 @@ public class SpearEnemyMovement : MonoBehaviour
     public bool canMove = true;
 
     private SpearEnemyAttack enemyAttack;
+    private EnemySeparation separation;
 
     private bool isStrafing;
     private bool isBackingAway;
@@ -38,6 +39,7 @@ public class SpearEnemyMovement : MonoBehaviour
         }
 
         enemyAttack = GetComponent<SpearEnemyAttack>();
+        separation = GetComponent<EnemySeparation>();
 
         StartCoroutine(CombatBehaviour());
     }
@@ -185,6 +187,18 @@ public class SpearEnemyMovement : MonoBehaviour
             .normalized;
 
         direction.y = 0;
+
+        if (separation != null)
+        {
+            Vector3 separationDirection =
+                separation.GetSeparationDirection();
+
+            if (separationDirection != Vector3.zero)
+            {
+                direction += separationDirection * separation.separationStrength;
+                direction.Normalize();
+            }
+        }
 
         transform.position +=
             direction *

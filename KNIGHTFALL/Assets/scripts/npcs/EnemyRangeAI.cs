@@ -9,6 +9,7 @@ public class EnemyRangeAI : MonoBehaviour
     public GameObject projectilePrefab;
     private Rigidbody rb;
     private EnemyHealth enemyHealth;
+ 
 
     [Header("Movement")]
     public float moveSpeed = 3f;
@@ -17,6 +18,10 @@ public class EnemyRangeAI : MonoBehaviour
     public float detectionRange = 10f;
     public float chaseDistance = 12f;
     public float preferredCombatDistance = 8f;
+
+    [Header("Environment")]
+    public LayerMask obstacleLayer;
+    public float dodgeCheckDistance = 5f;
 
     [Header("Awareness")]
     public float aggroMemoryTime = 4f;
@@ -277,20 +282,62 @@ public class EnemyRangeAI : MonoBehaviour
     IEnumerator DodgeAway()
     {
         isDodging = true;
-        Vector3 dodgeDirection = ( transform.position - player.position).normalized;
-        dodgeDirection += transform.right * Random.Range(-1.5f, 1.5f);
+
+        Vector3 dodgeDirection =
+            (transform.position - player.position).normalized;
+
+        dodgeDirection +=
+            transform.right * Random.Range(-1.5f, 1.5f);
+
         dodgeDirection.y = 0;
         dodgeDirection.Normalize();
-        Vector3 startPosition = transform.position;
+
         float dodgeDistance = 5f;
+
+        // Check if there is an obstacle in the dodge direction
+        if (Physics.Raycast(
+            transform.position,
+            dodgeDirection,
+            dodgeCheckDistance,
+            obstacleLayer))
+        {
+            // Try dodging to the opposite side instead
+            dodgeDirection = -dodgeDirection;
+
+            // If the opposite direction is also blocked,
+            // don't dodge through the obstacle.
+            if (Physics.Raycast(
+                transform.position,
+                dodgeDirection,
+                dodgeCheckDistance,
+                obstacleLayer))
+            {
+                isDodging = false;
+                yield break;
+            }
+        }
+
+        Vector3 startPosition = transform.position;
+
         float duration = 0.22f;
         float timer = 0;
 
         while (timer < duration)
         {
             float progress = timer / duration;
-            Vector3 targetPosition = startPosition + dodgeDirection * dodgeDistance;
-            rb.MovePosition(Vector3.Lerp(startPosition, targetPosition, progress));
+
+            Vector3 targetPosition =
+                startPosition +
+                dodgeDirection * dodgeDistance;
+
+            rb.MovePosition(
+                Vector3.Lerp(
+                    startPosition,
+                    targetPosition,
+                    progress
+                )
+            );
+
             timer += Time.deltaTime;
 
             yield return null;

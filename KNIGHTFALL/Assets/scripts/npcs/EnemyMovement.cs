@@ -23,6 +23,7 @@ public class EnemyMovement : MonoBehaviour
     public bool canMove = true;
 
     private EnemyAttack enemyAttack;
+    private EnemySeparation separation;
 
     private bool isStrafing;
     private bool isBackingAway;
@@ -38,6 +39,7 @@ public class EnemyMovement : MonoBehaviour
         }
 
         enemyAttack = GetComponent<EnemyAttack>();
+        separation = GetComponent<EnemySeparation>();
 
         StartCoroutine(CombatBehaviour());
     }
@@ -181,10 +183,21 @@ public class EnemyMovement : MonoBehaviour
             return;
 
         Vector3 direction =
-            (player.position - transform.position)
-            .normalized;
+            (player.position - transform.position).normalized;
 
         direction.y = 0;
+
+        if (separation != null)
+        {
+            Vector3 separationDirection =
+                separation.GetSeparationDirection();
+
+            if (separationDirection != Vector3.zero)
+            {
+                direction += separationDirection * separation.separationStrength;
+                direction.Normalize();
+            }
+        }
 
         transform.position +=
             direction *
