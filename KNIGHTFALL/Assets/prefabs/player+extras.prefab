@@ -1957,14 +1957,14 @@ MonoBehaviour:
   itemText: {fileID: 3472210055733478501}
   itemIcon: {fileID: 996988991104993794}
   itemCountText: {fileID: 6059649943393429220}
-  swordIcon: {fileID: 21300000, guid: 023effda8d2682840952380e2e5faf7d, type: 3}
-  staffIcon: {fileID: 21300000, guid: 05b6e3855ccd7784090e43ee4f908f9e, type: 3}
-  fireballIcon: {fileID: 21300000, guid: 4fafe3de03e69294abde5db7c0343d3c, type: 3}
-  iceSpearIcon: {fileID: 21300000, guid: 5897f90273d01df41b297c30ec4600d7, type: 3}
-  lightningBoltIcon: {fileID: 21300000, guid: 88fdda0c016ffd44a88004723cfdaffc, type: 3}
-  noSpellIcon: {fileID: 21300000, guid: 027ace8874c71ec4d9cf2e338d9d23f6, type: 3}
-  healingFlaskIcon: {fileID: 21300000, guid: 12690e4dc3c04ec44b6b0a7736f6dc21, type: 3}
-  manaFlaskIcon: {fileID: 21300000, guid: a1275d16526eb554787245d00c68e85b, type: 3}
+  swordIcon: {fileID: 21300000, guid: 9c8eec0e8410cf148a83a6f01b1aaa2a, type: 3}
+  staffIcon: {fileID: 21300000, guid: 97f30548e87ee084f9fa8e26ed22fce7, type: 3}
+  fireballIcon: {fileID: 21300000, guid: 312a67cb2462df04898e692755d0a89a, type: 3}
+  iceSpearIcon: {fileID: 21300000, guid: db0e5f0dbe1652c40950c266e8a2b0c1, type: 3}
+  lightningBoltIcon: {fileID: 21300000, guid: 8802e2a2c348e3d45b0210447417132d, type: 3}
+  noSpellIcon: {fileID: 21300000, guid: f9a300966f0725348882d6ebbb19a235, type: 3}
+  healingFlaskIcon: {fileID: 21300000, guid: 660788690397de049a9bc46f7752ba05, type: 3}
+  manaFlaskIcon: {fileID: 21300000, guid: 0d83cd3f11d64934eb4b143ab765255d, type: 3}
 --- !u!114 &4016552190366476929
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2003,9 +2003,9 @@ MonoBehaviour:
   damageText: {fileID: 2384907215591953803}
   bossNameText: {fileID: 8246544981610194366}
   statusIcon: {fileID: 2010160825265276011}
-  fireSprite: {fileID: 21300000, guid: 4fafe3de03e69294abde5db7c0343d3c, type: 3}
-  iceSprite: {fileID: 21300000, guid: 5897f90273d01df41b297c30ec4600d7, type: 3}
-  lightningSprite: {fileID: 21300000, guid: 88fdda0c016ffd44a88004723cfdaffc, type: 3}
+  fireSprite: {fileID: 21300000, guid: 312a67cb2462df04898e692755d0a89a, type: 3}
+  iceSprite: {fileID: 21300000, guid: db0e5f0dbe1652c40950c266e8a2b0c1, type: 3}
+  lightningSprite: {fileID: 21300000, guid: 8802e2a2c348e3d45b0210447417132d, type: 3}
 --- !u!1 &4088689751294542846
 GameObject:
   m_ObjectHideFlags: 0

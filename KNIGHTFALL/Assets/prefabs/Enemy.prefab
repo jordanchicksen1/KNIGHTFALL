@@ -377,9 +377,9 @@ MonoBehaviour:
   healthBarVisual: {fileID: 6574731083460435799}
   damageText: {fileID: 8132886391354798213}
   statusIcon: {fileID: 4726046546332613185}
-  fireSprite: {fileID: 21300000, guid: 4fafe3de03e69294abde5db7c0343d3c, type: 3}
-  iceSprite: {fileID: 21300000, guid: 5897f90273d01df41b297c30ec4600d7, type: 3}
-  lightningSprite: {fileID: 21300000, guid: 88fdda0c016ffd44a88004723cfdaffc, type: 3}
+  fireSprite: {fileID: 21300000, guid: 312a67cb2462df04898e692755d0a89a, type: 3}
+  iceSprite: {fileID: 21300000, guid: db0e5f0dbe1652c40950c266e8a2b0c1, type: 3}
+  lightningSprite: {fileID: 21300000, guid: 8802e2a2c348e3d45b0210447417132d, type: 3}
 --- !u!1 &4628985572057415291
 GameObject:
   m_ObjectHideFlags: 0
