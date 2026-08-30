@@ -4,6 +4,7 @@ using UnityEngine.InputSystem;
 public class ThirdPersonCamera : MonoBehaviour
 {
     public Transform target;
+    public Transform cameraTransform;
 
     public float stickSensitivity = 100f;
 
@@ -18,7 +19,14 @@ public class ThirdPersonCamera : MonoBehaviour
     public float lockOnAngle = 35f;
     public float cameraTransitionSpeed = 5f;
     private float savedFreeLookAngle;
-    public Vector3 pivotOffset = new Vector3(0, 1.6f, 0);
+
+    [Header("Pivot Offsets")]
+    public Vector3 freePivotOffset = new Vector3(0f, 0.8f, 0f);
+    public Vector3 lockOnPivotOffset = new Vector3(0f, 1.2f, 0f);
+
+    [Header("Camera Positions")]
+    public Vector3 freeCameraPosition = new Vector3(0f, 0f, -4f);
+    public Vector3 lockOnCameraPosition = new Vector3(0f, 0f, -8f);
     private bool wasLockedOn;
 
     public float smoothTime = 0.05f;
@@ -66,17 +74,28 @@ public class ThirdPersonCamera : MonoBehaviour
 
     void RotateCamera()
     {
-        bool currentlyLockedOn =
-    lockOn.IsLockedOn();
+        bool currentlyLockedOn = lockOn.IsLockedOn();
 
-        Vector3 targetPosition =
-            target.position + pivotOffset;
+        Vector3 targetPivotPosition =
+     target.position +
+     (currentlyLockedOn ? lockOnPivotOffset : freePivotOffset);
 
         transform.position = Vector3.SmoothDamp(
             transform.position,
-            targetPosition,
+            targetPivotPosition,
             ref currentVelocity,
             smoothTime
+        );
+
+        Vector3 targetCameraPosition =
+    currentlyLockedOn
+        ? lockOnCameraPosition
+        : freeCameraPosition;
+
+        cameraTransform.localPosition = Vector3.Lerp(
+            cameraTransform.localPosition,
+            targetCameraPosition,
+            cameraTransitionSpeed * Time.deltaTime
         );
 
         // FREE LOOK
