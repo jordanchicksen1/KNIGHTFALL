@@ -29,6 +29,12 @@ public class ThirdPersonCamera : MonoBehaviour
     public Vector3 lockOnCameraPosition = new Vector3(0f, 0f, -8f);
     private bool wasLockedOn;
 
+    [Header("Camera Collision")]
+    public LayerMask cameraCollisionLayer;
+    public float cameraCollisionRadius = 0.35f;
+    public float cameraCollisionOffset = 0.1f;
+    public float cameraCollisionPullback = 0.5f;
+
     public float smoothTime = 0.05f;
 
     private Vector3 currentVelocity;
@@ -76,15 +82,25 @@ public class ThirdPersonCamera : MonoBehaviour
     {
         bool currentlyLockedOn = lockOn.IsLockedOn();
 
-        Vector3 targetPivotPosition =
-     target.position +
-     (currentlyLockedOn ? lockOnPivotOffset : freePivotOffset);
+        Vector3 desiredCameraPosition =
+      currentlyLockedOn
+          ? lockOnCameraPosition
+          : freeCameraPosition;
 
-        transform.position = Vector3.SmoothDamp(
-            transform.position,
-            targetPivotPosition,
-            ref currentVelocity,
-            smoothTime
+        Vector3 safeCameraPosition =
+            GetSafeCameraPosition(
+                transform.TransformPoint(desiredCameraPosition)
+            );
+
+        Vector3 localSafeCameraPosition =
+            transform.InverseTransformPoint(
+                safeCameraPosition
+            );
+
+        cameraTransform.localPosition = Vector3.Lerp(
+            cameraTransform.localPosition,
+            localSafeCameraPosition,
+            cameraTransitionSpeed * Time.deltaTime
         );
 
         Vector3 targetCameraPosition =
@@ -189,6 +205,51 @@ public class ThirdPersonCamera : MonoBehaviour
                     yRotation,
                     0
                 );
+        }
+
+        Vector3 GetSafeCameraPosition(Vector3 desiredPosition)
+        {
+            Vector3 pivotPosition = transform.position;
+
+            Vector3 direction =
+                desiredPosition - pivotPosition;
+
+            float distance = direction.magnitude;
+
+            Debug.DrawRay(
+    transform.position,
+    (desiredPosition - transform.position),
+    Color.red
+);
+
+            if (distance <= 0.01f)
+                return desiredPosition;
+
+            direction.Normalize();
+
+            if (Physics.SphereCast(
+                pivotPosition,
+                cameraCollisionRadius,
+                direction,
+                out RaycastHit hit,
+                distance,
+                cameraCollisionLayer))
+            {
+                float safeDistance =
+    hit.distance -
+    cameraCollisionOffset -
+    cameraCollisionPullback;
+
+                safeDistance = Mathf.Max(
+                    safeDistance,
+                    0.5f
+                );
+
+                return pivotPosition +
+                       direction * safeDistance;
+            }
+
+            return desiredPosition;
         }
     }
 }
