@@ -52,6 +52,8 @@ public class PlayerMovement : MonoBehaviour
 
     public Vector2 moveInput;
 
+    public Animator KnightAnim;
+
     private void Awake()
     {
         controller = GetComponent<CharacterController>();
@@ -123,6 +125,7 @@ public class PlayerMovement : MonoBehaviour
                 currentState != PlayerState.Staggered)
             {
                 currentState = PlayerState.Moving;
+                KnightAnim.SetTrigger("Walk");
             }
 
             if (!combat.IsHeavyAttacking())
@@ -188,6 +191,7 @@ public class PlayerMovement : MonoBehaviour
                 currentState != PlayerState.Staggered)
             {
                 currentState = PlayerState.Idle;
+                KnightAnim.SetTrigger("Idle");
             }
         }
 
@@ -287,6 +291,7 @@ public class PlayerMovement : MonoBehaviour
     IEnumerator DodgeRoll()
     {
         currentState = PlayerState.Dodging;
+        KnightAnim.SetTrigger("Dodge");
 
         isDodging = true;
 
