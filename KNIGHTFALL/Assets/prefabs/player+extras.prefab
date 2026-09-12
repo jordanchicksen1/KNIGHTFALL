@@ -3714,6 +3714,7 @@ MonoBehaviour:
   dodgeForce: 16
   dodgeDuration: 0.25
   moveInput: {x: 0, y: 0}
+  KnightAnim: {fileID: 0}
 --- !u!114 &304829772491968127
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5376,6 +5377,7 @@ MonoBehaviour:
     m_Bits: 4294967295
   cameraCollisionRadius: 0.2
   cameraCollisionOffset: 0.1
+  cameraCollisionPullback: 0.5
   smoothTime: 0.05
 --- !u!1 &8079700328836343177
 GameObject:
