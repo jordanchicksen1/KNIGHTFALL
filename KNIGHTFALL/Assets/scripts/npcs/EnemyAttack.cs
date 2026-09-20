@@ -20,6 +20,7 @@ public class EnemyAttack : MonoBehaviour
     public Transform attackPoint;
     public Transform rightHand;
     public LayerMask playerLayer;
+    private EnemyAnimationEvents animationEvents;
 
     private bool canAttack = true;
 
@@ -28,6 +29,9 @@ public class EnemyAttack : MonoBehaviour
 
     void Start()
     {
+        animationEvents =
+    GetComponentInChildren<EnemyAnimationEvents>();
+
         GameObject playerObject =
             GameObject.FindGameObjectWithTag("Player");
 
@@ -88,11 +92,12 @@ public class EnemyAttack : MonoBehaviour
         isAttacking = true;
         canAttack = false;
 
+        if (animationEvents != null)
+        {
+            animationEvents.StartDodge();
+        }
+
         StartCoroutine(AttackLunge());
-
-        yield return new WaitForSeconds(attackDuration);
-
-        isAttacking = false;
 
         yield return new WaitForSeconds(attackCooldown);
 
@@ -119,5 +124,39 @@ public class EnemyAttack : MonoBehaviour
 
             yield return null;
         }
+    }
+
+    public void EndAttack()
+    {
+        isAttacking = false;
+    }
+
+    public void StartDeath()
+    {
+        // Stop any attack/lunge that might still be running
+        StopAllCoroutines();
+
+        Rigidbody rb = GetComponent<Rigidbody>();
+
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+            rb.isKinematic = true;
+        }
+
+        EnemyMovement enemyMovement = GetComponent<EnemyMovement>();
+
+        if (enemyMovement != null)
+        {
+            enemyMovement.canMove = false;
+            enemyMovement.isMoving = false;
+            enemyMovement.enabled = false;
+        }
+    }
+
+    public void EndDeath()
+    {
+        Destroy(gameObject);
     }
 }

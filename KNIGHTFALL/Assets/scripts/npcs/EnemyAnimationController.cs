@@ -43,4 +43,6 @@ public class EnemyAnimationController : MonoBehaviour
         animator.SetBool("IsAttacking", isAttacking);
         animator.SetBool("IsDead", isDead);
     }
+
+    
 }

@@ -85,7 +85,7 @@ public class EnemyHealth : MonoBehaviour
                 boss.BossDied();
             }
 
-            Destroy(gameObject);
+            return;
         }
     }
 
@@ -217,9 +217,22 @@ public class EnemyHealth : MonoBehaviour
     {
         isStaggered = true;
 
-        enemyAttack.isAttacking = false;
+        if (enemyAttack != null)
+        {
+            enemyAttack.isAttacking = false;
+            enemyAttack.StopAllCoroutines();
+        }
+
+        if (enemyMovement != null)
+        {
+            enemyMovement.canMove = false;
+            enemyMovement.isMoving = false;
+        }
 
         yield return new WaitForSeconds(staggerDuration);
+
+        if (enemyMovement != null)
+            enemyMovement.canMove = true;
 
         isStaggered = false;
     }
