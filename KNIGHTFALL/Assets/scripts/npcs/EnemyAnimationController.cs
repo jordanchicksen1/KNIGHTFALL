@@ -20,10 +20,16 @@ public class EnemyAnimationController : MonoBehaviour
         if (animator == null)
             return;
 
+        bool isStaggered =
+            enemyHealth != null &&
+            enemyHealth.isStaggered;
+
         bool isMoving =
             enemyMovement != null &&
-            enemyMovement.canMove &&
-            !enemyAttack.isAttacking;
+            enemyMovement.isMoving &&
+            enemyAttack != null &&
+            !enemyAttack.isAttacking &&
+            !isStaggered;
 
         bool isAttacking =
             enemyAttack != null &&

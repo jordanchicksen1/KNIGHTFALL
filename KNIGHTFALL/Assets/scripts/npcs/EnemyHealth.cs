@@ -32,7 +32,7 @@ public class EnemyHealth : MonoBehaviour
     private EnemyHealthUI healthUI;
     private BossHealthUI bossHealthUI;
 
-    private bool isStaggered;
+    public bool isStaggered;
 
     private void Awake()
     {

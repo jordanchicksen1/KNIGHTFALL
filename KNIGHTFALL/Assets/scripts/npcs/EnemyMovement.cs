@@ -21,6 +21,8 @@ public class EnemyMovement : MonoBehaviour
     public float strafeSpeed = 1.5f;
 
     public bool canMove = true;
+    public bool isMoving = false;
+    private bool isChasing;
 
     private EnemyAttack enemyAttack;
     private EnemySeparation separation;
@@ -102,6 +104,8 @@ public class EnemyMovement : MonoBehaviour
             // FAR RANGE → AGGRESSIVE CHASE
             else if (distance > engageAttackRange)
             {
+                isMoving = true;
+
                 float chaseTime =
                     Random.Range(0.5f, 1f);
 
@@ -114,6 +118,12 @@ public class EnemyMovement : MonoBehaviour
                     timer += Time.deltaTime;
 
                     yield return null;
+                }
+
+                // Check if we have reached combat range
+                if (Vector3.Distance(transform.position, player.position) <= engageAttackRange)
+                {
+                    isMoving = false;
                 }
             }
 
@@ -194,7 +204,10 @@ public class EnemyMovement : MonoBehaviour
 
             if (separationDirection != Vector3.zero)
             {
-                direction += separationDirection * separation.separationStrength;
+                direction +=
+                    separationDirection *
+                    separation.separationStrength;
+
                 direction.Normalize();
             }
         }
@@ -229,7 +242,12 @@ public class EnemyMovement : MonoBehaviour
     IEnumerator Strafe()
     {
         if (!canMove)
-        yield break;
+        {
+            isMoving = false;
+            yield break;
+        }
+
+        isMoving = true;
 
         float duration =
             Random.Range(0.3f, 0.6f);
@@ -258,7 +276,12 @@ public class EnemyMovement : MonoBehaviour
     IEnumerator BackAway()
     {
         if (!canMove)
+        {
+            isMoving = false;
             yield break;
+        }
+
+        isMoving = true;
 
 
         float duration = Random.Range(0.2f, 0.45f);
