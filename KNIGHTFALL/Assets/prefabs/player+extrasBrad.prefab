@@ -563,7 +563,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 543680051683285368}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -1322,7 +1322,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2245147240884281747}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -2223,7 +2223,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6264114833276966424}
-  - {fileID: 7462302550078350122}
   m_Father: {fileID: 7924437772172360685}
   m_LocalEulerAnglesHint: {x: 23.622, y: 0, z: 0}
 --- !u!33 &4076979083945126247
@@ -2241,7 +2240,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3472067280944587833}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -2330,12 +2329,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3502429076645445267}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.20468807, y: -0, z: -0, w: 0.9788273}
-  m_LocalPosition: {x: -0.02, y: 1.301, z: 0.07}
-  m_LocalScale: {x: 2, y: 0.6984361, z: 1.4744266}
+  m_LocalRotation: {x: -0.34194282, y: 0.0604612, z: 0.0053663487, w: -0.9377584}
+  m_LocalPosition: {x: 0.004, y: -0.008, z: 0.0139}
+  m_LocalScale: {x: 0.079936184, y: 0.023624476, z: 0.016228043}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 7474045437652462461}
+  m_Father: {fileID: 4526129462583876397}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3576590365323927825
 GameObject:
@@ -3058,7 +3057,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4015364827413260791}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -4462,7 +4461,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &4526129462583876397
 Transform:
   m_ObjectHideFlags: 0
@@ -4475,7 +4474,8 @@ Transform:
   m_LocalPosition: {x: -0.00042, y: 0.00071, z: 0.00067}
   m_LocalScale: {x: 0.031045923, y: 0.031062141, z: 0.29968354}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 7462302550078350122}
   m_Father: {fileID: 1287375424159658733}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &1587934872729331308
@@ -4511,7 +4511,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: 2af871b1e07fa1c46808c9ae48412ec8, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -6493,6 +6493,9 @@ MonoBehaviour:
   attackDuration: 0.4
   attackRange: 1.1
   attackDamage: 25
+  damageStartFrame: 9
+  damageEndFrame: 15
+  attackTotalFrames: 15
   heavyAttackDuration: 1.1
   heavyAttackDamage: 45
   heavyAttackCost: 40
@@ -6511,8 +6514,8 @@ MonoBehaviour:
   orbitSpeed: 120
   leftHand: {fileID: 8480474485212086067}
   currentWeapon: 0
-  swordModel: {fileID: 4015364827413260791}
-  staffModel: {fileID: 3472067280944587833}
+  swordModel: {fileID: 5138228897240308122}
+  staffModel: {fileID: 6086995782719597109}
   attackPoint: {fileID: 567160148227062363}
   rightHand: {fileID: 7924437772172360685}
   sword: {fileID: 8030762286993470366}
@@ -6912,6 +6915,11 @@ Animator:
 --- !u!4 &1287375424159658733 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8008715141348673470, guid: e0add612185ec3241abf84a1e996cf22, type: 3}
+  m_PrefabInstance: {fileID: 74020370151377583}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &5138228897240308122 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -4158969978103278795, guid: e0add612185ec3241abf84a1e996cf22, type: 3}
   m_PrefabInstance: {fileID: 74020370151377583}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &649628888986320032
