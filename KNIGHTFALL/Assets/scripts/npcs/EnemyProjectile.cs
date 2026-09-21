@@ -18,6 +18,11 @@ public class EnemyProjectile : MonoBehaviour
     public void SetDirection(Vector3 direction)
     {
         moveDirection = direction.normalized;
+
+        if (moveDirection != Vector3.zero)
+        {
+            transform.rotation = Quaternion.LookRotation(moveDirection);
+        }
     }
 
     void Update()
