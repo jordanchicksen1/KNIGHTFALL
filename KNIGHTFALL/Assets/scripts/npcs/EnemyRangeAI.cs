@@ -9,7 +9,8 @@ public class EnemyRangeAI : MonoBehaviour
     public GameObject projectilePrefab;
     private Rigidbody rb;
     private EnemyHealth enemyHealth;
- 
+    private Animator animator;
+
 
     [Header("Movement")]
     public float moveSpeed = 3f;
@@ -46,6 +47,7 @@ public class EnemyRangeAI : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         enemyHealth = GetComponent<EnemyHealth>();
+        animator = GetComponent<Animator>();
         GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
 
         if (playerObject != null)
@@ -248,13 +250,25 @@ public class EnemyRangeAI : MonoBehaviour
         canAttack = false;
         isAttacking = true;
 
+        // Give the Aim animation time to play
         yield return new WaitForSeconds(0.35f);
 
+        // Play Shoot animation
+        if (animator != null)
+            animator.SetTrigger("Shoot");
+
+        // Fire projectile
         FireProjectile();
 
+        // Let the Shoot animation finish
+        yield return new WaitForSeconds(0.35f);
+
+        // Attack animation is finished
+        isAttacking = false;
+
+        // Cooldown happens after the attack
         yield return new WaitForSeconds(attackCooldown);
 
-        isAttacking = false;
         canAttack = true;
     }
 
@@ -263,18 +277,32 @@ public class EnemyRangeAI : MonoBehaviour
         canAttack = false;
         isAttacking = true;
 
+        // Give the Aim animation time to play
         yield return new WaitForSeconds(0.35f);
 
+        // Fire 3 shots
         for (int i = 0; i < 3; i++)
         {
+            // Play Shoot animation
+            if (animator != null)
+                animator.SetTrigger("Shoot");
+
+            // Fire projectile
             FireProjectile();
 
-            yield return new WaitForSeconds(0.18f);
+            // Wait before the next shot
+            yield return new WaitForSeconds(0.35f);
         }
 
-        yield return new WaitForSeconds(attackCooldown + 1f);
+        // Give the final Shoot animation time to finish
+        yield return new WaitForSeconds(0.35f);
 
+        // Return to normal animation
         isAttacking = false;
+
+        // Cooldown happens after the attack
+        yield return new WaitForSeconds(attackCooldown);
+
         canAttack = true;
     }
 
@@ -327,29 +355,20 @@ public class EnemyRangeAI : MonoBehaviour
 
         Vector3 startPosition = transform.position;
 
-        float duration = 0.22f;
+        float duration = 0.5f;
         float timer = 0;
 
         while (timer < duration)
         {
             float progress = timer / duration;
-
-            Vector3 targetPosition =
-                startPosition +
-                dodgeDirection * dodgeDistance;
-
-            rb.MovePosition(
-                Vector3.Lerp(
-                    startPosition,
-                    targetPosition,
-                    progress
-                )
-            );
-
+            Vector3 targetPosition = startPosition + dodgeDirection * dodgeDistance;
+            rb.MovePosition(Vector3.Lerp(startPosition, targetPosition, progress));
             timer += Time.deltaTime;
-
             yield return null;
         }
+
+        // Keep the animation state active long enough to play
+        yield return new WaitForSeconds(0.5f);
 
         isDodging = false;
     }
