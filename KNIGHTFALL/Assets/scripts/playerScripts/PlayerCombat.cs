@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -9,6 +9,11 @@ public class PlayerCombat : MonoBehaviour
     public float attackDuration = 0.4f;
     public float attackRange = 1.5f;
     public int attackDamage = 25;
+
+    [Header("Light Attack Timing")]
+    public float damageStartFrame = 9f;
+    public float damageEndFrame = 15f;
+    public float attackTotalFrames = 15f;
 
     [Header("Heavy Attack")]
     public float heavyAttackDuration = 1.1f;
@@ -71,6 +76,7 @@ public class PlayerCombat : MonoBehaviour
     private PlayerLockOn lockOn;
     private Camera mainCamera;
     private PlayerInventory inventory;
+    private Animator animator;
 
     private bool attackPressed;
     private bool heavyAttackPressed;
@@ -91,6 +97,7 @@ public class PlayerCombat : MonoBehaviour
         lockOn = GetComponent<PlayerLockOn>();
         mainCamera = Camera.main;
         inventory = GetComponent<PlayerInventory>();
+        animator = GetComponentInChildren<Animator>();
 
         UpdateWeaponVisuals();
 
@@ -361,6 +368,8 @@ public class PlayerCombat : MonoBehaviour
     {
         movement.currentState = PlayerState.Attacking;
 
+        animator.SetTrigger("Attack1");
+
         swordCoroutine = StartCoroutine(SwingSword());
         StartCoroutine(ActiveAttackFrames());
         if (movement.moveInput.magnitude > 0.1f)
@@ -582,25 +591,42 @@ public class PlayerCombat : MonoBehaviour
     }
     IEnumerator ActiveAttackFrames()
     {
-        float activeTime = 0.15f;
+        // Wait until the Light Attack animation is actually playing
+        while (!animator.GetCurrentAnimatorStateInfo(0).IsName("Light Attack 1"))
+        {
+            yield return null;
+        }
 
-        float timer = 0;
+        // Wait until frame 9
+        float damageStart = damageStartFrame / attackTotalFrames;
+
+        while (animator.GetCurrentAnimatorStateInfo(0).normalizedTime < damageStart)
+        {
+            yield return null;
+        }
 
         List<EnemyHealth> hitEnemies = new List<EnemyHealth>();
 
-        while (timer < activeTime)
+        // Damage window: frame 9 → frame 15
+        while (animator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1f)
         {
-            Collider[] enemies = Physics.OverlapSphere(attackPoint.position, attackRange, enemyLayers);
+            Collider[] enemies = Physics.OverlapSphere(
+                attackPoint.position,
+                attackRange,
+                enemyLayers
+            );
 
             foreach (Collider enemy in enemies)
             {
-                EnemyHealth enemyHealth = enemy.GetComponent<EnemyHealth>();
+                EnemyHealth enemyHealth =
+                    enemy.GetComponent<EnemyHealth>();
 
                 if (enemyHealth != null && !hitEnemies.Contains(enemyHealth))
                 {
                     hitEnemies.Add(enemyHealth);
 
-                    Vector3 hitDirection = (enemy.transform.position - transform.position).normalized;
+                    Vector3 hitDirection =
+                        (enemy.transform.position - transform.position).normalized;
 
                     int damage = attackDamage;
 
@@ -612,8 +638,6 @@ public class PlayerCombat : MonoBehaviour
                     enemyHealth.TakeDamage(damage, hitDirection);
                 }
             }
-
-            timer += Time.deltaTime;
 
             yield return null;
         }

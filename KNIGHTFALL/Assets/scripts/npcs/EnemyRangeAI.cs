@@ -32,9 +32,10 @@ public class EnemyRangeAI : MonoBehaviour
     public float rotationSpeed = 8f;
     private bool canAttack = true;
     public bool isAttacking;
-    private bool isDodging;
+    public bool isDodging;
     public float decisionCooldown = 0.4f;
     private bool isMakingDecision;
+    public bool isMoving;
 
     [Header("Crossbow Visual")]
     public Transform crossbowHolder;
@@ -119,6 +120,7 @@ public class EnemyRangeAI : MonoBehaviour
         if (distance > chaseDistance)
         {
             float timer = 0;
+            isMoving = true;
 
             while (timer < 1f)
             {
@@ -128,6 +130,8 @@ public class EnemyRangeAI : MonoBehaviour
                 timer += Time.deltaTime;
                 yield return null;
             }
+
+            isMoving = false;
         }
 
 
@@ -217,7 +221,9 @@ public class EnemyRangeAI : MonoBehaviour
 
     IEnumerator Strafe()
     {
-        isDodging = true;
+        
+        isMoving = true;
+
         float duration = Random.Range(0.4f, 1f);
         float direction = Random.Range(0, 2) == 0 ? -1 : 1;
         float timer = 0;
@@ -233,7 +239,8 @@ public class EnemyRangeAI : MonoBehaviour
             yield return null;
         }
 
-        isDodging = false;
+       
+        isMoving = false;
     }
 
     IEnumerator SingleShot()
@@ -282,6 +289,7 @@ public class EnemyRangeAI : MonoBehaviour
     IEnumerator DodgeAway()
     {
         isDodging = true;
+        isMoving = false;
 
         Vector3 dodgeDirection =
             (transform.position - player.position).normalized;
