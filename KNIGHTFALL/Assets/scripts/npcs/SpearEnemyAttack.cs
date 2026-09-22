@@ -29,10 +29,14 @@ public class SpearEnemyAttack : MonoBehaviour
 
     private bool canAttack = true;
 
+    private bool hasHitPlayer;
+
+    private Animator animator;
+    private bool damageActive;
     void Start()
     {
-        GameObject playerObject =
-            GameObject.FindGameObjectWithTag("Player");
+        GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
+        animator = GetComponentInChildren<Animator>();
 
         if (playerObject != null)
         {
@@ -51,40 +55,15 @@ public class SpearEnemyAttack : MonoBehaviour
 
         canAttack = false;
 
+        if (animator != null)
+        {
+            animator.SetTrigger("Attack");
+        }
+
         StartCoroutine(SwingArm());
         StartCoroutine(AttackLunge());
 
-        yield return new WaitForSeconds(0.8f);
-
-        Collider[] hitPlayer =
-    Physics.OverlapSphere(
-        attackPoint.position,
-        attackRange,
-        playerLayer
-    );
-
-        PlayerHealth damagedPlayer = null;
-
-        foreach (Collider playerCollider in hitPlayer)
-        {
-            PlayerHealth playerHealth =
-                playerCollider.GetComponent<PlayerHealth>();
-
-            if (playerHealth != null &&
-                damagedPlayer == null)
-            {
-                damagedPlayer = playerHealth;
-
-                Vector3 hitDirection =
-                    (player.position - transform.position)
-                    .normalized;
-
-                playerHealth.TakeDamage(
-                    attackDamage,
-                    hitDirection
-                );
-            }
-        }
+       
 
         yield return new WaitForSeconds(attackDuration);
 
@@ -93,6 +72,56 @@ public class SpearEnemyAttack : MonoBehaviour
         yield return new WaitForSeconds(attackCooldown);
 
         canAttack = true;
+    }
+
+    public void StartDamageWindow()
+    {
+        if (damageActive)
+            return;
+
+        damageActive = true;
+        hasHitPlayer = false;
+
+        StartCoroutine(DamageWindow());
+    }
+
+    public void EndDamageWindow()
+    {
+        damageActive = false;
+    }
+
+    IEnumerator DamageWindow()
+    {
+        while (damageActive)
+        {
+            if (!hasHitPlayer)
+            {
+                Collider[] hitPlayer = Physics.OverlapSphere(
+                    attackPoint.position,
+                    attackRange,
+                    playerLayer
+                );
+
+                foreach (Collider playerCollider in hitPlayer)
+                {
+                    PlayerHealth playerHealth =
+                        playerCollider.GetComponent<PlayerHealth>();
+
+                    if (playerHealth != null)
+                    {
+                        Vector3 hitDirection =
+                            (playerCollider.transform.position - transform.position).normalized;
+
+                        playerHealth.TakeDamage(attackDamage, hitDirection);
+
+                        hasHitPlayer = true;
+                        break;
+                    }
+                }
+            }
+
+            yield return null;
+        }
     }
 
     IEnumerator SwingArm()

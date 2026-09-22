@@ -24,6 +24,7 @@ public class SpearEnemyMovement : MonoBehaviour
 
     private SpearEnemyAttack enemyAttack;
     private EnemySeparation separation;
+    private Animator animator;
 
     private bool isStrafing;
     private bool isBackingAway;
@@ -40,6 +41,7 @@ public class SpearEnemyMovement : MonoBehaviour
 
         enemyAttack = GetComponent<SpearEnemyAttack>();
         separation = GetComponent<EnemySeparation>();
+        animator = GetComponentInChildren<Animator>();
 
         StartCoroutine(CombatBehaviour());
     }
@@ -65,6 +67,8 @@ public class SpearEnemyMovement : MonoBehaviour
         {
             RotateTowardsPlayer();
         }
+
+
     }
 
     IEnumerator CombatBehaviour()
@@ -182,6 +186,13 @@ public class SpearEnemyMovement : MonoBehaviour
         if (!canMove)
             return;
 
+        if (animator != null)
+        {
+            animator.SetBool("IsMoving", true);
+            animator.SetBool("IsStrafing", false);
+            animator.SetBool("IsBackingAway", false);
+        }
+
         Vector3 direction =
             (player.position - transform.position)
             .normalized;
@@ -232,9 +243,19 @@ public class SpearEnemyMovement : MonoBehaviour
         if (!canMove)
         yield break;
 
+        
+
         float duration = Random.Range(0.3f, 0.6f);
 
-        float direction = Random.Range(0, 2) == 0 ? -1 : 1;
+        float direction = Random.Range(0, 2) == 0 ? -1f : 1f;
+
+        if (animator != null)
+        {
+            animator.SetBool("IsMoving", false);
+            animator.SetBool("IsStrafing", true);
+            animator.SetBool("IsBackingAway", false);
+            animator.SetFloat("StrafeDirection", direction);
+        }
 
         float timer = 0;
 
@@ -251,12 +272,24 @@ public class SpearEnemyMovement : MonoBehaviour
 
             yield return null;
         }
+
+        if (animator != null)
+        {
+            animator.SetBool("IsStrafing", false);
+        }
     }
 
     IEnumerator BackAway()
     {
         if (!canMove)
             yield break;
+
+        if (animator != null)
+        {
+            animator.SetBool("IsMoving", false);
+            animator.SetBool("IsStrafing", false);
+            animator.SetBool("IsBackingAway", true);
+        }
 
         float duration = Random.Range(0.2f, 0.45f);
 
@@ -277,6 +310,11 @@ public class SpearEnemyMovement : MonoBehaviour
             timer += Time.deltaTime;
 
             yield return null;
+        }
+
+        if (animator != null)
+        {
+            animator.SetBool("IsBackingAway", false);
         }
     }
 
