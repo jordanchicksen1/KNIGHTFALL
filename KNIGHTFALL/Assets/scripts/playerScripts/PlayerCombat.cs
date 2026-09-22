@@ -34,6 +34,11 @@ public class PlayerCombat : MonoBehaviour
     public float heavyAttackLungeForce = 3.5f;
     public float heavyAttackLungeDuration = 0.12f;
 
+    [Header("Heavy Attack Timing")]
+    public float heavyDamageStartFrame = 21f;
+    public float heavyDamageEndFrame = 27f;
+    public float heavyTotalFrames = 27f;
+
     [Header("Magic")]
     public GameObject fireballPrefab;
     public GameObject iceSpearPrefab;
@@ -427,6 +432,9 @@ public class PlayerCombat : MonoBehaviour
         bool isAttack2 = useSecondLightAttack;
         bool wasBlocking = isBlocking;
 
+        animator.SetBool("IsBlocking", false);
+        animator.SetBool("IsBlockMoving", false);
+
         if (isAttack2)
         {
             animator.SetTrigger("Attack2");
@@ -455,6 +463,7 @@ public class PlayerCombat : MonoBehaviour
     IEnumerator HeavyAttack()
     {
         movement.currentState = PlayerState.Attacking;
+        animator.SetTrigger("HeavyAttack");
         isHeavyAttacking = true;
         canMoveDuringHeavyAttack = false;
         swordCoroutine = StartCoroutine(HeavySwing());
@@ -677,7 +686,7 @@ public class PlayerCombat : MonoBehaviour
         // Only add the extra delay when attacking out of block
         if (wasBlocking)
         {
-            damageStartTime += 0.25f;
+            damageStartTime += 0.5f;
         }
 
         yield return new WaitForSeconds(damageStartTime);
@@ -725,15 +734,18 @@ public class PlayerCombat : MonoBehaviour
 
     IEnumerator DelayedHeavyHit()
     {
-        // wait for anticipation
-        yield return new WaitForSeconds(0.48f);
+        float damageStartTime =
+            heavyDamageStartFrame / heavyTotalFrames;
+
+        yield return new WaitForSeconds(damageStartTime);
 
         StartCoroutine(HeavyAttackFrames());
     }
 
     IEnumerator HeavyAttackFrames()
     {
-        float activeTime = 0.22f;
+        float activeTime =
+     (heavyDamageEndFrame - heavyDamageStartFrame) / heavyTotalFrames;
 
         float timer = 0;
 

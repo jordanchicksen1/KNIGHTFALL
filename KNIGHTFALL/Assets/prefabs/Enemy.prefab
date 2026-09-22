@@ -1218,7 +1218,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyHealth
   maxHealth: 200
   health: 200
-  knockbackForce: 5
+  knockbackForce: 3
   staggerDuration: 0.25
   currentStatus: 0
   statusThreshold: 100
