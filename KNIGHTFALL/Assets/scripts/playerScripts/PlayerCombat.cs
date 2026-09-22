@@ -320,6 +320,17 @@ public class PlayerCombat : MonoBehaviour
         movement.currentState =
             PlayerState.Blocking;
 
+        if (animator != null)
+        {
+            animator.SetBool("IsBlocking", true);
+
+            animator.SetBool(
+                "IsBlockMoving",
+                movement.moveInput.magnitude > 0.1f
+            );
+        }
+
+
         leftHand.localPosition =
             leftHandStartPosition +
             new Vector3(0.2f, 0.15f, 0.3f);
@@ -332,11 +343,20 @@ public class PlayerCombat : MonoBehaviour
     {
         isBlocking = false;
 
-        if (movement.currentState ==
-            PlayerState.Blocking)
+        if (animator != null)
         {
-            movement.currentState =
-                PlayerState.Idle;
+            animator.SetBool("IsBlocking", false);
+            animator.SetBool("IsBlockMoving", false);
+        }
+
+        // Decide what state the player should actually be in
+        if (movement.moveInput.magnitude > 0.1f)
+        {
+            movement.currentState = PlayerState.Moving;
+        }
+        else
+        {
+            movement.currentState = PlayerState.Idle;
         }
 
         leftHand.localPosition =
@@ -348,7 +368,7 @@ public class PlayerCombat : MonoBehaviour
 
 
 
-    
+
 
     public void ForceStopBlocking()
     {

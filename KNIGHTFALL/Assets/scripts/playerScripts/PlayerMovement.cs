@@ -34,6 +34,7 @@ public class PlayerMovement : MonoBehaviour
     private bool jumpPressed;
     private float verticalVelocity;
     private bool isGrounded;
+    private bool wasGrounded;
 
     [Header("Ground Check")]
     public Transform groundCheck;
@@ -80,6 +81,17 @@ public class PlayerMovement : MonoBehaviour
         controls.Player.Pause.performed += pauseMenu.TogglePause;
     }
 
+    private void Start()
+    {
+        isGrounded = Physics.CheckSphere(
+            groundCheck.position,
+            groundDistance,
+            groundMask
+        );
+
+        wasGrounded = isGrounded;
+    }
+
     private void OnEnable()
     {
         controls.Enable();
@@ -115,14 +127,26 @@ public class PlayerMovement : MonoBehaviour
 
         Vector3 moveDirection = forward * moveInput.y + right * moveInput.x;
 
+        if (currentState == PlayerState.Blocking && combat.IsBlocking())
+        {
+            if (KnightAnim != null)
+            {
+                KnightAnim.SetBool(
+                    "IsBlockMoving",
+                    moveDirection.magnitude > 0.1f
+                );
+            }
+        }
+
         isSprinting = sprintHeld && moveDirection.magnitude > 0.1f && currentState != PlayerState.Attacking && currentState != PlayerState.Dodging && currentState != PlayerState.Blocking && currentState != PlayerState.Staggered;
 
         if (moveDirection.magnitude > 0.1f)
         {
             if (currentState != PlayerState.Attacking &&
-                currentState != PlayerState.Dodging &&
-                currentState != PlayerState.Blocking &&
-                currentState != PlayerState.Staggered)
+    currentState != PlayerState.Dodging &&
+    currentState != PlayerState.Blocking &&
+    currentState != PlayerState.Staggered &&
+    currentState != PlayerState.Jumping)
             {
                 currentState = PlayerState.Moving;
                 KnightAnim.SetTrigger("Walk");
@@ -186,9 +210,10 @@ public class PlayerMovement : MonoBehaviour
         if (moveDirection.magnitude < 0.1f)
         {
             if (currentState != PlayerState.Attacking &&
-                currentState != PlayerState.Dodging &&
-                currentState != PlayerState.Blocking &&
-                currentState != PlayerState.Staggered)
+     currentState != PlayerState.Dodging &&
+     currentState != PlayerState.Blocking &&
+     currentState != PlayerState.Staggered &&
+     currentState != PlayerState.Jumping)
             {
                 currentState = PlayerState.Idle;
                 KnightAnim.SetTrigger("Idle");
@@ -237,20 +262,49 @@ public class PlayerMovement : MonoBehaviour
 
     void HandleGravity()
     {
-        isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
+        bool previouslyGrounded = isGrounded;
 
+        // Check current grounded state
+        isGrounded = Physics.CheckSphere(
+            groundCheck.position,
+            groundDistance,
+            groundMask
+        );
+
+        // Jump
+        if (jumpPressed &&
+            isGrounded &&
+            !isDodging &&
+            playerHealth.stamina >= jumpCost &&
+            currentState != PlayerState.Staggered)
+        {
+            playerHealth.stamina -= jumpCost;
+            playerHealth.ResetStaminaRegenDelay();
+
+            verticalVelocity = Mathf.Sqrt(
+                jumpHeight * -2f * gravity
+            );
+
+            currentState = PlayerState.Jumping;
+
+            KnightAnim.SetTrigger("Jump");
+        }
+
+        // Landing
+        if (!previouslyGrounded && isGrounded)
+        {
+            KnightAnim.SetTrigger("Land");
+
+            currentState = PlayerState.Idle;
+        }
+
+        // Keep player grounded
         if (isGrounded && verticalVelocity < 0)
         {
             verticalVelocity = -2f;
         }
 
-        if (jumpPressed && isGrounded && !isDodging && playerHealth.stamina >= jumpCost && currentState != PlayerState.Staggered)
-        {
-            playerHealth.stamina -= jumpCost;
-            playerHealth.ResetStaminaRegenDelay();
-            verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
-        }
-
+        // Gravity
         verticalVelocity += gravity * Time.deltaTime;
 
         Vector3 gravityMove = Vector3.up * verticalVelocity;
