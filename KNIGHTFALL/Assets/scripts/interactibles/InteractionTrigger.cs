@@ -6,6 +6,9 @@ public class InteractionTrigger : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
+        Debug.Log("Message trigger detected: " + other.name);
+
+
         if (!other.CompareTag("Player"))
             return;
 

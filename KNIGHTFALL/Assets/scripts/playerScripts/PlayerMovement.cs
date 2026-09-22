@@ -55,6 +55,7 @@ public class PlayerMovement : MonoBehaviour
 
     public Animator KnightAnim;
 
+
     private void Awake()
     {
         controller = GetComponent<CharacterController>();
@@ -112,6 +113,11 @@ public class PlayerMovement : MonoBehaviour
     void HandleMovement()
     {
         if (currentState == PlayerState.Dodging || currentState == PlayerState.Staggered)
+        {
+            return;
+        }
+
+        if (combat.IsLightAttacking())
         {
             return;
         }

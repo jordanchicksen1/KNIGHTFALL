@@ -15,7 +15,7 @@ public class PlayerCombat : MonoBehaviour
     public float attack1DamageEndFrame = 15f;
     public float attack1TotalFrames = 15f;
 
-    [Header("Light Attack 2 Timing")]
+    [Header("Light Attack 2 Timing")] 
     public float attack2DamageStartFrame = 13f;
     public float attack2DamageEndFrame = 20f;
     public float attack2TotalFrames = 24f;
@@ -68,6 +68,7 @@ public class PlayerCombat : MonoBehaviour
     private bool isHeavyAttacking;
     private bool canMoveDuringHeavyAttack;
     private bool heavyAttackStartedMoving;
+    private bool isLightAttacking;
 
     [Header("Weapons")]
     public WeaponType currentWeapon = WeaponType.Sword;
@@ -99,6 +100,7 @@ public class PlayerCombat : MonoBehaviour
     private bool useSecondLightAttack;
     private bool heavyAttackPressed;
     private bool interactPressed;
+
 
     [Header("Attack Movement")]
     public float attackLungeForce = 3f;
@@ -440,6 +442,7 @@ public class PlayerCombat : MonoBehaviour
     IEnumerator LightAttack()
     {
         movement.currentState = PlayerState.Attacking;
+        isLightAttacking = true;
 
         bool isAttack2 = useSecondLightAttack;
         bool wasBlocking = isBlocking;
@@ -467,8 +470,10 @@ public class PlayerCombat : MonoBehaviour
             StartCoroutine(AttackLunge());
         }
 
+        // Wait for the attack animation to finish
         yield return new WaitForSeconds(attackDuration);
 
+        isLightAttacking = false;
         movement.currentState = PlayerState.Idle;
     }
 
@@ -941,6 +946,11 @@ public class PlayerCombat : MonoBehaviour
         }
 
         return (targetPoint - origin).normalized;
+    }
+
+    public bool IsLightAttacking()
+    {
+        return isLightAttacking;
     }
 
     private void OnDrawGizmosSelected()

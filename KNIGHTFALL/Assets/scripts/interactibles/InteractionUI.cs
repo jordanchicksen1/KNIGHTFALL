@@ -16,6 +16,10 @@ public class InteractionUI : MonoBehaviour
     public TMP_Text notificationText;
     public float notificationDuration = 2f;
 
+    [Header("Message")]
+    public GameObject messageObject;
+    public TMP_Text messageText;
+
     [Header("Death")]
     public GameObject deathObject;
     public float deathDuration = 2f;
@@ -40,6 +44,17 @@ public class InteractionUI : MonoBehaviour
     {
         StopAllCoroutines();
         StartCoroutine(NotificationRoutine(message));
+    }
+
+    public void ShowMessage(string message)
+    {
+        messageObject.SetActive(true);
+        messageText.text = message;
+    }
+
+    public void HideMessage()
+    {
+        messageObject.SetActive(false);
     }
 
     private IEnumerator NotificationRoutine(string message)
