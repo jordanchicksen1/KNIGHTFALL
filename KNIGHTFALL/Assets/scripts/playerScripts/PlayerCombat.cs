@@ -373,14 +373,22 @@ public class PlayerCombat : MonoBehaviour
     public void ForceStopBlocking()
     {
         blockHeld = false;
-
         isBlocking = false;
 
-        if (movement.currentState ==
-            PlayerState.Blocking)
+       
+
+        if (movement.currentState == PlayerState.Blocking)
         {
-            movement.currentState =
-                PlayerState.Idle;
+            movement.currentState = PlayerState.Idle;
+        }
+    }
+
+    public void ClearBlockingAnimation()
+    {
+        if (animator != null)
+        {
+            animator.SetBool("IsBlocking", false);
+            animator.SetBool("IsBlockMoving", false);
         }
     }
 

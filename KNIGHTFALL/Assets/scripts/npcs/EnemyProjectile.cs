@@ -42,12 +42,15 @@ public class EnemyProjectile : MonoBehaviour
 
             PlayerHealth playerHealth = other.GetComponentInParent<PlayerHealth>();
 
-            if (combat != null &&
-                combat.IsBlocking())
+            if (combat != null && combat.IsBlocking())
             {
-                playerHealth.stamina -= 15f;
+                Vector3 hitDirection =
+                    (other.transform.position - transform.position).normalized;
 
-                playerHealth.ResetStaminaRegenDelay();
+                playerHealth.TakeDamage(
+                    damage,
+                    hitDirection
+                );
 
                 Destroy(gameObject);
             }

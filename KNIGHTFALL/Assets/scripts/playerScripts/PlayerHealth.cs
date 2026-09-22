@@ -85,7 +85,9 @@ public class PlayerHealth : MonoBehaviour
         if (combat != null && combat.IsBlocking())
         {
             stamina -= 15f;
+
             ResetStaminaRegenDelay();
+
             stamina = Mathf.Max(stamina, 0);
 
             if (stamina <= 0 && !isGuardBroken)
@@ -95,6 +97,13 @@ public class PlayerHealth : MonoBehaviour
             }
 
             Debug.Log("Blocked Attack");
+
+            Animator animator = GetComponentInChildren<Animator>();
+
+            if (animator != null)
+            {
+                animator.SetTrigger("BlockHit");
+            }
 
             return;
         }
@@ -145,9 +154,20 @@ public class PlayerHealth : MonoBehaviour
         isGuardBroken = true;
         movement.currentState = PlayerState.Staggered;
 
+        Animator animator = GetComponentInChildren<Animator>();
+
+        if (animator != null)
+        {
+            
+            animator.SetTrigger("BlockStagger");
+        }
+
         // stop current sword attack
         combat.InterruptAttack();
         combat.ForceStopBlocking();
+
+
+
 
         // LOWER HANDS
         rightHand.localPosition = rightHandStartPos + new Vector3(0, -0.35f, 0);
@@ -156,6 +176,8 @@ public class PlayerHealth : MonoBehaviour
         leftHand.localRotation = Quaternion.Euler(50, 0, 0);
 
         yield return new WaitForSeconds(guardBreakDuration);
+
+        combat.ClearBlockingAnimation();
 
         // RESTORE RIGHT HAND
         rightHand.localPosition = rightHandStartPos;
