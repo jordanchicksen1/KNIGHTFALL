@@ -10,10 +10,22 @@ public class PlayerCombat : MonoBehaviour
     public float attackRange = 1.5f;
     public int attackDamage = 25;
 
+    [Header("Light Attack 1 Timing")]
+    public float attack1DamageStartFrame = 9f;
+    public float attack1DamageEndFrame = 15f;
+    public float attack1TotalFrames = 15f;
+
+    [Header("Light Attack 2 Timing")]
+    public float attack2DamageStartFrame = 13f;
+    public float attack2DamageEndFrame = 20f;
+    public float attack2TotalFrames = 24f;
+
     [Header("Light Attack Timing")]
-    public float damageStartFrame = 9f;
-    public float damageEndFrame = 15f;
-    public float attackTotalFrames = 15f;
+    public float attack1DamageStartTime = 0.30f;
+    public float attack1DamageDuration = 0.20f;
+
+    public float attack2DamageStartTime = 0.433f;
+    public float attack2DamageDuration = 0.20f;
 
     [Header("Heavy Attack")]
     public float heavyAttackDuration = 1.1f;
@@ -79,6 +91,7 @@ public class PlayerCombat : MonoBehaviour
     private Animator animator;
 
     private bool attackPressed;
+    private bool useSecondLightAttack;
     private bool heavyAttackPressed;
     private bool interactPressed;
 
@@ -366,10 +379,6 @@ public class PlayerCombat : MonoBehaviour
             leftHandStartRotation;
     }
 
-
-
-
-
     public void ForceStopBlocking()
     {
         blockHeld = false;
@@ -381,6 +390,25 @@ public class PlayerCombat : MonoBehaviour
         {
             movement.currentState = PlayerState.Idle;
         }
+    }
+
+    public IEnumerator WaitForBlockStagger()
+    {
+        // Wait until Block Stagger actually starts
+        while (!animator.GetCurrentAnimatorStateInfo(0).IsName("Block Stagger"))
+        {
+            yield return null;
+        }
+
+        // Wait until Block Stagger has finished
+        while (animator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1f)
+        {
+            yield return null;
+        }
+
+        // Now it is safe to stop the Animator from thinking we're blocking
+        animator.SetBool("IsBlocking", false);
+        animator.SetBool("IsBlockMoving", false);
     }
 
     public void ClearBlockingAnimation()
@@ -396,15 +424,28 @@ public class PlayerCombat : MonoBehaviour
     {
         movement.currentState = PlayerState.Attacking;
 
-        animator.SetTrigger("Attack1");
+        bool isAttack2 = useSecondLightAttack;
+        bool wasBlocking = isBlocking;
+
+        if (isAttack2)
+        {
+            animator.SetTrigger("Attack2");
+        }
+        else
+        {
+            animator.SetTrigger("Attack1");
+        }
+
+        useSecondLightAttack = !useSecondLightAttack;
 
         swordCoroutine = StartCoroutine(SwingSword());
-        StartCoroutine(ActiveAttackFrames());
+
+        StartCoroutine(ActiveAttackFrames(isAttack2, wasBlocking));
+
         if (movement.moveInput.magnitude > 0.1f)
         {
             StartCoroutine(AttackLunge());
         }
-
 
         yield return new WaitForSeconds(attackDuration);
 
@@ -617,26 +658,35 @@ public class PlayerCombat : MonoBehaviour
 
         rightHand.localRotation = rightHandStartRotation;
     }
-    IEnumerator ActiveAttackFrames()
+    IEnumerator ActiveAttackFrames(bool isAttack2, bool wasBlocking)
     {
-        // Wait until the Light Attack animation is actually playing
-        while (!animator.GetCurrentAnimatorStateInfo(0).IsName("Light Attack 1"))
+        float damageStartTime;
+        float damageDuration;
+
+        if (isAttack2)
         {
-            yield return null;
+            damageStartTime = attack2DamageStartTime;
+            damageDuration = attack2DamageDuration;
+        }
+        else
+        {
+            damageStartTime = attack1DamageStartTime;
+            damageDuration = attack1DamageDuration;
         }
 
-        // Wait until frame 9
-        float damageStart = damageStartFrame / attackTotalFrames;
-
-        while (animator.GetCurrentAnimatorStateInfo(0).normalizedTime < damageStart)
+        // Only add the extra delay when attacking out of block
+        if (wasBlocking)
         {
-            yield return null;
+            damageStartTime += 0.25f;
         }
+
+        yield return new WaitForSeconds(damageStartTime);
 
         List<EnemyHealth> hitEnemies = new List<EnemyHealth>();
 
-        // Damage window: frame 9 → frame 15
-        while (animator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1f)
+        float timer = 0f;
+
+        while (timer < damageDuration)
         {
             Collider[] enemies = Physics.OverlapSphere(
                 attackPoint.position,
@@ -666,6 +716,8 @@ public class PlayerCombat : MonoBehaviour
                     enemyHealth.TakeDamage(damage, hitDirection);
                 }
             }
+
+            timer += Time.deltaTime;
 
             yield return null;
         }

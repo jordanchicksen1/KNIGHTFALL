@@ -158,15 +158,16 @@ public class PlayerHealth : MonoBehaviour
 
         if (animator != null)
         {
-            
+
+           
             animator.SetTrigger("BlockStagger");
         }
+
+        combat.StartCoroutine(combat.WaitForBlockStagger());
 
         // stop current sword attack
         combat.InterruptAttack();
         combat.ForceStopBlocking();
-
-
 
 
         // LOWER HANDS
@@ -189,6 +190,7 @@ public class PlayerHealth : MonoBehaviour
         stamina = 25f;
         movement.currentState = PlayerState.Idle;
         isGuardBroken = false;
+        
     }
 
     IEnumerator Knockback(Vector3 hitDirection)
