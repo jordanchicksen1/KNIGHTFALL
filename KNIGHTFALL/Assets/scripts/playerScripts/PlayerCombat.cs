@@ -173,6 +173,13 @@ public class PlayerCombat : MonoBehaviour
 
         switchWeaponPressed = false;
 
+        StartCoroutine(SwitchWeapon());
+    }
+
+    IEnumerator SwitchWeapon()
+    {
+        animator.SetTrigger("WeaponSwap");
+
         int currentIndex = inventory.unlockedWeapons.IndexOf(currentWeapon);
 
         currentIndex++;
@@ -182,7 +189,12 @@ public class PlayerCombat : MonoBehaviour
             currentIndex = 0;
         }
 
-        currentWeapon = inventory.unlockedWeapons[currentIndex];
+        WeaponType newWeapon = inventory.unlockedWeapons[currentIndex];
+
+        // Wait until frame 9
+        yield return new WaitForSeconds(9f / 20f);
+
+        currentWeapon = newWeapon;
 
         UpdateWeaponVisuals();
     }
@@ -814,6 +826,8 @@ public class PlayerCombat : MonoBehaviour
             yield break;
 
         movement.currentState = PlayerState.Attacking;
+
+        animator.SetTrigger("CastSpell");
 
         playerHealth.mp -= spellData.mpCost;
 
