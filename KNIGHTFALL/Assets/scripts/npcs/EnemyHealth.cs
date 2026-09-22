@@ -31,6 +31,9 @@ public class EnemyHealth : MonoBehaviour
     private MageBossAI mageBossAI;
     private EnemyHealthUI healthUI;
     private BossHealthUI bossHealthUI;
+    
+    [Header("Hit Effect")]
+    public HitEffectPool hitEffectPool;
 
     public bool isStaggered;
 
@@ -44,6 +47,7 @@ public class EnemyHealth : MonoBehaviour
         mageBossAI = GetComponent<MageBossAI>();
         healthUI = GetComponentInChildren<EnemyHealthUI>();
         bossHealthUI = FindFirstObjectByType<BossHealthUI>();
+        hitEffectPool = FindFirstObjectByType<HitEffectPool>();
 
         if (enemyMovement != null) originalMoveSpeed = enemyMovement.moveSpeed;
 
@@ -59,6 +63,14 @@ public class EnemyHealth : MonoBehaviour
         if (isStaggered)
             return;
 
+        if (hitEffectPool != null)
+        {
+            hitEffectPool.PlayHitEffect(
+                transform.position + Vector3.up * 1f,
+                hitDirection
+            );
+        }
+
         health -= damage;
 
         if (healthUI != null) healthUI.ShowDamage(damage);
@@ -66,6 +78,8 @@ public class EnemyHealth : MonoBehaviour
         if (bossHealthUI != null && bossHealthUI.bossHealth == this) bossHealthUI.ShowDamage(damage);
 
         rb.AddForce( hitDirection * knockbackForce, ForceMode.Impulse);
+
+
 
         if (enemyAttack != null && enemyAttack.isAttacking)
         {

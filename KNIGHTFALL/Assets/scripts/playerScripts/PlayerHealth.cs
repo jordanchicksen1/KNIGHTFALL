@@ -9,6 +9,7 @@ public class PlayerHealth : MonoBehaviour
     public float staggerDuration = 0.25f;
     private PlayerMovement movement;
     public bool isDead;
+    private PlayerHitEffectPool playerHitEffectPool;
 
     [Header("Vitality")]
     public float vitality = 100f;
@@ -60,6 +61,8 @@ public class PlayerHealth : MonoBehaviour
         rightHandStartRot = rightHand.localRotation;
 
         leftHandStartRot = leftHand.localRotation;
+
+        playerHitEffectPool = FindFirstObjectByType<PlayerHitEffectPool>();
     }
 
     void Update()
@@ -81,6 +84,7 @@ public class PlayerHealth : MonoBehaviour
     {
         if (isDead)
             return;
+
 
         if (combat != null && combat.IsBlocking())
         {
@@ -109,6 +113,14 @@ public class PlayerHealth : MonoBehaviour
         }
 
         health -= damage;
+
+        if (playerHitEffectPool != null)
+        {
+            playerHitEffectPool.PlayHitEffect(
+                transform.position + Vector3.up * 1f,
+                hitDirection
+            );
+        }
 
         if (health <= 0)
         {
