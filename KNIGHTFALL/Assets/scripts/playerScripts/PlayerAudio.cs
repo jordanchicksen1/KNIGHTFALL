@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 public class PlayerAudio : MonoBehaviour
 {
@@ -9,6 +10,8 @@ public class PlayerAudio : MonoBehaviour
     public AudioClip lightAttack1SFX;
     public AudioClip lightAttack2SFX;
     public AudioClip heavyAttackSFX;
+    [Range(0.1f, 1f)]
+    public float heavyAttackPitch = 0.65f;
 
     [Header("Combat")]
     public AudioClip swordHitSFX;
@@ -38,7 +41,23 @@ public class PlayerAudio : MonoBehaviour
 
     public void PlayHeavyAttack()
     {
-        PlaySound(heavyAttackSFX);
+        if (heavyAttackSFX == null)
+            return;
+
+        StartCoroutine(PlayHeavyAttackRoutine());
+    }
+
+    private IEnumerator PlayHeavyAttackRoutine()
+    {
+        yield return new WaitForSeconds(0.2f);
+        audioSource.pitch = heavyAttackPitch;
+        audioSource.PlayOneShot(heavyAttackSFX);
+
+        yield return new WaitForSeconds(
+            heavyAttackSFX.length / heavyAttackPitch
+        );
+
+        audioSource.pitch = 1f;
     }
 
     public void PlaySwordHit()

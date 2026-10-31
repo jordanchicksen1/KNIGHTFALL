@@ -106,9 +106,13 @@ public class PlayerCombat : MonoBehaviour
     public float attackLungeForce = 3f;
     public float attackLungeDuration = 0.12f;
 
+    [Header("SFX")]
+    private PlayerAudio playerAudio;
+
 
     private void Awake()
     {
+        playerAudio = GetComponent<PlayerAudio>();
         controls = new PlayerControls();
         controller = GetComponent<CharacterController>();
         movement = GetComponent<PlayerMovement>();
@@ -453,10 +457,12 @@ public class PlayerCombat : MonoBehaviour
         if (isAttack2)
         {
             animator.SetTrigger("Attack2");
+            playerAudio.PlayLightAttack2();
         }
         else
         {
             animator.SetTrigger("Attack1");
+            playerAudio.PlayLightAttack1();
         }
 
         useSecondLightAttack = !useSecondLightAttack;
@@ -488,6 +494,7 @@ public class PlayerCombat : MonoBehaviour
         if (heavyAttackStartedMoving)
         {
             StartCoroutine(HeavyAttackLunge());
+            playerAudio.PlayHeavyAttack();
         }
 
         StartCoroutine(DelayedHeavyHit());
