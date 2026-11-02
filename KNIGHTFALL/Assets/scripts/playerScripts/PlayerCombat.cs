@@ -843,6 +843,7 @@ public class PlayerCombat : MonoBehaviour
         movement.currentState = PlayerState.Attacking;
 
         animator.SetTrigger("CastSpell");
+        
 
         playerHealth.mp -= spellData.mpCost;
 
@@ -857,6 +858,7 @@ public class PlayerCombat : MonoBehaviour
         projectile.SetDirection(GetSpellDirection(spellSpawnPoint.position));
 
         movement.currentState = PlayerState.Idle;
+        playerAudio.PlaySpellCast();
     }
 
     IEnumerator HeavySpellAttack()
