@@ -5,22 +5,36 @@ public class PlayerAudio : MonoBehaviour
 {
     [Header("Audio Source")]
     public AudioSource audioSource;
+    public AudioSource enemyHitSource;
 
     [Header("Sword Attacks")]
     public AudioClip lightAttack1SFX;
     public AudioClip lightAttack2SFX;
     public AudioClip heavyAttackSFX;
-    [Range(0.1f, 1f)]
-    public float heavyAttackPitch = 0.65f;
+   
 
     [Header("Combat")]
     public AudioClip swordHitSFX;
     public AudioClip blockHitSFX;
+    public AudioClip enemyHitSFX;
 
     [Header("Movement")]
     public AudioClip dodgeSFX;
     public AudioClip jumpSFX;
     public AudioClip landSFX;
+
+    [Header("Footsteps")]
+    public AudioSource footstepSource;
+    public AudioClip footstep1SFX;
+    public AudioClip footstep2SFX;
+    
+    [Range(0.5f, 1.5f)]
+    public float minFootstepPitch = 0.9f;
+
+    [Range(0.5f, 1.5f)]
+    public float maxFootstepPitch = 1.1f;
+
+    private bool useFirstFootstep = true;
 
     [Header("Magic")]
     public AudioClip spellCastSFX;
@@ -39,30 +53,30 @@ public class PlayerAudio : MonoBehaviour
         PlaySound(lightAttack2SFX);
     }
 
+   
+
+    [Header("Heavy Attack Audio")]
+    public AudioSource heavyAttackAudioSource;
+    [Range(0.1f, 1f)]
+    public float heavyAttackPitch = 0.4f;
+
     public void PlayHeavyAttack()
     {
-        if (heavyAttackSFX == null)
+        if (heavyAttackSFX == null || heavyAttackAudioSource == null)
             return;
 
-        StartCoroutine(PlayHeavyAttackRoutine());
-    }
-
-    private IEnumerator PlayHeavyAttackRoutine()
-    {
-        yield return new WaitForSeconds(0.2f);
-        audioSource.pitch = heavyAttackPitch;
-        audioSource.PlayOneShot(heavyAttackSFX);
-
-        yield return new WaitForSeconds(
-            heavyAttackSFX.length / heavyAttackPitch
-        );
-
-        audioSource.pitch = 1f;
+        heavyAttackAudioSource.pitch = heavyAttackPitch;
+        heavyAttackAudioSource.PlayOneShot(heavyAttackSFX);
     }
 
     public void PlaySwordHit()
     {
         PlaySound(swordHitSFX);
+    }
+
+    public void PlayEnemyHit()
+    {
+        enemyHitSource.PlayOneShot(enemyHitSFX);
     }
 
     public void PlayBlockHit()
@@ -84,6 +98,28 @@ public class PlayerAudio : MonoBehaviour
     {
         PlaySound(landSFX);
     }
+    public void PlayFootstep()
+    {
+        AudioClip clip = useFirstFootstep
+            ? footstep1SFX
+            : footstep2SFX;
+
+        useFirstFootstep = !useFirstFootstep;
+
+        if (clip == null || footstepSource == null)
+            return;
+
+        footstepSource.pitch = Random.Range(
+            minFootstepPitch,
+            maxFootstepPitch
+        );
+
+        footstepSource.PlayOneShot(clip);
+
+        footstepSource.pitch = 1f;
+    }
+
+
 
     public void PlaySpellCast()
     {

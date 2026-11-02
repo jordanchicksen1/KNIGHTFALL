@@ -48,8 +48,11 @@ public class PlayerHealth : MonoBehaviour
     private Quaternion rightHandStartRot;
     private Quaternion leftHandStartRot;
 
+    [Header("SFX")]
+    private PlayerAudio playerAudio;
     private void Awake()
     {
+        playerAudio = GetComponent<PlayerAudio>();
         movement = GetComponent<PlayerMovement>();
         controller = GetComponent<CharacterController>();
         combat = GetComponent<PlayerCombat>();
@@ -107,12 +110,14 @@ public class PlayerHealth : MonoBehaviour
             if (animator != null)
             {
                 animator.SetTrigger("BlockHit");
+                playerAudio.PlayBlockHit();
             }
 
             return;
         }
 
         health -= damage;
+        playerAudio.PlaySwordHit();
 
         if (playerHitEffectPool != null)
         {

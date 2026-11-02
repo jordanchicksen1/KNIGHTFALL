@@ -17,6 +17,10 @@ public class PlayerMovement : MonoBehaviour
     private bool sprintHeld;
     private bool isSprinting;
 
+    [Header("Footsteps")]
+    public float footstepInterval = 0.5f;
+    private float footstepTimer;
+
     [Header("References")]
     public Transform cameraPivot;
     private PlayerCombat combat;
@@ -55,7 +59,8 @@ public class PlayerMovement : MonoBehaviour
 
     public Animator KnightAnim;
 
-
+    [Header("SFX")]
+    private PlayerAudio PlayerAudio;
     private void Awake()
     {
         controller = GetComponent<CharacterController>();
@@ -64,6 +69,7 @@ public class PlayerMovement : MonoBehaviour
         playerHealth = GetComponent<PlayerHealth>();
         items = GetComponent<PlayerItems>();
         pauseMenu = GetComponent<PauseMenu>();
+        PlayerAudio = GetComponent<PlayerAudio>();
         controls = new PlayerControls();
         controls.Player.Move.performed += ctx => moveInput = ctx.ReadValue<Vector2>();
         controls.Player.Move.canceled += ctx => moveInput = Vector2.zero;
@@ -145,6 +151,7 @@ public class PlayerMovement : MonoBehaviour
         }
 
         isSprinting = sprintHeld && moveDirection.magnitude > 0.1f && currentState != PlayerState.Attacking && currentState != PlayerState.Dodging && currentState != PlayerState.Blocking && currentState != PlayerState.Staggered;
+        HandleFootsteps(moveDirection);
 
         if (moveDirection.magnitude > 0.1f)
         {
@@ -229,6 +236,39 @@ public class PlayerMovement : MonoBehaviour
     
     }
 
+    void HandleFootsteps(Vector3 moveDirection)
+    {
+        // Player must be grounded and moving
+        if (!isGrounded || moveDirection.magnitude < 0.1f)
+        {
+            footstepTimer = 0f;
+            return;
+        }
+
+        // Don't play footsteps during restricted actions
+        if (currentState == PlayerState.Attacking ||
+            currentState == PlayerState.Dodging ||
+            currentState == PlayerState.Staggered ||
+            currentState == PlayerState.Jumping)
+        {
+            footstepTimer = 0f;
+            return;
+        }
+
+        footstepTimer -= Time.deltaTime;
+
+        if (footstepTimer <= 0f)
+        {
+            if (PlayerAudio != null)
+            {
+                PlayerAudio.PlayFootstep();
+            }
+
+            // Reset the timer
+            footstepTimer = footstepInterval;
+        }
+    }
+
     bool IsPlayerDetected()
     {
         EnemyMovement[] meleeEnemies = FindObjectsByType<EnemyMovement>(FindObjectsSortMode.None);
@@ -284,6 +324,7 @@ public class PlayerMovement : MonoBehaviour
             playerHealth.stamina >= jumpCost &&
             currentState != PlayerState.Staggered)
         {
+            PlayerAudio.PlayJump();
             playerHealth.stamina -= jumpCost;
             playerHealth.ResetStaminaRegenDelay();
 
@@ -300,7 +341,7 @@ public class PlayerMovement : MonoBehaviour
         if (!previouslyGrounded && isGrounded)
         {
             KnightAnim.SetTrigger("Land");
-
+            PlayerAudio.PlayLand();
             currentState = PlayerState.Idle;
         }
 
@@ -324,6 +365,8 @@ public class PlayerMovement : MonoBehaviour
     {
         if (dodgePressed && !isDodging && isGrounded && playerHealth.stamina >= dodgeCost && currentState != PlayerState.Staggered)
         {
+            PlayerAudio.PlayDodge();
+
             if (currentState == PlayerState.Blocking)
             {
                 combat.StopBlocking();

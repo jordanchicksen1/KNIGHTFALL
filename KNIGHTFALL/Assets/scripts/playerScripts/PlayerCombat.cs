@@ -485,6 +485,7 @@ public class PlayerCombat : MonoBehaviour
 
     IEnumerator HeavyAttack()
     {
+        playerAudio.PlayHeavyAttack();
         movement.currentState = PlayerState.Attacking;
         animator.SetTrigger("HeavyAttack");
         isHeavyAttacking = true;
@@ -494,7 +495,7 @@ public class PlayerCombat : MonoBehaviour
         if (heavyAttackStartedMoving)
         {
             StartCoroutine(HeavyAttackLunge());
-            playerAudio.PlayHeavyAttack();
+            
         }
 
         StartCoroutine(DelayedHeavyHit());
@@ -747,6 +748,7 @@ public class PlayerCombat : MonoBehaviour
                     }
 
                     enemyHealth.TakeDamage(damage, hitDirection);
+                    playerAudio.PlayEnemyHit();
                 }
             }
 
@@ -797,6 +799,7 @@ public class PlayerCombat : MonoBehaviour
                     }
 
                     enemyHealth.TakeDamage(damage,hitDirection);
+                    playerAudio.PlayEnemyHit();
                 }
             }
 
