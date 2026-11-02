@@ -39,6 +39,13 @@ public class PlayerMovement : MonoBehaviour
     private float verticalVelocity;
     private bool isGrounded;
     private bool wasGrounded;
+    private bool isCommittedJump;
+    private Vector3 jumpMoveDirection;
+    private float jumpMoveSpeed;
+
+    [Header("Landing")]
+    public float landingRecoveryTime = 0.25f;
+    private float landingRecoveryTimer;
 
     [Header("Ground Check")]
     public Transform groundCheck;
@@ -111,6 +118,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
+        landingRecoveryTimer -= Time.deltaTime;
         HandleMovement();
         HandleGravity();
         HandleDodge();
@@ -122,6 +130,12 @@ public class PlayerMovement : MonoBehaviour
         {
             return;
         }
+
+        if (landingRecoveryTimer > 0f)
+        {
+            return;
+        }
+            
 
         if (combat.IsLightAttacking())
         {
@@ -138,6 +152,12 @@ public class PlayerMovement : MonoBehaviour
         right.Normalize();
 
         Vector3 moveDirection = forward * moveInput.y + right * moveInput.x;
+
+        // Lock movement direction during a deliberate jump
+        if (isCommittedJump)
+        {
+            moveDirection = jumpMoveDirection;
+        }
 
         if (currentState == PlayerState.Blocking && combat.IsBlocking())
         {
@@ -167,7 +187,7 @@ public class PlayerMovement : MonoBehaviour
 
             if (!combat.IsHeavyAttacking())
             {
-                float currentSpeed = isSprinting ? sprintSpeed : moveSpeed;
+                float currentSpeed = isCommittedJump ? jumpMoveSpeed: (isSprinting ? sprintSpeed : moveSpeed);
 
                 controller.Move(
                     moveDirection *
@@ -334,6 +354,29 @@ public class PlayerMovement : MonoBehaviour
 
             currentState = PlayerState.Jumping;
 
+            // Capture the movement direction at takeoff
+            Vector3 forward = cameraPivot.forward;
+            Vector3 right = cameraPivot.right;
+
+            forward.y = 0;
+            right.y = 0;
+
+            forward.Normalize();
+            right.Normalize();
+
+            jumpMoveDirection = forward * moveInput.y + right * moveInput.x;
+
+            if (jumpMoveDirection.magnitude > 0.1f)
+            {
+                jumpMoveDirection.Normalize();
+            }
+
+            // Preserve the player's movement speed
+            jumpMoveSpeed = isSprinting ? sprintSpeed : moveSpeed;
+
+            // Lock horizontal movement direction until landing
+            isCommittedJump = true;
+
             KnightAnim.SetTrigger("Jump");
         }
 
@@ -342,6 +385,8 @@ public class PlayerMovement : MonoBehaviour
         {
             KnightAnim.SetTrigger("Land");
             PlayerAudio.PlayLand();
+            isCommittedJump = false;
+            landingRecoveryTimer = landingRecoveryTime; 
             currentState = PlayerState.Idle;
         }
 
