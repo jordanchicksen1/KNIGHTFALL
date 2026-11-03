@@ -211,6 +211,7 @@ public class PlayerCombat : MonoBehaviour
         movement.movementLocked = true;
 
         animator.SetTrigger("WeaponSwap");
+        playerAudio.PlayWeaponSwap();
 
         // Wait until frame 9
         yield return new WaitForSeconds(9f / 20f);

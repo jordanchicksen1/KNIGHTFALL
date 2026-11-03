@@ -18,6 +18,9 @@ public class PlayerAudio : MonoBehaviour
     public AudioClip blockHitSFX;
     public AudioClip enemyHitSFX;
 
+    [Header("Death")]
+    public AudioClip deathSFX;
+
     [Header("Movement")]
     public AudioClip dodgeSFX;
     public AudioClip jumpSFX;
@@ -27,7 +30,10 @@ public class PlayerAudio : MonoBehaviour
     public AudioSource footstepSource;
     public AudioClip footstep1SFX;
     public AudioClip footstep2SFX;
-    
+
+    [Header("Items")]
+    public AudioClip itemPickupSFX;
+
     [Range(0.5f, 1.5f)]
     public float minFootstepPitch = 0.9f;
 
@@ -42,6 +48,23 @@ public class PlayerAudio : MonoBehaviour
 
     [Header("Equipment")]
     public AudioClip weaponSwapSFX;
+
+    [Header("Items")]
+    public AudioClip potionDrinkSFX;
+
+    [Header("Bonfire")]
+    public AudioClip bonfireLightSFX;
+    public AudioClip bonfireRestSFX;
+
+    public void PlayBonfireLight()
+    {
+        PlaySound(bonfireLightSFX);
+    }
+
+    public void PlayBonfireRest()
+    {
+        PlaySound(bonfireRestSFX);
+    }
 
     public void PlayLightAttack1()
     {
@@ -84,6 +107,11 @@ public class PlayerAudio : MonoBehaviour
         PlaySound(blockHitSFX);
     }
 
+    public void PlayDeath()
+    {
+        PlaySound(deathSFX);
+    }
+
     public void PlayDodge()
     {
         PlaySound(dodgeSFX);
@@ -119,6 +147,10 @@ public class PlayerAudio : MonoBehaviour
         footstepSource.pitch = 1f;
     }
 
+    public void PlayPotionDrink()
+    {
+        PlaySound(potionDrinkSFX);
+    }
 
 
     public void PlaySpellCast()
@@ -134,6 +166,11 @@ public class PlayerAudio : MonoBehaviour
     public void PlayWeaponSwap()
     {
         PlaySound(weaponSwapSFX);
+    }
+
+    public void PlayItemPickup()
+    {
+        PlaySound(itemPickupSFX);
     }
 
     private void PlaySound(AudioClip clip)

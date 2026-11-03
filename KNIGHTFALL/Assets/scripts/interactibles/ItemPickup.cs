@@ -14,6 +14,9 @@ public class ItemPickup : Interactable
     [Header("Key")]
     public KeyType key;
 
+    private PlayerAudio playerAudio;
+
+
     private PlayerInventory inventory;
 
     void Start()
@@ -23,6 +26,7 @@ public class ItemPickup : Interactable
         if (player != null)
         {
             inventory = player.GetComponent<PlayerInventory>();
+            playerAudio = player.GetComponent<PlayerAudio>();
         }
     }
 
@@ -44,6 +48,11 @@ public class ItemPickup : Interactable
         {
             inventory.AddKey();
             InteractionUI.Instance.ShowNotification("Obtained " + key + "!");
+        }
+
+        if (playerAudio != null)
+        {
+            playerAudio.PlayItemPickup();
         }
 
         InteractionUI.Instance.HidePrompt();

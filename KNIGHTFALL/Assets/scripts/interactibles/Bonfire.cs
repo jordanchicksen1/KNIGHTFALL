@@ -13,6 +13,7 @@ public class Bonfire : Interactable
 
     private PlayerHealth playerHealth;
     private PlayerItems playerItems;
+    private PlayerAudio playerAudio;
 
     private bool flameRestored = false;
 
@@ -20,6 +21,7 @@ public class Bonfire : Interactable
     {
         GameObject player = GameObject.FindGameObjectWithTag("Player");
         GameObject[] allObjects = Resources.FindObjectsOfTypeAll<GameObject>();
+
 
         foreach (GameObject obj in allObjects)
         {
@@ -34,6 +36,7 @@ public class Bonfire : Interactable
         {
             playerHealth = player.GetComponent<PlayerHealth>();
             playerItems = player.GetComponent<PlayerItems>();
+            playerAudio = player.GetComponent<PlayerAudio>();
         }
 
         if (flameRestoredText != null)
@@ -63,6 +66,11 @@ public class Bonfire : Interactable
     {
         flameRestored = true;
 
+        if (playerAudio != null)
+        {
+            playerAudio.PlayBonfireLight();
+        }
+
         if (fireModel != null)
         {
             fireModel.SetActive(true);
@@ -83,7 +91,12 @@ public class Bonfire : Interactable
     {
         Debug.Log("Rested at Bonfire");
 
-        // Different checkpoint?
+        if (playerAudio != null)
+        {
+            playerAudio.PlayBonfireRest();
+        }
+
+        // Different checkpoint
         bool isNewCheckpoint =
             CheckpointManager.Instance.currentCheckpoint != spawnPoint;
 

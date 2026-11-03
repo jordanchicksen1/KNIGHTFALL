@@ -7,12 +7,13 @@ public class PlayerItems : MonoBehaviour
     [Header("Healing Flask")]
     public int maxHealingFlasks = 5;
     public int currentHealingFlasks = 5;
+    public ParticleSystem healEffect;
 
     [Header("Mana Flask")]
     public int maxManaFlasks = 5;
     public int currentManaFlasks = 5;
-
     public int manaRestoreAmount = 50;
+    public ParticleSystem manaEffect;
 
     [Header("Selected Item")]
     public ItemType currentItem = ItemType.HealingFlask;
@@ -28,16 +29,17 @@ public class PlayerItems : MonoBehaviour
     private PlayerControls controls;
     private PlayerMovement movement;
     private PlayerHealth playerHealth;
+    private PlayerAudio playerAudio;
 
     void Awake()
     {
         controls = new PlayerControls();
 
-        movement =
-            GetComponent<PlayerMovement>();
+        movement = GetComponent<PlayerMovement>();
 
-        playerHealth =
-            GetComponent<PlayerHealth>();
+        playerHealth = GetComponent<PlayerHealth>();
+
+        playerAudio = GetComponent<PlayerAudio>();
 
         controls.Player.UseItem.performed += ctx => useItemPressed = true;
 
@@ -126,12 +128,11 @@ public class PlayerItems : MonoBehaviour
         if (healingCoroutine != null)
         {
             StopCoroutine(healingCoroutine);
+            healingCoroutine = null;
         }
 
-        movement.moveSpeed = 5f;
-
-        movement.currentState =
-            PlayerState.Idle;
+        movement.movementLocked = false;
+        movement.currentState = PlayerState.Idle;
 
         isHealing = false;
     }
@@ -165,27 +166,28 @@ public class PlayerItems : MonoBehaviour
     {
         isHealing = true;
 
-        movement.currentState =
-            PlayerState.Attacking;
+        movement.movementLocked = true;
+        movement.currentState = PlayerState.Attacking;
+
+        // Clear any pending walking animation
+        movement.KnightAnim.ResetTrigger("Walk");
+
+        // Transition into Idle
+        movement.KnightAnim.SetTrigger("Idle");
+
+        playerAudio.PlayPotionDrink();
+        healEffect.Play();
 
         currentHealingFlasks--;
 
-        float originalSpeed =
-            movement.moveSpeed;
-
-        movement.moveSpeed *=
-            healingMoveSpeedMultiplier;
-
         float totalHealTime = 0.7f;
-
-        float timer = 0;
+        float timer = 0f;
 
         int totalHealing = healAmount;
 
         while (timer < totalHealTime)
         {
-            float healPerSecond =
-                totalHealing / totalHealTime;
+            float healPerSecond = totalHealing / totalHealTime;
 
             playerHealth.health += healPerSecond * Time.deltaTime;
 
@@ -203,11 +205,8 @@ public class PlayerItems : MonoBehaviour
             healDuration - totalHealTime
         );
 
-        movement.moveSpeed =
-            originalSpeed;
-
-        movement.currentState =
-            PlayerState.Idle;
+        movement.movementLocked = false;
+        movement.currentState = PlayerState.Idle;
 
         isHealing = false;
     }
@@ -216,35 +215,34 @@ public class PlayerItems : MonoBehaviour
     {
         isHealing = true;
 
-        movement.currentState =
-            PlayerState.Attacking;
+        movement.movementLocked = true;
+        movement.currentState = PlayerState.Attacking;
+
+        // Clear any pending walking animation
+        movement.KnightAnim.ResetTrigger("Walk");
+
+        // Transition into Idle
+        movement.KnightAnim.SetTrigger("Idle");
+
+        playerAudio.PlayPotionDrink();
+        manaEffect.Play();
 
         currentManaFlasks--;
 
-        float originalSpeed =
-            movement.moveSpeed;
-
-        movement.moveSpeed *=
-            healingMoveSpeedMultiplier;
-
         float totalHealTime = 0.7f;
-
-        float timer = 0;
+        float timer = 0f;
 
         int totalHealing = manaRestoreAmount;
 
         while (timer < totalHealTime)
         {
-            float healPerSecond =
-                totalHealing / totalHealTime;
+            float healPerSecond = totalHealing / totalHealTime;
 
             playerHealth.mp += healPerSecond * Time.deltaTime;
 
-            if (playerHealth.mp >
-                playerHealth.maxMP)
+            if (playerHealth.mp > playerHealth.maxMP)
             {
-                playerHealth.mp =
-                    playerHealth.maxMP;
+                playerHealth.mp = playerHealth.maxMP;
             }
 
             timer += Time.deltaTime;
@@ -256,11 +254,8 @@ public class PlayerItems : MonoBehaviour
             healDuration - totalHealTime
         );
 
-        movement.moveSpeed =
-            originalSpeed;
-
-        movement.currentState =
-            PlayerState.Idle;
+        movement.movementLocked = false;
+        movement.currentState = PlayerState.Idle;
 
         isHealing = false;
     }

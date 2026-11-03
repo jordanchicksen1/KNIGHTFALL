@@ -117,6 +117,18 @@ public class PlayerHealth : MonoBehaviour
         }
 
         health -= damage;
+
+        if (health <= 0)
+        {
+            isDead = true;
+            vitality -= vitalityLoss;
+            vitality = Mathf.Max(minimumVitality, vitality);
+            movement.currentState = PlayerState.Staggered;
+            playerAudio.PlayDeath();
+            StartCoroutine(DeathSequence());
+            return;
+        }
+
         playerAudio.PlaySwordHit();
 
         if (playerHitEffectPool != null)
@@ -127,15 +139,7 @@ public class PlayerHealth : MonoBehaviour
             );
         }
 
-        if (health <= 0)
-        {
-            isDead = true;
-            vitality -= vitalityLoss;
-            vitality = Mathf.Max(minimumVitality, vitality);
-            movement.currentState = PlayerState.Staggered;
-            StartCoroutine(DeathSequence());
-            return;
-        }
+        
 
         StartCoroutine(Knockback(hitDirection));
     }
