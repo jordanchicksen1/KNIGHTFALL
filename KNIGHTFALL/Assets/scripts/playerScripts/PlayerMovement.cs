@@ -5,6 +5,7 @@ using System.Collections;
 public class PlayerMovement : MonoBehaviour
 {
     public PlayerState currentState;
+    public bool movementLocked;
 
     [Header("Movement")]
     public float moveSpeed = 5f;
@@ -126,6 +127,9 @@ public class PlayerMovement : MonoBehaviour
 
     void HandleMovement()
     {
+        if (movementLocked)
+            return;
+
         if (currentState == PlayerState.Dodging || currentState == PlayerState.Staggered)
         {
             return;
@@ -175,11 +179,12 @@ public class PlayerMovement : MonoBehaviour
 
         if (moveDirection.magnitude > 0.1f)
         {
-            if (currentState != PlayerState.Attacking &&
-    currentState != PlayerState.Dodging &&
-    currentState != PlayerState.Blocking &&
-    currentState != PlayerState.Staggered &&
-    currentState != PlayerState.Jumping)
+            if (isGrounded &&
+     !isCommittedJump &&
+     currentState != PlayerState.Attacking &&
+     currentState != PlayerState.Dodging &&
+     currentState != PlayerState.Blocking &&
+     currentState != PlayerState.Staggered)
             {
                 currentState = PlayerState.Moving;
                 KnightAnim.SetTrigger("Walk");

@@ -7076,6 +7076,7 @@ MonoBehaviour:
   jumpCost: 15
   gravity: -20
   jumpHeight: 2
+  landingRecoveryTime: 0.25
   groundCheck: {fileID: 4500457292645177305}
   groundDistance: 0.3
   groundMask:
@@ -7097,7 +7098,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de910689900322144ab8ae56e251739f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerCombat
-  attackDuration: 0.8
+  attack1Duration: 1
+  attack2Duration: 1
   attackRange: 1.1
   attackDamage: 25
   attack1DamageStartFrame: 9
@@ -8003,8 +8005,16 @@ PrefabInstance:
       value: -133.48395
       objectReference: {fileID: 0}
     - target: {fileID: -45613449786346447, guid: e0add612185ec3241abf84a1e996cf22, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -45613449786346447, guid: e0add612185ec3241abf84a1e996cf22, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
       value: 3.606367
+      objectReference: {fileID: 0}
+    - target: {fileID: -45613449786346447, guid: e0add612185ec3241abf84a1e996cf22, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 153434811480643137, guid: e0add612185ec3241abf84a1e996cf22, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
@@ -8111,8 +8121,16 @@ PrefabInstance:
       value: -68.254395
       objectReference: {fileID: 0}
     - target: {fileID: 2082227252749497117, guid: e0add612185ec3241abf84a1e996cf22, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2082227252749497117, guid: e0add612185ec3241abf84a1e996cf22, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
       value: -3.608307
+      objectReference: {fileID: 0}
+    - target: {fileID: 2082227252749497117, guid: e0add612185ec3241abf84a1e996cf22, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2485994067242296935, guid: e0add612185ec3241abf84a1e996cf22, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x

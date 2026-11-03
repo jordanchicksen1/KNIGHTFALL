@@ -6,7 +6,8 @@ using UnityEngine.InputSystem;
 public class PlayerCombat : MonoBehaviour
 {
     [Header("Attack")]
-    public float attackDuration = 0.4f;
+    public float attack1Duration = 0.87f;
+    public float attack2Duration = 0.53f;
     public float attackRange = 1.5f;
     public int attackDamage = 25;
 
@@ -184,25 +185,43 @@ public class PlayerCombat : MonoBehaviour
 
     IEnumerator SwitchWeapon()
     {
-        animator.SetTrigger("WeaponSwap");
-
-        int currentIndex = inventory.unlockedWeapons.IndexOf(currentWeapon);
-
-        currentIndex++;
-
-        if (currentIndex >= inventory.unlockedWeapons.Count)
+        // No weapon to switch to
+        if (inventory.unlockedWeapons == null ||
+            inventory.unlockedWeapons.Count <= 1)
         {
-            currentIndex = 0;
+            yield break;
         }
 
-        WeaponType newWeapon = inventory.unlockedWeapons[currentIndex];
+        int currentIndex =
+            inventory.unlockedWeapons.IndexOf(currentWeapon);
+
+        if (currentIndex == -1)
+            yield break;
+
+        int nextIndex =
+            (currentIndex + 1) % inventory.unlockedWeapons.Count;
+
+        WeaponType newWeapon =
+            inventory.unlockedWeapons[nextIndex];
+
+        // Don't play the animation if the weapon is unchanged
+        if (newWeapon == currentWeapon)
+            yield break;
+
+        movement.movementLocked = true;
+
+        animator.SetTrigger("WeaponSwap");
 
         // Wait until frame 9
         yield return new WaitForSeconds(9f / 20f);
 
         currentWeapon = newWeapon;
-
         UpdateWeaponVisuals();
+
+        // Finish the remaining 11 frames
+        yield return new WaitForSeconds(11f / 20f);
+
+        movement.movementLocked = false;
     }
 
     void HandleSpellSwitch()
@@ -476,8 +495,11 @@ public class PlayerCombat : MonoBehaviour
             StartCoroutine(AttackLunge());
         }
 
-        // Wait for the attack animation to finish
-        yield return new WaitForSeconds(attackDuration);
+        float currentAttackDuration = isAttack2
+     ? attack2Duration
+     : attack1Duration;
+
+        yield return new WaitForSeconds(currentAttackDuration);
 
         isLightAttacking = false;
         movement.currentState = PlayerState.Idle;
