@@ -857,30 +857,49 @@ public class PlayerCombat : MonoBehaviour
         if (currentSpellPrefab == null)
             yield break;
 
-        PlayerSpellProjectile spellData = currentSpellPrefab.GetComponent<PlayerSpellProjectile>();
+        PlayerSpellProjectile spellData =
+            currentSpellPrefab.GetComponent<PlayerSpellProjectile>();
 
         if (playerHealth.mp < spellData.mpCost)
             yield break;
 
+        // Lock player movement
+        movement.movementLocked = true;
         movement.currentState = PlayerState.Attacking;
 
         animator.SetTrigger("CastSpell");
-        
 
         playerHealth.mp -= spellData.mpCost;
 
+        // Wait until the projectile release frame
         yield return new WaitForSeconds(spellCastTime);
 
-        GameObject spell = Instantiate(currentSpellPrefab, spellSpawnPoint.position, Quaternion.identity);
+        GameObject spell = Instantiate(
+            currentSpellPrefab,
+            spellSpawnPoint.position,
+            Quaternion.identity
+        );
 
-        PlayerSpellProjectile projectile = spell.GetComponent<PlayerSpellProjectile>();
+        PlayerSpellProjectile projectile =
+            spell.GetComponent<PlayerSpellProjectile>();
 
         projectile.isOrbiting = false;
 
-        projectile.SetDirection(GetSpellDirection(spellSpawnPoint.position));
+        projectile.SetDirection(
+            GetSpellDirection(spellSpawnPoint.position)
+        );
 
-        movement.currentState = PlayerState.Idle;
         playerAudio.PlaySpellCast();
+
+        // Wait for the rest of the 18-frame animation
+        float remainingAnimationTime =
+            Mathf.Max(0f, (18f / 20f) - spellCastTime);
+
+        yield return new WaitForSeconds(remainingAnimationTime);
+
+        // Restore movement
+        movement.movementLocked = false;
+        movement.currentState = PlayerState.Idle;
     }
 
     IEnumerator HeavySpellAttack()
@@ -893,40 +912,74 @@ public class PlayerCombat : MonoBehaviour
         PlayerSpellProjectile spellData =
             spellPrefab.GetComponent<PlayerSpellProjectile>();
 
-        int totalCost =
-            spellData.mpCost *
-            heavySpellCount;
+        int totalCost = spellData.mpCost * heavySpellCount;
 
         if (playerHealth.mp < totalCost)
             yield break;
 
         playerHealth.mp -= totalCost;
 
+        // Lock movement and start casting animation
+        movement.movementLocked = true;
         movement.currentState = PlayerState.Attacking;
 
-        List<OrbitingSpell> orbitingSpells = new List<OrbitingSpell>();
+        animator.SetTrigger("CastSpell");
+        playerAudio.PlayHeavySpell();
 
+        List<OrbitingSpell> orbitingSpells =
+            new List<OrbitingSpell>();
+
+        // Create orbiting spells
         for (int i = 0; i < heavySpellCount; i++)
         {
-            GameObject spell = Instantiate(spellPrefab, transform.position, Quaternion.identity);
+            GameObject spell = Instantiate(
+                spellPrefab,
+                transform.position,
+                Quaternion.identity
+            );
+
             OrbitingSpell orbit = spell.AddComponent<OrbitingSpell>();
+
             spell.GetComponent<PlayerSpellProjectile>().isOrbiting = true;
+
             orbitingSpells.Add(orbit);
-            orbit.Initialise(transform, orbitRadius, orbitHeight, orbitSpeed, i * (360f / heavySpellCount));
+
+            orbit.Initialise(
+                transform,
+                orbitRadius,
+                orbitHeight,
+                orbitSpeed,
+                i * (360f / heavySpellCount)
+            );
         }
 
-        yield return new WaitForSeconds(heavySpellDelay);
+        // Wait for the 18-frame casting animation
+        float animationDuration = 18f / 20f;
 
+        yield return new WaitForSeconds(animationDuration);
+
+        // Restore movement once the animation finishes
+        movement.movementLocked = false;
+        movement.currentState = PlayerState.Idle;
+
+        // Preserve the original total charging delay
+        float remainingChargeTime =
+            Mathf.Max(0f, heavySpellDelay - animationDuration);
+
+        yield return new WaitForSeconds(remainingChargeTime);
+
+        // Launch the orbiting spells
         foreach (OrbitingSpell spell in orbitingSpells)
         {
             if (spell != null)
             {
-                spell.Launch(GetSpellDirection(spell.transform.position));
-                yield return new WaitForSeconds( 0.2f);
+                spell.Launch(
+                    GetSpellDirection(spell.transform.position)
+                );
+
+                yield return new WaitForSeconds(0.2f);
             }
         }
-
-        movement.currentState = PlayerState.Idle;
     }
 
     public void CancelHeavyAttack()
