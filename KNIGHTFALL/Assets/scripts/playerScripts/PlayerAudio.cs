@@ -45,6 +45,7 @@ public class PlayerAudio : MonoBehaviour
     [Header("Magic")]
     public AudioClip spellCastSFX;
     public AudioClip heavySpellSFX;
+    public AudioClip spellImpactSFX;
 
     [Header("Equipment")]
     public AudioClip weaponSwapSFX;
@@ -161,6 +162,12 @@ public class PlayerAudio : MonoBehaviour
     public void PlayHeavySpell()
     {
         PlaySound(heavySpellSFX);
+    }
+
+    public void PlaySpellImpact(Vector3 position)
+    {
+        if (spellImpactSFX != null)
+            AudioSource.PlayClipAtPoint(spellImpactSFX, position);
     }
 
     public void PlayWeaponSwap()

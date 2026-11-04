@@ -16953,6 +16953,7 @@ MonoBehaviour:
   currentTarget: {fileID: 0}
   switchCooldown: 0.3
   cameraPivot: {fileID: 2657859065777834545}
+  isDodging: 0
 --- !u!114 &266437129915804876
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -17083,6 +17084,7 @@ MonoBehaviour:
   maxFootstepPitch: 1.1
   spellCastSFX: {fileID: 8300000, guid: aae391c2efa01ed43abff436832eaa16, type: 3}
   heavySpellSFX: {fileID: 8300000, guid: 0ce732c8bf7986245ae45433510ed0f6, type: 3}
+  spellImpactSFX: {fileID: 8300000, guid: fd6fcdd3e17016d45b2223cfbb38785b, type: 3}
   weaponSwapSFX: {fileID: 8300000, guid: 194bcf113d3e3ce4ba8a2fd9c5bcfd26, type: 3}
   potionDrinkSFX: {fileID: 8300000, guid: 149fee0a673c3cf489a7e775800fd0a4, type: 3}
   bonfireLightSFX: {fileID: 8300000, guid: 25580868b4a5e6d41b62fb214775080f, type: 3}

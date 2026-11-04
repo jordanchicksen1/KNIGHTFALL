@@ -16,6 +16,10 @@ public class Door : Interactable
     public bool requiresKey;
     private PlayerInventory inventory;
 
+    [Header("Audio")]
+    public AudioClip doorOpenSFX;
+    public AudioClip doorLockedSFX;
+
     void Start()
     {
         closedRotation = doorPivot.localRotation;
@@ -36,6 +40,14 @@ public class Door : Interactable
         doorPivot.localRotation = Quaternion.Slerp(doorPivot.localRotation, targetRotation, openSpeed * Time.deltaTime);
     }
 
+    private void PlayDoorSound(AudioClip clip)
+    {
+        if (clip != null)
+        {
+            AudioSource.PlayClipAtPoint(clip, doorPivot.position);
+        }
+    }
+
     public override void Interact()
     {
         if (isOpen)
@@ -45,8 +57,8 @@ public class Door : Interactable
         {
             if (!inventory.UseKey())
             {
+                PlayDoorSound(doorLockedSFX);
                 InteractionUI.Instance.ShowNotification("The door is locked.");
-
                 return;
             }
         }
@@ -59,15 +71,18 @@ public class Door : Interactable
 
             if (distance > 1f)
             {
+                PlayDoorSound(doorLockedSFX);
                 InteractionUI.Instance.ShowNotification("Opens from the other side.");
                 return;
             }
-            
-           
+
+
         }
 
         isOpen = true;
 
         targetRotation = closedRotation * Quaternion.Euler(0, openAngle,0);
+
+        PlayDoorSound(doorOpenSFX);
     }
 }

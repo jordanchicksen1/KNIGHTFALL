@@ -166,7 +166,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 67e02dbf9b23ca24eac8a01146086d3f, type: 2}
+  - {fileID: 2100000, guid: 8fb0f0714413f454f93563ce797054d0, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -280,7 +280,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 67e02dbf9b23ca24eac8a01146086d3f, type: 2}
+  - {fileID: 2100000, guid: 8fb0f0714413f454f93563ce797054d0, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -494,6 +494,8 @@ MonoBehaviour:
   isOneWayDoor: 0
   allowedSide: {fileID: 0}
   requiresKey: 0
+  doorOpenSFX: {fileID: 8300000, guid: 93c6eb471aeeb8c4fb0b19ea6896f4dd, type: 3}
+  doorLockedSFX: {fileID: 8300000, guid: 565101dc6f5017d44b46395bbc7118cc, type: 3}
 --- !u!1 &6269949871243854135
 GameObject:
   m_ObjectHideFlags: 0
@@ -561,7 +563,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: ae62d755d535c7942a534049557e553e, type: 2}
+  - {fileID: 2100000, guid: 8fb0f0714413f454f93563ce797054d0, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

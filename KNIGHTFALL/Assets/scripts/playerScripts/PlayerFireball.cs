@@ -10,12 +10,14 @@ public class PlayerSpellProjectile : MonoBehaviour
     public SpellType spellType;
     private Vector3 direction;
     public bool isOrbiting;
+    private PlayerAudio playerAudio;
 
     [Header("Status Effects")]
     public int statusBuildup = 20;
 
     void Start()
     {
+        playerAudio = FindFirstObjectByType<PlayerAudio>();
         Destroy(gameObject, lifeTime);
     }
 
@@ -35,14 +37,28 @@ public class PlayerSpellProjectile : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        if (isOrbiting)
+            return;
+
+        // Ignore the player
+        if (other.CompareTag("Player"))
+            return;
+
         EnemyHealth enemy = other.GetComponent<EnemyHealth>();
 
         if (enemy != null)
         {
-            Vector3 hitDirection = (other.transform.position - transform.position).normalized;
+            Vector3 hitDirection =
+                (other.transform.position - transform.position).normalized;
+
             enemy.TakeDamage(damage, hitDirection);
             enemy.ApplyStatusBuildup(spellType, statusBuildup);
-            Destroy(gameObject);
         }
+
+        // Play impact sound for enemies and environment
+        if (playerAudio != null)
+            playerAudio.PlaySpellImpact(transform.position);
+
+        Destroy(gameObject);
     }
 }
