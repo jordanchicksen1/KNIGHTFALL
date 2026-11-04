@@ -43,6 +43,7 @@ public class PlayerMovement : MonoBehaviour
     private bool isCommittedJump;
     private Vector3 jumpMoveDirection;
     private float jumpMoveSpeed;
+    private bool hasJumped;
 
     [Header("Landing")]
     public float landingRecoveryTime = 0.25f;
@@ -174,7 +175,14 @@ public class PlayerMovement : MonoBehaviour
             }
         }
 
-        isSprinting = sprintHeld && moveDirection.magnitude > 0.1f && currentState != PlayerState.Attacking && currentState != PlayerState.Dodging && currentState != PlayerState.Blocking && currentState != PlayerState.Staggered;
+        isSprinting = sprintHeld &&
+    playerHealth.stamina > 0f &&
+    moveDirection.magnitude > 0.1f &&
+    currentState != PlayerState.Attacking &&
+    currentState != PlayerState.Dodging &&
+    currentState != PlayerState.Blocking &&
+    currentState != PlayerState.Staggered;
+
         HandleFootsteps(moveDirection);
 
         if (moveDirection.magnitude > 0.1f)
@@ -381,17 +389,20 @@ public class PlayerMovement : MonoBehaviour
 
             // Lock horizontal movement direction until landing
             isCommittedJump = true;
-
+            hasJumped = true;
             KnightAnim.SetTrigger("Jump");
         }
 
         // Landing
-        if (!previouslyGrounded && isGrounded)
+        if (hasJumped && !previouslyGrounded && isGrounded)
         {
             KnightAnim.SetTrigger("Land");
             PlayerAudio.PlayLand();
+
+            hasJumped = false;
             isCommittedJump = false;
-            landingRecoveryTimer = landingRecoveryTime; 
+
+            landingRecoveryTimer = landingRecoveryTime;
             currentState = PlayerState.Idle;
         }
 
@@ -448,11 +459,15 @@ public class PlayerMovement : MonoBehaviour
 
         isDodging = true;
 
+        // Calculate dodge direction relative to camera
         Vector3 forward = cameraPivot.forward;
         Vector3 right = cameraPivot.right;
 
         forward.y = 0;
         right.y = 0;
+
+        forward.Normalize();
+        right.Normalize();
 
         dodgeDirection = forward * moveInput.y + right * moveInput.x;
 
@@ -463,7 +478,19 @@ public class PlayerMovement : MonoBehaviour
 
         dodgeDirection.Normalize();
 
-        float timer = 0;
+        // Take control of rotation during lock-on dodge
+        bool wasLockedOn = lockOn.IsLockedOn();
+
+        if (wasLockedOn)
+        {
+            lockOn.isDodging = true;
+        }
+
+        // Face the direction of the roll
+        Quaternion dodgeRotation = Quaternion.LookRotation(dodgeDirection);
+        transform.rotation = dodgeRotation;
+
+        float timer = 0f;
 
         while (timer < dodgeDuration)
         {
@@ -476,6 +503,12 @@ public class PlayerMovement : MonoBehaviour
 
         isDodging = false;
         currentState = PlayerState.Idle;
+
+        // Return rotation control to lock-on
+        if (wasLockedOn)
+        {
+            lockOn.isDodging = false;
+        }
     }
 
     public void ResetMovement()

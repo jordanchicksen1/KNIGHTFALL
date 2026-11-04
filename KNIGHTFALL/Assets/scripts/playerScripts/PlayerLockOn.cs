@@ -19,6 +19,7 @@ public class PlayerLockOn : MonoBehaviour
 
     private bool lockPressed;
     private bool isLockedOn;
+    public bool isDodging;
 
     private void Awake()
     {
@@ -265,6 +266,9 @@ public class PlayerLockOn : MonoBehaviour
 
     void RotateTowardsTarget()
     {
+        if (isDodging)
+            return;
+
         Vector3 direction =
             currentTarget.position - transform.position;
 
