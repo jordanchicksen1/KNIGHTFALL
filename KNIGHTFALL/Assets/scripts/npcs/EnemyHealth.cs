@@ -22,6 +22,11 @@ public class EnemyHealth : MonoBehaviour
     public float frozenSpeedMultiplier = 0.8f;
     private float originalMoveSpeed;
 
+    [Header("Status Effect Visuals")]
+    public GameObject burningEffect;
+    public GameObject frozenEffect;
+    public GameObject shockedEffect;
+
     [Header("References")]
     private Rigidbody rb;
     private EnemyAttack enemyAttack;
@@ -31,7 +36,8 @@ public class EnemyHealth : MonoBehaviour
     private MageBossAI mageBossAI;
     private EnemyHealthUI healthUI;
     private BossHealthUI bossHealthUI;
-    
+    private Animator enemyAnimator;
+
     [Header("Hit Effect")]
     public HitEffectPool hitEffectPool;
 
@@ -48,6 +54,7 @@ public class EnemyHealth : MonoBehaviour
         healthUI = GetComponentInChildren<EnemyHealthUI>();
         bossHealthUI = FindFirstObjectByType<BossHealthUI>();
         hitEffectPool = FindFirstObjectByType<HitEffectPool>();
+        enemyAnimator = GetComponentInChildren<Animator>();
 
         if (enemyMovement != null) originalMoveSpeed = enemyMovement.moveSpeed;
 
@@ -56,6 +63,15 @@ public class EnemyHealth : MonoBehaviour
         else if (rangedMovement != null) originalMoveSpeed = rangedMovement.moveSpeed;
 
         else if (mageBossAI != null) originalMoveSpeed = mageBossAI.moveSpeed;
+
+        if (burningEffect != null)
+            burningEffect.SetActive(false);
+
+        if (frozenEffect != null)
+            frozenEffect.SetActive(false);
+
+        if (shockedEffect != null)
+            shockedEffect.SetActive(false);
     }
 
     public void TakeDamage(int damage, Vector3 hitDirection)
@@ -155,15 +171,23 @@ public class EnemyHealth : MonoBehaviour
         }
     }
 
+    private void SetStatusEffectVisual(GameObject effect, bool active)
+    {
+        if (effect != null)
+            effect.SetActive(active);
+    }
+
     IEnumerator Burning()
     {
         currentStatus = StatusEffect.Burning;
+        SetStatusEffectVisual(burningEffect, true);
         if (healthUI != null) healthUI.ShowStatus(currentStatus);
         if (bossHealthUI != null && bossHealthUI.bossHealth == this) bossHealthUI.ShowStatus(currentStatus);
         TakeDamage(statusProcDamage, Vector3.zero);
         Debug.Log(gameObject.name + " is Burning!");
         yield return new WaitForSeconds(burnDuration);
         currentStatus = StatusEffect.None;
+        SetStatusEffectVisual(burningEffect, false);
         if (healthUI != null) healthUI.HideStatus();
         if (bossHealthUI != null && bossHealthUI.bossHealth == this) bossHealthUI.HideStatus();
     }
@@ -171,6 +195,7 @@ public class EnemyHealth : MonoBehaviour
     IEnumerator Frozen()
     {
         currentStatus = StatusEffect.Frozen;
+        SetStatusEffectVisual(frozenEffect, true);
         if (healthUI != null) healthUI.ShowStatus(currentStatus);
         if (bossHealthUI != null && bossHealthUI.bossHealth == this) bossHealthUI.ShowStatus(currentStatus);
         TakeDamage(statusProcDamage, Vector3.zero);
@@ -186,6 +211,7 @@ public class EnemyHealth : MonoBehaviour
         if (rangedMovement != null) rangedMovement.moveSpeed = originalMoveSpeed;
         if (mageBossAI != null) mageBossAI.moveSpeed = originalMoveSpeed;
         currentStatus = StatusEffect.None;
+        SetStatusEffectVisual(frozenEffect, false);
         if (healthUI != null) healthUI.HideStatus();
         if (bossHealthUI != null && bossHealthUI.bossHealth == this) bossHealthUI.HideStatus();
     }
@@ -193,6 +219,39 @@ public class EnemyHealth : MonoBehaviour
     IEnumerator Shocked()
     {
         currentStatus = StatusEffect.Shocked;
+
+        if (enemyMovement != null)
+        {
+            enemyMovement.canMove = false;
+            enemyMovement.isMoving = false;
+        }
+
+        if (spearMovement != null)
+        {
+            spearMovement.canMove = false;
+        }
+
+       
+        if (rangedMovement != null)
+        {
+            rangedMovement.isMoving = false;
+            rangedMovement.enabled = false;
+        }
+
+        
+        if (mageBossAI != null)
+        {
+            mageBossAI.enabled = false;
+        }
+
+        if (enemyAnimator != null)
+        {
+            enemyAnimator.SetBool("IsMoving", false);
+            enemyAnimator.SetBool("IsStrafing", false);
+            enemyAnimator.SetBool("IsBackingAway", false);
+        }
+
+        SetStatusEffectVisual(shockedEffect, true);
         if (healthUI != null) healthUI.ShowStatus(currentStatus);
         if (bossHealthUI != null && bossHealthUI.bossHealth == this) bossHealthUI.ShowStatus(currentStatus);
         TakeDamage(statusProcDamage, Vector3.zero);
@@ -223,6 +282,7 @@ public class EnemyHealth : MonoBehaviour
             mageBossAI.enabled = true;
         }
         currentStatus = StatusEffect.None;
+        SetStatusEffectVisual(shockedEffect, false);
         if (healthUI != null) healthUI.HideStatus();
         if (bossHealthUI != null && bossHealthUI.bossHealth == this) bossHealthUI.HideStatus();
     }
