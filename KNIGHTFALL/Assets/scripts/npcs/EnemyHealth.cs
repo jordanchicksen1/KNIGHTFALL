@@ -76,7 +76,7 @@ public class EnemyHealth : MonoBehaviour
             shockedEffect.SetActive(false);
     }
 
-    public void TakeDamage(int damage, Vector3 hitDirection)
+    public void TakeDamage(int damage, Vector3 hitDirection, bool canStagger = true)
     {
         if (isStaggered)
             return;
@@ -99,10 +99,9 @@ public class EnemyHealth : MonoBehaviour
 
 
 
-        if (enemyAttack != null && enemyAttack.isAttacking)
+        if (canStagger && enemyAttack != null && enemyAttack.isAttacking)
         {
-            StopAllCoroutines();
-
+            StopCoroutine(nameof(Stagger));
             StartCoroutine(Stagger());
         }
 
@@ -193,7 +192,7 @@ public class EnemyHealth : MonoBehaviour
         SetStatusEffectVisual(burningEffect, true);
         if (healthUI != null) healthUI.ShowStatus(currentStatus);
         if (bossHealthUI != null && bossHealthUI.bossHealth == this) bossHealthUI.ShowStatus(currentStatus);
-        TakeDamage(statusProcDamage, Vector3.zero);
+        TakeDamage(statusProcDamage, Vector3.zero, false);
         Debug.Log(gameObject.name + " is Burning!");
         yield return new WaitForSeconds(burnDuration);
         currentStatus = StatusEffect.None;
@@ -208,7 +207,7 @@ public class EnemyHealth : MonoBehaviour
         SetStatusEffectVisual(frozenEffect, true);
         if (healthUI != null) healthUI.ShowStatus(currentStatus);
         if (bossHealthUI != null && bossHealthUI.bossHealth == this) bossHealthUI.ShowStatus(currentStatus);
-        TakeDamage(statusProcDamage, Vector3.zero);
+        TakeDamage(statusProcDamage, Vector3.zero, false);
         Debug.Log(gameObject.name + " is Frozen!");
         if (enemyMovement != null) enemyMovement.moveSpeed = originalMoveSpeed * frozenSpeedMultiplier;
         if (spearMovement != null) spearMovement.moveSpeed = originalMoveSpeed * frozenSpeedMultiplier;
@@ -241,14 +240,19 @@ public class EnemyHealth : MonoBehaviour
             spearMovement.canMove = false;
         }
 
-       
+
         if (rangedMovement != null)
         {
+            rangedMovement.StopAllCoroutines();
+
+            rangedMovement.isAttacking = false;
             rangedMovement.isMoving = false;
+            rangedMovement.isDodging = false;
+
             rangedMovement.enabled = false;
         }
 
-        
+
         if (mageBossAI != null)
         {
             mageBossAI.enabled = false;
@@ -264,7 +268,7 @@ public class EnemyHealth : MonoBehaviour
         SetStatusEffectVisual(shockedEffect, true);
         if (healthUI != null) healthUI.ShowStatus(currentStatus);
         if (bossHealthUI != null && bossHealthUI.bossHealth == this) bossHealthUI.ShowStatus(currentStatus);
-        TakeDamage(statusProcDamage, Vector3.zero);
+        TakeDamage(statusProcDamage, Vector3.zero, false);
         Debug.Log(gameObject.name + " is Shocked!");
         if (enemyMovement != null) enemyMovement.canMove = false;
         if (spearMovement != null) spearMovement.canMove = false;

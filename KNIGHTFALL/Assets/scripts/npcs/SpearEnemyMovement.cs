@@ -17,6 +17,8 @@ public class SpearEnemyMovement : MonoBehaviour
     public float attackRange = 2f;
     public float engageAttackRange = 4f;
     private bool isDeciding;
+    private EnemyNoticeSFX noticeSFX;
+    private bool wasPlayerDetected;
 
     public float strafeSpeed = 1.5f;
 
@@ -42,7 +44,7 @@ public class SpearEnemyMovement : MonoBehaviour
         enemyAttack = GetComponent<SpearEnemyAttack>();
         separation = GetComponent<EnemySeparation>();
         animator = GetComponentInChildren<Animator>();
-
+        noticeSFX = GetComponent<EnemyNoticeSFX>();
         StartCoroutine(CombatBehaviour());
     }
 
@@ -57,8 +59,16 @@ public class SpearEnemyMovement : MonoBehaviour
                 player.position
             );
 
-        bool playerDetected =
-            distance <= detectionRange;
+        bool playerDetected = distance <= detectionRange;
+
+        // Play notice sound once when player enters detection range
+        if (playerDetected && !wasPlayerDetected)
+        {
+            if (noticeSFX != null)
+                noticeSFX.PlayNoticeSFX();
+        }
+
+        wasPlayerDetected = playerDetected;
 
         bool remembersPlayer =
             aggroTimer > 0;

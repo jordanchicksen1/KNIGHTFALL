@@ -37,6 +37,8 @@ public class EnemyRangeAI : MonoBehaviour
     public float decisionCooldown = 0.4f;
     private bool isMakingDecision;
     public bool isMoving;
+    private EnemyNoticeSFX noticeSFX;
+    private bool wasPlayerDetected;
 
     [Header("Crossbow Visual")]
     public Transform crossbowHolder;
@@ -53,6 +55,7 @@ public class EnemyRangeAI : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         enemyHealth = GetComponent<EnemyHealth>();
         animator = GetComponent<Animator>();
+        noticeSFX = GetComponent<EnemyNoticeSFX>();
         GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
 
         if (playerObject != null)
@@ -81,11 +84,25 @@ public class EnemyRangeAI : MonoBehaviour
         if (enemyHealth.health <= 0)
             return;
 
-        //AGGRO
-        float distanceToPlayer = Vector3.Distance(transform.position, player.position);
+        // AGGRO
+        float distanceToPlayer = Vector3.Distance(
+            transform.position,
+            player.position
+        );
+
+        bool playerDetected = distanceToPlayer <= detectionRange;
+
+        // Play notice sound once when player enters detection range
+        if (playerDetected && !wasPlayerDetected)
+        {
+            if (noticeSFX != null)
+                noticeSFX.PlayNoticeSFX();
+        }
+
+        wasPlayerDetected = playerDetected;
 
         // PLAYER DETECTED
-        if (distanceToPlayer <= detectionRange)
+        if (playerDetected)
         {
             aggroTimer = aggroMemoryTime;
         }
@@ -153,7 +170,7 @@ public class EnemyRangeAI : MonoBehaviour
         else if (distance < retreatDistance)
         {
             // MOSTLY DODGE
-            if (decision < 70)
+            if (decision < 40)
             {
                 yield return StartCoroutine(DodgeAway());
             }

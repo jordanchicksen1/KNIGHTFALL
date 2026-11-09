@@ -26,6 +26,8 @@ public class EnemyMovement : MonoBehaviour
 
     private EnemyAttack enemyAttack;
     private EnemySeparation separation;
+    private EnemyNoticeSFX noticeSFX;
+    private bool wasPlayerDetected;
 
     private bool isStrafing;
     private bool isBackingAway;
@@ -42,6 +44,7 @@ public class EnemyMovement : MonoBehaviour
 
         enemyAttack = GetComponent<EnemyAttack>();
         separation = GetComponent<EnemySeparation>();
+        noticeSFX = GetComponent<EnemyNoticeSFX>();
 
         StartCoroutine(CombatBehaviour());
     }
@@ -51,17 +54,23 @@ public class EnemyMovement : MonoBehaviour
         if (player == null || !canMove)
             return;
 
-        float distance =
-            Vector3.Distance(
-                transform.position,
-                player.position
-            );
+        float distance = Vector3.Distance(
+            transform.position,
+            player.position
+        );
 
-        bool playerDetected =
-            distance <= detectionRange;
+        bool playerDetected = distance <= detectionRange;
 
-        bool remembersPlayer =
-            aggroTimer > 0;
+        // Play notice sound once when player enters detection range
+        if (playerDetected && !wasPlayerDetected)
+        {
+            if (noticeSFX != null)
+                noticeSFX.PlayNoticeSFX();
+        }
+
+        wasPlayerDetected = playerDetected;
+
+        bool remembersPlayer = aggroTimer > 0;
 
         if (playerDetected || remembersPlayer)
         {
@@ -249,28 +258,23 @@ public class EnemyMovement : MonoBehaviour
 
         isMoving = true;
 
-        float duration =
-            Random.Range(0.3f, 0.6f);
-
-        float direction =
-            Random.Range(0, 2) == 0 ? -1 : 1;
-
+        float duration = Random.Range(0.3f, 0.6f);
+        float direction = Random.Range(0, 2) == 0 ? -1 : 1;
         float timer = 0;
 
-        while (timer < duration)
+        while (timer < duration && canMove)
         {
-            Vector3 strafeDirection =
-                transform.right * direction;
+            Vector3 strafeDirection = transform.right * direction;
 
             transform.position +=
-                strafeDirection *
-                strafeSpeed *
-                Time.deltaTime;
+                strafeDirection * strafeSpeed * Time.deltaTime;
 
             timer += Time.deltaTime;
 
             yield return null;
         }
+
+        isMoving = false;
     }
 
     IEnumerator BackAway()
@@ -283,23 +287,25 @@ public class EnemyMovement : MonoBehaviour
 
         isMoving = true;
 
-
         float duration = Random.Range(0.2f, 0.45f);
-
         float timer = 0;
 
-        while (timer < duration)
+        while (timer < duration && canMove)
         {
-            Vector3 direction = (transform.position - player.position).normalized;
+            Vector3 direction =
+                (transform.position - player.position).normalized;
 
             direction.y = 0;
 
-            transform.position += direction * moveSpeed * 1.2f * Time.deltaTime;
+            transform.position +=
+                direction * moveSpeed * 1.2f * Time.deltaTime;
 
             timer += Time.deltaTime;
 
             yield return null;
         }
+
+        isMoving = false;
     }
 
     IEnumerator ShortRetreat()
