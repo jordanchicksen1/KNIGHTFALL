@@ -1464,10 +1464,14 @@ MonoBehaviour:
   player: {fileID: 0}
   moveSpeed: 2
   rotationSpeed: 5
-  detectionRange: 10
+  detectionRange: 6
   aggroMemoryTime: 5
   attackRange: 2
   engageAttackRange: 4
+  obstacleLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  verticalDetectionTolerance: 2
   strafeSpeed: 1.5
   canMove: 1
 --- !u!114 &2361193180468262616

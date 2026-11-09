@@ -1052,7 +1052,7 @@ MonoBehaviour:
   moveSpeed: 5
   preferredDistance: 10
   retreatDistance: 6
-  detectionRange: 16
+  detectionRange: 14
   chaseDistance: 17
   preferredCombatDistance: 8
   obstacleLayer:
@@ -1060,6 +1060,7 @@ MonoBehaviour:
     m_Bits: 1
   dodgeCheckDistance: 5
   aggroMemoryTime: 20
+  verticalDetectionTolerance: 2
   attackCooldown: 1.2
   rotationSpeed: 8
   isAttacking: 0
