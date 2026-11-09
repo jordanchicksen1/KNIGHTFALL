@@ -20,6 +20,10 @@ public class SpearEnemyMovement : MonoBehaviour
     private EnemyNoticeSFX noticeSFX;
     private bool wasPlayerDetected;
 
+    [Header("Awareness")]
+    public LayerMask obstacleLayer;
+    public float verticalDetectionTolerance = 2f;
+
     public float strafeSpeed = 1.5f;
 
     public bool canMove = true;
@@ -59,7 +63,7 @@ public class SpearEnemyMovement : MonoBehaviour
                 player.position
             );
 
-        bool playerDetected = distance <= detectionRange;
+        bool playerDetected = distance <= detectionRange && CanSeePlayer();
 
         // Play notice sound once when player enters detection range
         if (playerDetected && !wasPlayerDetected)
@@ -81,6 +85,34 @@ public class SpearEnemyMovement : MonoBehaviour
 
     }
 
+    bool CanSeePlayer()
+    {
+        // Check vertical distance
+        float verticalDifference =
+            Mathf.Abs(player.position.y - transform.position.y);
+
+        if (verticalDifference > verticalDetectionTolerance)
+            return false;
+
+        // Check line of sight
+        Vector3 origin = transform.position + Vector3.up * 1.2f;
+        Vector3 target = player.position + Vector3.up * 1f;
+
+        Vector3 direction = target - origin;
+        float distance = direction.magnitude;
+
+        if (Physics.Raycast(
+            origin,
+            direction.normalized,
+            distance,
+            obstacleLayer))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
     IEnumerator CombatBehaviour()
     {
         while (true)
@@ -93,10 +125,13 @@ public class SpearEnemyMovement : MonoBehaviour
                 continue;
             }
 
-            float distance = Vector3.Distance(transform.position, player.position);
-           
+            float distance = Vector3.Distance(transform.position, player.position );
+
             // PLAYER DETECTED
-            if (distance <= detectionRange)
+            bool playerVisible =
+                distance <= detectionRange && CanSeePlayer();
+
+            if (playerVisible)
             {
                 aggroTimer = aggroMemoryTime;
             }

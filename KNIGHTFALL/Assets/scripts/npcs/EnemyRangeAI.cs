@@ -26,6 +26,7 @@ public class EnemyRangeAI : MonoBehaviour
 
     [Header("Awareness")]
     public float aggroMemoryTime = 4f;
+    public float verticalDetectionTolerance = 2f;
     private float aggroTimer;
 
     [Header("Combat")]
@@ -85,12 +86,22 @@ public class EnemyRangeAI : MonoBehaviour
             return;
 
         // AGGRO
-        float distanceToPlayer = Vector3.Distance(
-            transform.position,
-            player.position
-        );
+        float distanceToPlayer = Vector3.Distance(transform.position, player.position);
 
-        bool playerDetected = distanceToPlayer <= detectionRange;
+        bool playerVisible =
+            distanceToPlayer <= detectionRange && CanSeePlayer();
+
+        // PLAYER DETECTED
+        if (playerVisible)
+        {
+            aggroTimer = aggroMemoryTime;
+        }
+        else
+        {
+            aggroTimer -= Time.deltaTime;
+        }
+
+        bool playerDetected = playerVisible;
 
         // Play notice sound once when player enters detection range
         if (playerDetected && !wasPlayerDetected)
@@ -101,15 +112,7 @@ public class EnemyRangeAI : MonoBehaviour
 
         wasPlayerDetected = playerDetected;
 
-        // PLAYER DETECTED
-        if (playerDetected)
-        {
-            aggroTimer = aggroMemoryTime;
-        }
-        else
-        {
-            aggroTimer -= Time.deltaTime;
-        }
+        
 
         // LOST PLAYER
         if (aggroTimer <= 0)
@@ -124,6 +127,34 @@ public class EnemyRangeAI : MonoBehaviour
         {
             StartCoroutine(MakeCombatDecision());
         }
+    }
+
+    bool CanSeePlayer()
+    {
+        // Check vertical distance
+        float verticalDifference =
+            Mathf.Abs(player.position.y - transform.position.y);
+
+        if (verticalDifference > verticalDetectionTolerance)
+            return false;
+
+        // Check line of sight
+        Vector3 origin = transform.position + Vector3.up * 1.2f;
+        Vector3 target = player.position + Vector3.up * 1f;
+
+        Vector3 direction = target - origin;
+        float distance = direction.magnitude;
+
+        if (Physics.Raycast(
+            origin,
+            direction.normalized,
+            distance,
+            obstacleLayer))
+        {
+            return false;
+        }
+
+        return true;
     }
 
     void HandleRotation()

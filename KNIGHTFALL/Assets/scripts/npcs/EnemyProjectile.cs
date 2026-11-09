@@ -33,48 +33,51 @@ public class EnemyProjectile : MonoBehaviour
             Time.deltaTime;
     }
 
+
+
     private void OnTriggerEnter(Collider other)
     {
-        // SHIELD BLOCK
+        // SHIELD COLLISION
         if (other.CompareTag("Shield"))
         {
             PlayerCombat combat = other.GetComponentInParent<PlayerCombat>();
-
             PlayerHealth playerHealth = other.GetComponentInParent<PlayerHealth>();
 
             if (combat != null && combat.IsBlocking())
             {
-                Vector3 hitDirection =
-                    (other.transform.position - transform.position).normalized;
+                if (playerHealth != null)
+                {
+                    Vector3 hitDirection =
+                        (other.transform.position - transform.position).normalized;
 
-                playerHealth.TakeDamage(
-                    damage,
-                    hitDirection
-                );
+                    playerHealth.TakeDamage(damage, hitDirection);
+                }
 
                 Destroy(gameObject);
             }
 
+            // If the player isn't blocking, let the projectile
+            // continue so it can hit the player's body.
             return;
         }
 
-        // PLAYER HIT
-        PlayerHealth player = other.GetComponent<PlayerHealth>();
+        // PLAYER COLLISION
+        PlayerHealth player = other.GetComponentInParent<PlayerHealth>();
 
         if (player != null)
         {
             Vector3 hitDirection =
-                (
-                    other.transform.position -
-                    transform.position
-                ).normalized;
+                (other.transform.position - transform.position).normalized;
 
-            player.TakeDamage(
-                damage,
-                hitDirection
-            );
+            player.TakeDamage(damage, hitDirection);
 
             Destroy(gameObject);
+            return;
         }
+
+        // ANY OTHER COLLISION
+        Destroy(gameObject);
     }
+
+
 }
