@@ -43,6 +43,11 @@ public class EnemyRangeAI : MonoBehaviour
     private Quaternion relaxedRotation;
     private Quaternion aimingRotation;
 
+    [Header("Attack SFX")]
+    public AudioClip attackSFX;
+    public float attackSFXVolume = 1f;
+    private AudioSource audioSource;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
@@ -59,6 +64,13 @@ public class EnemyRangeAI : MonoBehaviour
         aimingRotation = Quaternion.Euler(0f, 0f, 0f);
         crossbowHolder.localRotation = relaxedRotation;
 
+        audioSource = GetComponent<AudioSource>();
+
+        if (audioSource == null)
+            audioSource = gameObject.AddComponent<AudioSource>();
+
+        audioSource.playOnAwake = false;
+        audioSource.spatialBlend = 1f;
     }
 
     void Update()
@@ -308,7 +320,19 @@ public class EnemyRangeAI : MonoBehaviour
 
     void FireProjectile()
     {
-        GameObject projectile = Instantiate(projectilePrefab, firePoint.position, Quaternion.identity);
+        // Play attack sound
+        if (attackSFX != null && audioSource != null)
+        {
+            audioSource.PlayOneShot(attackSFX, attackSFXVolume);
+        }
+
+        // Spawn projectile
+        GameObject projectile = Instantiate(
+            projectilePrefab,
+            firePoint.position,
+            Quaternion.identity
+        );
+
         Vector3 direction = (player.position - firePoint.position).normalized;
 
         projectile.GetComponent<EnemyProjectile>().SetDirection(direction);

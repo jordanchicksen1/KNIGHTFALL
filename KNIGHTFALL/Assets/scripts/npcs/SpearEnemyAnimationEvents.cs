@@ -4,11 +4,13 @@ public class SpearEnemyAnimationEvents : MonoBehaviour
 {
     private SpearEnemyMovement enemyMovement;
     private SpearEnemyAttack enemyAttack;
+    private EnemyHealth enemyHealth;
 
     private void Awake()
     {
         enemyMovement = GetComponentInParent<SpearEnemyMovement>();
         enemyAttack = GetComponentInParent<SpearEnemyAttack>();
+        enemyHealth = GetComponentInParent<EnemyHealth>();
     }
 
     public void StartDamageWindow()
@@ -21,6 +23,22 @@ public class SpearEnemyAnimationEvents : MonoBehaviour
     {
         if (enemyAttack != null)
             enemyAttack.EndDamageWindow();
+    }
+
+    public void PlayAttackSFX()
+    {
+        if (enemyAttack != null)
+        {
+            enemyAttack.PlayAttackSFX();
+        }
+    }
+
+    public void PlayRetractSFX()
+    {
+        if (enemyAttack != null)
+        {
+            enemyAttack.PlayRetractSFX();
+        }
     }
 
     public void StartDeath()
@@ -40,6 +58,9 @@ public class SpearEnemyAnimationEvents : MonoBehaviour
 
     public void EndDeath()
     {
+        if (enemyHealth != null)
+            enemyHealth.PlayDeathEffect();
+
         Destroy(transform.root.gameObject);
     }
 }

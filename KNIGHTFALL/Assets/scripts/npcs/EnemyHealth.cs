@@ -40,6 +40,7 @@ public class EnemyHealth : MonoBehaviour
 
     [Header("Hit Effect")]
     public HitEffectPool hitEffectPool;
+    private EnemyDeathEffectPool deathEffectPool;
 
     public bool isStaggered;
 
@@ -54,6 +55,7 @@ public class EnemyHealth : MonoBehaviour
         healthUI = GetComponentInChildren<EnemyHealthUI>();
         bossHealthUI = FindFirstObjectByType<BossHealthUI>();
         hitEffectPool = FindFirstObjectByType<HitEffectPool>();
+        deathEffectPool = FindFirstObjectByType<EnemyDeathEffectPool>();
         enemyAnimator = GetComponentInChildren<Animator>();
 
         if (enemyMovement != null) originalMoveSpeed = enemyMovement.moveSpeed;
@@ -116,6 +118,14 @@ public class EnemyHealth : MonoBehaviour
             }
 
             return;
+        }
+    }
+
+    public void PlayDeathEffect()
+    {
+        if (deathEffectPool != null)
+        {
+            deathEffectPool.PlayDeathEffect(transform.position);
         }
     }
 

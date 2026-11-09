@@ -15,25 +15,41 @@ public class EnemyAttack : MonoBehaviour
     public float lungeForce = 5f;
     public float lungeDuration = 0.15f;
 
+    [Header("Attack SFX")]
+    public AudioClip attackSFX;
+    public float attackSFXVolume = 1f;
+
+    private AudioSource audioSource;
+
     [Header("References")]
     public Transform player;
     public Transform attackPoint;
     public Transform rightHand;
     public LayerMask playerLayer;
     private EnemyAnimationEvents animationEvents;
+    private EnemyHealth enemyHealth;
 
     private bool canAttack = true;
 
     private bool damageActive = false;
     private bool hasHitPlayer = false;
 
+
+    private void Awake()
+    {
+        audioSource = GetComponent<AudioSource>();
+
+        if (audioSource == null)
+            audioSource = gameObject.AddComponent<AudioSource>();
+
+        audioSource.playOnAwake = false;
+        audioSource.spatialBlend = 1f;
+    }
     void Start()
     {
-        animationEvents =
-    GetComponentInChildren<EnemyAnimationEvents>();
-
-        GameObject playerObject =
-            GameObject.FindGameObjectWithTag("Player");
+        animationEvents = GetComponentInChildren<EnemyAnimationEvents>();
+        enemyHealth = GetComponent<EnemyHealth>();
+        GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
 
         if (playerObject != null)
         {
@@ -41,6 +57,13 @@ public class EnemyAttack : MonoBehaviour
         }
     }
 
+    public void PlayAttackSFX()
+    {
+        if (attackSFX != null && audioSource != null)
+        {
+            audioSource.PlayOneShot(attackSFX, attackSFXVolume);
+        }
+    }
     public void StartDamage()
     {
         damageActive = true;
@@ -157,6 +180,9 @@ public class EnemyAttack : MonoBehaviour
 
     public void EndDeath()
     {
+        if (enemyHealth != null)
+            enemyHealth.PlayDeathEffect();
+
         Destroy(gameObject);
     }
 }

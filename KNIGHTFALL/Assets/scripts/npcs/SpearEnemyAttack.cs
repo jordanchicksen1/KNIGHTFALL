@@ -20,19 +20,32 @@ public class SpearEnemyAttack : MonoBehaviour
 
     [Header("References")]
     public Transform player;
-
     public Transform attackPoint;
-
     public Transform rightHand;
-
     public LayerMask playerLayer;
-
     private bool canAttack = true;
-
     private bool hasHitPlayer;
+
+    [Header("Attack SFX")]
+    public AudioClip attackSFX;
+    public float attackSFXVolume = 1f;
+    private AudioSource audioSource;
+    public AudioClip retractSFX;
+    public float retractSFXVolume = 1f;
 
     private Animator animator;
     private bool damageActive;
+
+    private void Awake()
+    {
+        audioSource = GetComponent<AudioSource>();
+
+        if (audioSource == null)
+            audioSource = gameObject.AddComponent<AudioSource>();
+
+        audioSource.playOnAwake = false;
+        audioSource.spatialBlend = 1f;
+    }
     void Start()
     {
         GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
@@ -44,7 +57,21 @@ public class SpearEnemyAttack : MonoBehaviour
         }
     }
 
+    public void PlayAttackSFX()
+    {
+        if (attackSFX != null && audioSource != null)
+        {
+            audioSource.PlayOneShot(attackSFX, attackSFXVolume);
+        }
+    }
 
+    public void PlayRetractSFX()
+    {
+        if (retractSFX != null && audioSource != null)
+        {
+            audioSource.PlayOneShot(retractSFX, retractSFXVolume);
+        }
+    }
 
     public IEnumerator Attack()
     {

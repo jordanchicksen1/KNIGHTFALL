@@ -17072,7 +17072,7 @@ MonoBehaviour:
   swordHitSFX: {fileID: 8300000, guid: b99e2a2b4c6d7754cb5a754a70d265d1, type: 3}
   blockHitSFX: {fileID: 8300000, guid: 89ae1e95356bfb84d9ac99e67fcd4bf4, type: 3}
   enemyHitSFX: {fileID: 8300000, guid: 5227c0924c3ed8845a3c3fc8636201cd, type: 3}
-  deathSFX: {fileID: 8300000, guid: d89c2200aef6811419d539356fb3c157, type: 3}
+  deathSFX: {fileID: 8300000, guid: 8353f1c308902af4cab98d92c3629e17, type: 3}
   dodgeSFX: {fileID: 8300000, guid: 7a392731543e3274eb1c5851ef20662a, type: 3}
   jumpSFX: {fileID: 8300000, guid: d7ccb9bb9cf9af84ca445ef51fd46e13, type: 3}
   landSFX: {fileID: 8300000, guid: 8740621a7410d8f42807df078b40c8de, type: 3}

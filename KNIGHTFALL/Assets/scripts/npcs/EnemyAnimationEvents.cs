@@ -35,6 +35,14 @@ public class EnemyAnimationEvents : MonoBehaviour
         }
     }
 
+    public void PlayAttackSFX()
+    {
+        if (enemyAttack != null)
+        {
+            enemyAttack.PlayAttackSFX();
+        }
+    }
+
     public void StartDeath()
     {
         if (enemyAttack != null)
