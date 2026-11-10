@@ -130,9 +130,19 @@ public class Bonfire : Interactable
         if (!emberUsed)
             return false;
 
+        // Play the bonfire lighting sound.
+        if (playerAudio != null)
+        {
+            playerAudio.PlayBonfireLight();
+        }
+
         IsKindled = true;
 
         UpdateBonfireLight();
+
+        InteractionUI.Instance.ShowNotification(
+            "Ember offered. Vitality restoration granted!"
+        );
 
         Debug.Log("Bonfire Kindled!");
 

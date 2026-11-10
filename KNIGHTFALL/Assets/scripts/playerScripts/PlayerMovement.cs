@@ -82,7 +82,13 @@ public class PlayerMovement : MonoBehaviour
         controls = new PlayerControls();
         controls.Player.Move.performed += ctx => moveInput = ctx.ReadValue<Vector2>();
         controls.Player.Move.canceled += ctx => moveInput = Vector2.zero;
-        controls.Player.Jump.performed += ctx => jumpPressed = true;
+        controls.Player.Jump.performed += ctx =>
+        {
+            if (!movementLocked)
+            {
+                jumpPressed = true;
+            }
+        };
         controls.Player.Dodge.performed += ctx =>
         {
             dodgePressed = true;
