@@ -5820,6 +5820,7 @@ MonoBehaviour:
   noSpellIcon: {fileID: 21300000, guid: f9a300966f0725348882d6ebbb19a235, type: 3}
   healingFlaskIcon: {fileID: 21300000, guid: 660788690397de049a9bc46f7752ba05, type: 3}
   manaFlaskIcon: {fileID: 21300000, guid: 0d83cd3f11d64934eb4b143ab765255d, type: 3}
+  emberIcon: {fileID: 21300000, guid: 8b7337ae1e2a24e4eb3ece58ca7527a2, type: 3}
 --- !u!114 &6595399345318908176
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -17006,6 +17007,9 @@ MonoBehaviour:
   currentManaFlasks: 5
   manaRestoreAmount: 50
   manaEffect: {fileID: 2949832689558631506}
+  maxEmbers: 99
+  currentEmbers: 1
+  emberVitalityRestore: 20
   currentItem: 0
   healAmount: 35
   healDuration: 1.2

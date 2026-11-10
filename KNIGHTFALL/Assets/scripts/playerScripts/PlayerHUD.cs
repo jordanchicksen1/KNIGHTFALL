@@ -26,6 +26,7 @@ public class PlayerHUD : MonoBehaviour
     [Header("Item Icons")]
     public Sprite healingFlaskIcon;
     public Sprite manaFlaskIcon;
+    public Sprite emberIcon;
 
     private PlayerCombat combat;
     private PlayerItems items;
@@ -96,17 +97,25 @@ public class PlayerHUD : MonoBehaviour
 
     void UpdateItem()
     {
-        if (items.currentItem == ItemType.HealingFlask)
+        switch (items.currentItem)
         {
-            itemText.text = "Healing Flask";
-            itemIcon.sprite = healingFlaskIcon;
-            itemCountText.text = items.currentHealingFlasks.ToString();
-        }
-        else
-        {
-            itemText.text = "Mana Flask";
-            itemIcon.sprite = manaFlaskIcon;
-            itemCountText.text = items.currentManaFlasks.ToString();
+            case ItemType.HealingFlask:
+                itemText.text = "Healing Flask";
+                itemIcon.sprite = healingFlaskIcon;
+                itemCountText.text = items.currentHealingFlasks.ToString();
+                break;
+
+            case ItemType.ManaFlask:
+                itemText.text = "Mana Flask";
+                itemIcon.sprite = manaFlaskIcon;
+                itemCountText.text = items.currentManaFlasks.ToString();
+                break;
+
+            case ItemType.Ember:
+                itemText.text = "Ember";
+                itemIcon.sprite = emberIcon;
+                itemCountText.text = items.currentEmbers.ToString();
+                break;
         }
     }
 }

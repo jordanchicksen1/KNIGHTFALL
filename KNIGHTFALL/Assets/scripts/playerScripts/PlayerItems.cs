@@ -15,6 +15,11 @@ public class PlayerItems : MonoBehaviour
     public int manaRestoreAmount = 50;
     public ParticleSystem manaEffect;
 
+    [Header("Ember")]
+    public int maxEmbers = 99;
+    public int currentEmbers = 0;
+    public float emberVitalityRestore = 20f;
+
     [Header("Selected Item")]
     public ItemType currentItem = ItemType.HealingFlask;
 
@@ -100,6 +105,94 @@ public class PlayerItems : MonoBehaviour
             );
     }
 
+    void UseEmber()
+    {
+        if (isHealing)
+            return;
+
+        if (currentEmbers <= 0)
+            return;
+
+        if (playerHealth.vitality >= playerHealth.maxVitality)
+        {
+            InteractionUI.Instance.ShowNotification(
+                "Vitality is already full!"
+            );
+            return;
+        }
+
+        if (movement.currentState == PlayerState.Dodging ||
+            movement.currentState == PlayerState.Staggered)
+        {
+            return;
+        }
+
+        StartCoroutine(ConsumeEmber());
+    }
+
+    IEnumerator ConsumeEmber()
+    {
+        isHealing = true;
+
+        movement.movementLocked = true;
+        movement.currentState = PlayerState.Attacking;
+
+        movement.KnightAnim.ResetTrigger("Walk");
+        movement.KnightAnim.SetTrigger("Idle");
+
+        playerAudio.PlayPotionDrink();
+
+        currentEmbers--;
+
+        playerHealth.vitality += emberVitalityRestore;
+        playerHealth.vitality = Mathf.Min(
+            playerHealth.vitality,
+            playerHealth.maxVitality
+        );
+
+        playerHealth.ClampHealthToVitality();
+
+        InteractionUI.Instance.ShowNotification(
+            "Vitality Restored +" + emberVitalityRestore
+        );
+
+        yield return new WaitForSeconds(healDuration);
+
+        movement.movementLocked = false;
+        movement.currentState = PlayerState.Idle;
+
+        isHealing = false;
+    }
+
+    public bool UseEmberAtBonfire()
+    {
+        if (currentEmbers <= 0)
+            return false;
+
+        if (playerHealth.vitality >= playerHealth.maxVitality)
+            return false;
+
+        currentEmbers--;
+
+        playerHealth.vitality += emberVitalityRestore;
+        playerHealth.vitality = Mathf.Min(
+            playerHealth.vitality,
+            playerHealth.maxVitality
+        );
+
+        playerHealth.ClampHealthToVitality();
+
+        return true;
+    }
+
+    public void AddEmber(int amount = 1)
+    {
+        currentEmbers = Mathf.Min(
+            currentEmbers + amount,
+            maxEmbers
+        );
+    }
+
     void HandleUseItem()
     {
         if (!useItemPressed)
@@ -107,13 +200,19 @@ public class PlayerItems : MonoBehaviour
 
         useItemPressed = false;
 
-        if (currentItem == ItemType.HealingFlask)
+        switch (currentItem)
         {
-            UseHealingFlask();
-        }
-        else
-        {
-            UseManaFlask();
+            case ItemType.HealingFlask:
+                UseHealingFlask();
+                break;
+
+            case ItemType.ManaFlask:
+                UseManaFlask();
+                break;
+
+            case ItemType.Ember:
+                UseEmber();
+                break;
         }
     }
 
@@ -144,17 +243,12 @@ public class PlayerItems : MonoBehaviour
 
         switchItemPressed = false;
 
-        if (currentItem ==
-            ItemType.HealingFlask)
-        {
-            currentItem =
-                ItemType.ManaFlask;
-        }
-        else
-        {
-            currentItem =
-                ItemType.HealingFlask;
-        }
+        int nextItem = (int)currentItem + 1;
+
+        if (nextItem > (int)ItemType.Ember)
+            nextItem = 0;
+
+        currentItem = (ItemType)nextItem;
     }
 
     public bool IsHealing()

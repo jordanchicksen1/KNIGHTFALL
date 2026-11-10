@@ -1,5 +1,6 @@
 public enum ItemType
 {
     HealingFlask,
-    ManaFlask
+    ManaFlask,
+    Ember
 }
