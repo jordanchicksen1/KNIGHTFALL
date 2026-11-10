@@ -63,6 +63,13 @@ public class PlayerItems : MonoBehaviour
 
     void Update()
     {
+        if (movement.movementLocked)
+        {
+            switchItemPressed = false;
+            useItemPressed = false;
+            return;
+        }
+
         HandleItemSwitch();
 
         HandleUseItem();
@@ -169,12 +176,12 @@ public class PlayerItems : MonoBehaviour
         if (currentEmbers <= 0)
             return false;
 
-        if (playerHealth.vitality >= playerHealth.maxVitality)
-            return false;
-
+        // Consume the Ember.
         currentEmbers--;
 
+        // Restore vitality, up to the maximum.
         playerHealth.vitality += emberVitalityRestore;
+
         playerHealth.vitality = Mathf.Min(
             playerHealth.vitality,
             playerHealth.maxVitality

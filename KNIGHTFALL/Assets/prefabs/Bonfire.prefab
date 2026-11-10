@@ -5017,6 +5017,7 @@ MonoBehaviour:
   interactionText: Rest
   spawnPoint: {fileID: 3427358722845084464}
   fireModel: {fileID: 3984696269130804338}
+  kindledLightColor: {r: 1, g: 0.24542129, b: 0.1716981, a: 1}
 --- !u!1 &4483078204045202925
 GameObject:
   m_ObjectHideFlags: 0

@@ -352,10 +352,11 @@ public class PlayerMovement : MonoBehaviour
 
         // Jump
         if (jumpPressed &&
-            isGrounded &&
-            !isDodging &&
-            playerHealth.stamina >= jumpCost &&
-            currentState != PlayerState.Staggered)
+    !movementLocked &&
+    isGrounded &&
+    !isDodging &&
+    playerHealth.stamina >= jumpCost &&
+    currentState != PlayerState.Staggered)
         {
             PlayerAudio.PlayJump();
             playerHealth.stamina -= jumpCost;
@@ -424,7 +425,7 @@ public class PlayerMovement : MonoBehaviour
 
     void HandleDodge()
     {
-        if (dodgePressed && !isDodging && isGrounded && playerHealth.stamina >= dodgeCost && currentState != PlayerState.Staggered)
+        if (dodgePressed && !movementLocked &&!isDodging && isGrounded &&  playerHealth.stamina >= dodgeCost &&  currentState != PlayerState.Staggered)
         {
             PlayerAudio.PlayDodge();
 
