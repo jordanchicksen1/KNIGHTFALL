@@ -37,6 +37,7 @@ public class EnemyHealth : MonoBehaviour
     private EnemyHealthUI healthUI;
     private BossHealthUI bossHealthUI;
     private Animator enemyAnimator;
+    private bool hasPlayedDeathEffect = false;
 
     [Header("Hit Effect")]
     public HitEffectPool hitEffectPool;
@@ -122,6 +123,11 @@ public class EnemyHealth : MonoBehaviour
 
     public void PlayDeathEffect()
     {
+        if (hasPlayedDeathEffect)
+            return;
+
+        hasPlayedDeathEffect = true;
+
         if (deathEffectPool != null)
         {
             deathEffectPool.PlayDeathEffect(transform.position);

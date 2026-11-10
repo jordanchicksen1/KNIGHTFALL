@@ -222,18 +222,26 @@ public class PlayerHealth : MonoBehaviour
         }
 
         Vector3 startPosition = transform.position;
-        Vector3 targetPosition = startPosition + (hitDirection * knockbackDistance);
+        Vector3 knockbackDirection = hitDirection.normalized;
 
-        float timer = 0;
+        Vector3 targetPosition =
+            startPosition + (knockbackDirection * knockbackDistance);
+
+        float timer = 0f;
 
         while (timer < knockbackDuration)
         {
-            Vector3 move = Vector3.Lerp(startPosition, targetPosition, timer / knockbackDuration);
-            controller.enabled = false;
-            transform.position = move;
-            controller.enabled = true;
-
             timer += Time.deltaTime;
+
+            float progress = Mathf.Clamp01(timer / knockbackDuration);
+
+            Vector3 targetAtProgress =
+                Vector3.Lerp(startPosition, targetPosition, progress);
+
+            Vector3 movementDelta =
+                targetAtProgress - transform.position;
+
+            controller.Move(movementDelta);
 
             yield return null;
         }

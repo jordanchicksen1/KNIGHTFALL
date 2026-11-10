@@ -47,3 +47,6 @@ MonoBehaviour:
   deathEffectPrefab: {fileID: 6663535510454912617, guid: 8c10f2c803da01a46810d857eff58bdc, type: 3}
   poolSize: 10
   effectsPerDeath: 8
+  emberPickupPrefab: {fileID: 611467789539782438, guid: 479d00cad20262c4a83b2df5556a831f, type: 3}
+  emberDropChance: 0.2
+  emberSpawnHeight: 1.8

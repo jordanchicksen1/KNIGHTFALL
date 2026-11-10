@@ -15,18 +15,18 @@ public class ItemPickup : Interactable
     public KeyType key;
 
     private PlayerAudio playerAudio;
-
-
+    private PlayerItems playerItems;
     private PlayerInventory inventory;
 
     void Start()
     {
         GameObject player = GameObject.FindGameObjectWithTag("Player");
-
+        
         if (player != null)
         {
             inventory = player.GetComponent<PlayerInventory>();
             playerAudio = player.GetComponent<PlayerAudio>();
+            playerItems = player.GetComponent<PlayerItems>();
         }
     }
 
@@ -48,6 +48,13 @@ public class ItemPickup : Interactable
         {
             inventory.AddKey();
             InteractionUI.Instance.ShowNotification("Obtained " + key + "!");
+        }
+
+        if (pickupType == PickupType.Ember)
+        {
+            playerItems.AddEmber();
+
+            InteractionUI.Instance.ShowNotification("Obtained Ember!");
         }
 
         if (playerAudio != null)

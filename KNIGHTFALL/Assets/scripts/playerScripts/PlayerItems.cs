@@ -19,6 +19,7 @@ public class PlayerItems : MonoBehaviour
     public int maxEmbers = 99;
     public int currentEmbers = 0;
     public float emberVitalityRestore = 20f;
+    public ParticleSystem emberEffect;
 
     [Header("Selected Item")]
     public ItemType currentItem = ItemType.HealingFlask;
@@ -147,6 +148,7 @@ public class PlayerItems : MonoBehaviour
         movement.KnightAnim.ResetTrigger("Walk");
         movement.KnightAnim.SetTrigger("Idle");
 
+        emberEffect.Play();
         playerAudio.PlayPotionDrink();
 
         currentEmbers--;

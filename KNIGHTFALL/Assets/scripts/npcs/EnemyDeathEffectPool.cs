@@ -8,6 +8,12 @@ public class EnemyDeathEffectPool : MonoBehaviour
     public int poolSize = 10;
     public int effectsPerDeath = 8;
 
+    [Header("Ember Drops")]
+    public GameObject emberPickupPrefab;
+    [Range(0f, 1f)]
+    public float emberDropChance = 0.2f;
+    public float emberSpawnHeight = 0.5f;
+
     private List<EnemyDeathEffect> pool =
         new List<EnemyDeathEffect>();
 
@@ -25,6 +31,7 @@ public class EnemyDeathEffectPool : MonoBehaviour
 
     public void PlayDeathEffect(Vector3 position)
     {
+        // Spawn the normal death particles.
         for (int i = 0; i < effectsPerDeath; i++)
         {
             foreach (EnemyDeathEffect effect in pool)
@@ -38,6 +45,22 @@ public class EnemyDeathEffectPool : MonoBehaviour
                     break;
                 }
             }
+        }
+
+        // Roll once for an Ember drop.
+        if (emberPickupPrefab != null &&
+            Random.value <= emberDropChance)
+        {
+            Vector3 dropPosition =
+                position + Vector3.up * emberSpawnHeight;
+
+            Instantiate(
+                emberPickupPrefab,
+                dropPosition,
+                Quaternion.identity
+            );
+
+            Debug.Log("An Ember dropped!");
         }
     }
 }
