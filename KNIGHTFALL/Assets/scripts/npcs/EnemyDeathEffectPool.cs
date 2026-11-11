@@ -29,7 +29,7 @@ public class EnemyDeathEffectPool : MonoBehaviour
         }
     }
 
-    public void PlayDeathEffect(Vector3 position)
+    public void PlayDeathEffect(Vector3 position, int xpReward)
     {
         // Spawn the normal death particles.
         for (int i = 0; i < effectsPerDeath; i++)
@@ -61,6 +61,18 @@ public class EnemyDeathEffectPool : MonoBehaviour
             );
 
             Debug.Log("An Ember dropped!");
+        }
+
+        // Award XP to the player.
+        PlayerXP playerXP = FindFirstObjectByType<PlayerXP>();
+
+        if (playerXP != null)
+        {
+            playerXP.AddXP(xpReward);
+        }
+        else
+        {
+            Debug.LogWarning("PlayerXP component not found!");
         }
     }
 }

@@ -27,6 +27,9 @@ public class EnemyHealth : MonoBehaviour
     public GameObject frozenEffect;
     public GameObject shockedEffect;
 
+    [Header("XP Reward")]
+    public int xpReward = 25;
+
     [Header("References")]
     private Rigidbody rb;
     private EnemyAttack enemyAttack;
@@ -130,7 +133,7 @@ public class EnemyHealth : MonoBehaviour
 
         if (deathEffectPool != null)
         {
-            deathEffectPool.PlayDeathEffect(transform.position);
+            deathEffectPool.PlayDeathEffect(transform.position, xpReward);
         }
     }
 
