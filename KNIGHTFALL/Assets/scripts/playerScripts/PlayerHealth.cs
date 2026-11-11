@@ -8,6 +8,7 @@ public class PlayerHealth : MonoBehaviour
     public float health = 100f;
     public float staggerDuration = 0.25f;
     private PlayerMovement movement;
+    private PlayerXP playerXP;
     public bool isDead;
     private PlayerHitEffectPool playerHitEffectPool;
 
@@ -54,6 +55,7 @@ public class PlayerHealth : MonoBehaviour
     {
         playerAudio = GetComponent<PlayerAudio>();
         movement = GetComponent<PlayerMovement>();
+        playerXP = GetComponent<PlayerXP>();
         controller = GetComponent<CharacterController>();
         combat = GetComponent<PlayerCombat>();
 
@@ -121,6 +123,11 @@ public class PlayerHealth : MonoBehaviour
         if (health <= 0)
         {
             isDead = true;
+            // Drop carried XP at the player's death position.
+            if (playerXP != null)
+            {
+                playerXP.DropXP(transform.position);
+            }
             vitality -= vitalityLoss;
             vitality = Mathf.Max(minimumVitality, vitality);
             movement.currentState = PlayerState.Staggered;

@@ -38,12 +38,29 @@ public class CheckpointManager : MonoBehaviour
         Debug.Log("Checkpoint Position: " + currentCheckpoint.position);
         Debug.Log("Player Position Before: " + playerHealth.transform.position);
 
-        CharacterController controller = playerHealth.GetComponent<CharacterController>();
+        // Clear any active interaction before respawning.
+        PlayerInteraction interaction =
+            playerHealth.GetComponent<PlayerInteraction>();
+
+        if (interaction != null)
+        {
+            interaction.currentInteractable = null;
+            InteractionUI.Instance.HidePrompt();
+        }
+
+        // Temporarily disable the CharacterController.
+        CharacterController controller =
+            playerHealth.GetComponent<CharacterController>();
 
         if (controller != null)
             controller.enabled = false;
 
+        // Teleport the player to the checkpoint.
         playerHealth.transform.position = currentCheckpoint.position;
+
+        // Re-enable the CharacterController.
+        if (controller != null)
+            controller.enabled = true;
 
         Debug.Log("Player Position After: " + playerHealth.transform.position);
 
