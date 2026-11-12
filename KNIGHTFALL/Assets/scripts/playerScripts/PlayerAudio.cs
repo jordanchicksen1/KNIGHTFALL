@@ -57,6 +57,9 @@ public class PlayerAudio : MonoBehaviour
     public AudioClip bonfireLightSFX;
     public AudioClip bonfireRestSFX;
 
+    [Header("XP Recovery")]
+    public AudioClip xpRecoverySFX;
+
     public void PlayBonfireLight()
     {
         PlaySound(bonfireLightSFX);
@@ -65,6 +68,11 @@ public class PlayerAudio : MonoBehaviour
     public void PlayBonfireRest()
     {
         PlaySound(bonfireRestSFX);
+    }
+
+    public void PlayXPRecovery()
+    {
+        PlaySound(xpRecoverySFX);
     }
 
     public void PlayLightAttack1()

@@ -24,6 +24,10 @@ public class InteractionUI : MonoBehaviour
     public GameObject deathObject;
     public float deathDuration = 2f;
 
+    [Header("XP Recovery")]
+    public GameObject strengthRegainedText;
+    public float strengthRegainedDuration = 2f;
+
     private void Awake()
     {
         Instance = this;
@@ -71,5 +75,24 @@ public class InteractionUI : MonoBehaviour
         deathObject.SetActive(true);
         yield return new WaitForSeconds(deathDuration);
         deathObject.SetActive(false);
+    }
+
+    public void ShowStrengthRegained()
+    {
+        if (strengthRegainedText == null)
+            return;
+
+        StopCoroutine(nameof(HideStrengthRegainedText));
+
+        strengthRegainedText.SetActive(true);
+
+        StartCoroutine(HideStrengthRegainedText());
+    }
+
+    private IEnumerator HideStrengthRegainedText()
+    {
+        yield return new WaitForSeconds(strengthRegainedDuration);
+
+        strengthRegainedText.SetActive(false);
     }
 }
