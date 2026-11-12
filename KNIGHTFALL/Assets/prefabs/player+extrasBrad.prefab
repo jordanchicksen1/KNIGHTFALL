@@ -18919,7 +18919,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a4ffb7efc50f49942bb1b29fc3a6cdf4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  currentXP: 0
+  currentXP: 1000
   xpRecoveryPrefab: {fileID: 8420162242964345314, guid: 58a16fb9731676e4e8a212d0752a191b, type: 3}
 --- !u!114 &2171799430557993985
 MonoBehaviour:
@@ -18942,6 +18942,10 @@ MonoBehaviour:
   mpPerMind: 20
   staminaPerEndurance: 20
   damageIncreasePerStrength: 0.2
+  pendingVigor: 0
+  pendingMind: 0
+  pendingStrength: 0
+  pendingEndurance: 0
 --- !u!1 &8594153818761189042
 GameObject:
   m_ObjectHideFlags: 0

@@ -91,6 +91,7 @@ public class PlayerCombat : MonoBehaviour
 
     private PlayerControls controls;
     private PlayerMovement movement;
+    private PlayerAttributes playerAttributes;
     private PlayerInteraction interaction;
     private PlayerLockOn lockOn;
     private Camera mainCamera;
@@ -119,6 +120,7 @@ public class PlayerCombat : MonoBehaviour
         movement = GetComponent<PlayerMovement>();
         interaction = GetComponent<PlayerInteraction>();
         playerHealth = GetComponent<PlayerHealth>();
+        playerAttributes = GetComponent<PlayerAttributes>();
         lockOn = GetComponent<PlayerLockOn>();
         mainCamera = Camera.main;
         inventory = GetComponent<PlayerInventory>();
@@ -881,14 +883,13 @@ public class PlayerCombat : MonoBehaviour
             Quaternion.identity
         );
 
-        PlayerSpellProjectile projectile =
-            spell.GetComponent<PlayerSpellProjectile>();
+        PlayerSpellProjectile projectile = spell.GetComponent<PlayerSpellProjectile>();
+
+        ApplyStrengthToProjectile(projectile);
 
         projectile.isOrbiting = false;
 
-        projectile.SetDirection(
-            GetSpellDirection(spellSpawnPoint.position)
-        );
+        projectile.SetDirection( GetSpellDirection(spellSpawnPoint.position) );
 
         playerAudio.PlaySpellCast();
 
@@ -941,7 +942,11 @@ public class PlayerCombat : MonoBehaviour
 
             OrbitingSpell orbit = spell.AddComponent<OrbitingSpell>();
 
-            spell.GetComponent<PlayerSpellProjectile>().isOrbiting = true;
+            PlayerSpellProjectile projectile = spell.GetComponent<PlayerSpellProjectile>();
+
+            ApplyStrengthToProjectile(projectile);
+
+            projectile.isOrbiting = true;
 
             orbitingSpells.Add(orbit);
 
@@ -1039,6 +1044,14 @@ public class PlayerCombat : MonoBehaviour
     public bool IsLightAttacking()
     {
         return isLightAttacking;
+    }
+
+    private void ApplyStrengthToProjectile(PlayerSpellProjectile projectile)
+    {
+        if (projectile == null || playerAttributes == null)
+            return;
+
+        projectile.damage = playerAttributes.GetSpellDamage(projectile.damage);
     }
 
     private void OnDrawGizmosSelected()
