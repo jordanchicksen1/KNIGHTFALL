@@ -296,6 +296,11 @@ public class PlayerAttributes : MonoBehaviour
         // Apply the new stats.
         ApplyAttributes();
 
+        // Restore all player resources after upgrading.
+        playerHealth.health = playerHealth.GetEffectiveMaxHealth();
+        playerHealth.mp = playerHealth.maxMP;
+        playerHealth.stamina = playerHealth.maxStamina;
+
         Debug.Log(
             "Upgrades confirmed! Player Level: " + overallLevel +
             " | XP spent: " + totalCost +
