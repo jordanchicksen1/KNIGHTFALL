@@ -321,6 +321,32 @@ public class PlayerAttributes : MonoBehaviour
     }
 
     // --------------------------------------------------
+    // UI INFORMATION
+    // --------------------------------------------------
+
+    public int GetCurrentAttributeLevel(AttributeType attribute)
+    {
+        return GetAttributeLevel(attribute);
+    }
+
+    public int GetDisplayedAttributeLevel(AttributeType attribute)
+    {
+        return GetAttributeLevel(attribute) + GetPendingLevel(attribute);
+    }
+
+    public bool IsAttributeMaxedOut(AttributeType attribute)
+    {
+        return GetDisplayedAttributeLevel(attribute) >= 6;
+    }
+
+    public int GetNextUpgradeCost()
+    {
+        return GetUpgradeCost(
+            overallLevel + GetPendingUpgradeCount()
+        );
+    }
+
+    // --------------------------------------------------
     // TEMPORARY UNITY TEST COMMANDS
     // --------------------------------------------------
 

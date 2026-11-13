@@ -1,3 +1,4 @@
+
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
@@ -9,6 +10,10 @@ public class BonfireUI : MonoBehaviour
     public GameObject menuPanel;
     public Button leaveButton;
     public Button offerEmberButton;
+    public Button levelUpButton;
+
+    [Header("Level Up")]
+    public LevelUpUI levelUpUI;
 
     private PlayerMovement playerMovement;
     private PlayerItems playerItems;
@@ -32,6 +37,9 @@ public class BonfireUI : MonoBehaviour
 
         if (offerEmberButton != null)
             offerEmberButton.onClick.AddListener(OfferEmber);
+
+        if (levelUpButton != null)
+            levelUpButton.onClick.AddListener(OpenLevelUp);
     }
 
     public void Open(Bonfire bonfire)
@@ -77,6 +85,31 @@ public class BonfireUI : MonoBehaviour
         offerEmberButton.gameObject.SetActive(canOfferEmber);
     }
 
+    // --------------------------------------------------
+    // LEVEL UP
+    // --------------------------------------------------
+
+    private void OpenLevelUp()
+    {
+        if (levelUpUI == null)
+        {
+            Debug.LogWarning("LevelUpUI reference is missing!");
+            return;
+        }
+
+        // Open the level-up panel without closing the bonfire menu.
+        levelUpUI.Open();
+    }
+
+    public void ReturnToBonfireMenu()
+    {
+        StartCoroutine(SelectLeaveNextFrame());
+    }
+
+    // --------------------------------------------------
+    // OFFER EMBER
+    // --------------------------------------------------
+
     private void OfferEmber()
     {
         if (activeBonfire == null)
@@ -106,6 +139,10 @@ public class BonfireUI : MonoBehaviour
             );
         }
     }
+
+    // --------------------------------------------------
+    // LEAVE
+    // --------------------------------------------------
 
     private void Leave()
     {
