@@ -22579,6 +22579,11 @@ MonoBehaviour:
   bonfireLightSFX: {fileID: 8300000, guid: 25580868b4a5e6d41b62fb214775080f, type: 3}
   bonfireRestSFX: {fileID: 8300000, guid: 6854f0bca652b124d86c67ca6d0f2bf5, type: 3}
   xpRecoverySFX: {fileID: 8300000, guid: 22ef8739097c4e24dbd49231673b4a8c, type: 3}
+  uiSelectSFX: {fileID: 8300000, guid: 3ca9d31accde6e94e9d18015f1099373, type: 3}
+  upgradeAllocateSFX: {fileID: 8300000, guid: a09e099698dea624f895109abb036015, type: 3}
+  upgradeErrorSFX: {fileID: 8300000, guid: 799b4db72fb647941aadca852a3e043c, type: 3}
+  upgradeConfirmSFX: {fileID: 8300000, guid: eb8a821cae7817f41be3832cd93da4ee, type: 3}
+  uiBackSFX: {fileID: 8300000, guid: bc69e58c889330e4486ec804d8bafe74, type: 3}
   heavyAttackAudioSource: {fileID: 2493448306749029982}
   heavyAttackPitch: 0.4
 --- !u!82 &9091541692037156671

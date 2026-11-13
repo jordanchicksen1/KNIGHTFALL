@@ -60,6 +60,13 @@ public class PlayerAudio : MonoBehaviour
     [Header("XP Recovery")]
     public AudioClip xpRecoverySFX;
 
+    [Header("Level Up UI")]
+    public AudioClip uiSelectSFX;
+    public AudioClip upgradeAllocateSFX;
+    public AudioClip upgradeErrorSFX;
+    public AudioClip upgradeConfirmSFX;
+    public AudioClip uiBackSFX;
+
     public void PlayBonfireLight()
     {
         PlaySound(bonfireLightSFX);
@@ -85,7 +92,32 @@ public class PlayerAudio : MonoBehaviour
         PlaySound(lightAttack2SFX);
     }
 
-   
+
+    public void PlayUISelect()
+    {
+        PlaySound(uiSelectSFX);
+    }
+
+    public void PlayUpgradeAllocate()
+    {
+        PlaySound(upgradeAllocateSFX);
+    }
+
+    public void PlayUpgradeError()
+    {
+        PlaySound(upgradeErrorSFX);
+    }
+
+    public void PlayUpgradeConfirm()
+    {
+        PlaySound(upgradeConfirmSFX);
+    }
+
+    public void PlayUIBack()
+    {
+        PlaySound(uiBackSFX);
+    }
+
 
     [Header("Heavy Attack Audio")]
     public AudioSource heavyAttackAudioSource;

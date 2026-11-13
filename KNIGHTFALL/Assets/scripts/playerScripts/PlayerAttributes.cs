@@ -3,10 +3,10 @@ using UnityEngine;
 
 public enum AttributeType
 {
-    Vigor,
-    Mind,
+    Health,
+    Magic,
     Strength,
-    Endurance
+    Stamina
 }
 
 [DefaultExecutionOrder(100)]
@@ -208,11 +208,11 @@ public class PlayerAttributes : MonoBehaviour
 
         switch (attribute)
         {
-            case AttributeType.Vigor:
+            case AttributeType.Health:
                 pendingVigor++;
                 break;
 
-            case AttributeType.Mind:
+            case AttributeType.Magic:
                 pendingMind++;
                 break;
 
@@ -220,7 +220,7 @@ public class PlayerAttributes : MonoBehaviour
                 pendingStrength++;
                 break;
 
-            case AttributeType.Endurance:
+            case AttributeType.Stamina:
                 pendingEndurance++;
                 break;
         }
@@ -237,10 +237,10 @@ public class PlayerAttributes : MonoBehaviour
     {
         switch (attribute)
         {
-            case AttributeType.Vigor: return vigor;
-            case AttributeType.Mind: return mind;
+            case AttributeType.Health: return vigor;
+            case AttributeType.Magic: return mind;
             case AttributeType.Strength: return strength;
-            case AttributeType.Endurance: return endurance;
+            case AttributeType.Stamina: return endurance;
             default: return 1;
         }
     }
@@ -249,10 +249,10 @@ public class PlayerAttributes : MonoBehaviour
     {
         switch (attribute)
         {
-            case AttributeType.Vigor: return pendingVigor;
-            case AttributeType.Mind: return pendingMind;
+            case AttributeType.Health: return pendingVigor;
+            case AttributeType.Magic: return pendingMind;
             case AttributeType.Strength: return pendingStrength;
-            case AttributeType.Endurance: return pendingEndurance;
+            case AttributeType.Stamina: return pendingEndurance;
             default: return 0;
         }
     }
@@ -353,13 +353,13 @@ public class PlayerAttributes : MonoBehaviour
     [ContextMenu("TEST / Queue Vigor")]
     private void TestQueueVigor()
     {
-        QueueUpgrade(AttributeType.Vigor);
+        QueueUpgrade(AttributeType.Health);
     }
 
     [ContextMenu("TEST / Queue Mind")]
     private void TestQueueMind()
     {
-        QueueUpgrade(AttributeType.Mind);
+        QueueUpgrade(AttributeType.Magic);
     }
 
     [ContextMenu("TEST / Queue Strength")]
@@ -371,7 +371,7 @@ public class PlayerAttributes : MonoBehaviour
     [ContextMenu("TEST / Queue Endurance")]
     private void TestQueueEndurance()
     {
-        QueueUpgrade(AttributeType.Endurance);
+        QueueUpgrade(AttributeType.Stamina);
     }
 
     [ContextMenu("TEST / Confirm Upgrades")]

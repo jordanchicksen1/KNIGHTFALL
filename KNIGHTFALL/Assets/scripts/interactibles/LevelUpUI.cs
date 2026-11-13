@@ -42,6 +42,7 @@ public class LevelUpUI : MonoBehaviour
 
     private PlayerAttributes playerAttributes;
     private PlayerXP playerXP;
+    private PlayerAudio playerAudio;
     private BonfireUI bonfireUI;
 
     private AttributeType selectedAttribute;
@@ -58,22 +59,23 @@ public class LevelUpUI : MonoBehaviour
         {
             playerAttributes = player.GetComponent<PlayerAttributes>();
             playerXP = player.GetComponent<PlayerXP>();
+            playerAudio = player.GetComponent<PlayerAudio>();
         }
 
         bonfireUI = FindFirstObjectByType<BonfireUI>();
 
         // Connect button events.
         vigorButton.onClick.AddListener(
-            () => AllocateUpgrade(AttributeType.Vigor));
+            () => AllocateUpgrade(AttributeType.Health));
 
         mindButton.onClick.AddListener(
-            () => AllocateUpgrade(AttributeType.Mind));
+            () => AllocateUpgrade(AttributeType.Magic));
 
         strengthButton.onClick.AddListener(
             () => AllocateUpgrade(AttributeType.Strength));
 
         enduranceButton.onClick.AddListener(
-            () => AllocateUpgrade(AttributeType.Endurance));
+            () => AllocateUpgrade(AttributeType.Stamina));
 
         confirmButton.onClick.AddListener(ConfirmUpgrades);
         cancelButton.onClick.AddListener(CancelUpgrades);
@@ -112,7 +114,7 @@ public class LevelUpUI : MonoBehaviour
             );
         }
 
-        selectedAttribute = AttributeType.Vigor;
+        selectedAttribute = AttributeType.Health;
         hasSelectedAttribute = true;
 
         RefreshAttributeDescription();
@@ -122,6 +124,9 @@ public class LevelUpUI : MonoBehaviour
     {
         playerAttributes.CancelUpgrades();
         feedbackMessage = "";
+
+        if (playerAudio != null)
+            playerAudio.PlayUIBack();
 
         // Close the Level Up panel.
         levelUpPanel.SetActive(false);
@@ -164,16 +169,16 @@ public class LevelUpUI : MonoBehaviour
         AttributeType newAttribute;
 
         if (selectedObject == vigorButton.gameObject)
-            newAttribute = AttributeType.Vigor;
+            newAttribute = AttributeType.Health;
 
         else if (selectedObject == mindButton.gameObject)
-            newAttribute = AttributeType.Mind;
+            newAttribute = AttributeType.Magic;
 
         else if (selectedObject == strengthButton.gameObject)
             newAttribute = AttributeType.Strength;
 
         else if (selectedObject == enduranceButton.gameObject)
-            newAttribute = AttributeType.Endurance;
+            newAttribute = AttributeType.Stamina;
 
         else
             return;
@@ -184,6 +189,10 @@ public class LevelUpUI : MonoBehaviour
             selectedAttribute = newAttribute;
             hasSelectedAttribute = true;
             feedbackMessage = "";
+
+            // Play selection sound.
+            if (playerAudio != null)
+                playerAudio.PlayUISelect();
 
             RefreshAttributeDescription();
             RefreshRequiredXP();
@@ -196,14 +205,14 @@ public class LevelUpUI : MonoBehaviour
 
         switch (selectedAttribute)
         {
-            case AttributeType.Vigor:
+            case AttributeType.Health:
                 attributeDescriptionText.text =
-                    "Increases your maximum health, allowing you to withstand more damage.";
+                    "Increases your maximum health.";
                 break;
 
-            case AttributeType.Mind:
+            case AttributeType.Magic:
                 attributeDescriptionText.text =
-                    "Increases your maximum magic points, allowing you to cast more spells.";
+                    "Increases your maximum magic points.";
                 break;
 
             case AttributeType.Strength:
@@ -211,9 +220,9 @@ public class LevelUpUI : MonoBehaviour
                     "Increases the damage dealt by physical attacks and magic projectiles.";
                 break;
 
-            case AttributeType.Endurance:
+            case AttributeType.Stamina:
                 attributeDescriptionText.text =
-                    "Increases your maximum stamina, allowing you to attack, dodge and block more frequently.";
+                    "Increases your maximum stamina.";
                 break;
         }
 
@@ -237,16 +246,25 @@ public class LevelUpUI : MonoBehaviour
         if (playerAttributes.QueueUpgrade(attribute))
         {
             feedbackMessage = "Upgrade allocated!";
+
+            if (playerAudio != null)
+                playerAudio.PlayUpgradeAllocate();
         }
         else if (playerAttributes.IsAttributeMaxedOut(attribute))
         {
             feedbackMessage =
                 "This attribute has reached its maximum level.";
+
+            if (playerAudio != null)
+                playerAudio.PlayUpgradeError();
         }
         else
         {
             feedbackMessage =
                 "You don't have enough XP to allocate this upgrade.";
+
+            if (playerAudio != null)
+                playerAudio.PlayUpgradeError();
         }
 
         selectedAttribute = attribute;
@@ -265,6 +283,10 @@ public class LevelUpUI : MonoBehaviour
         if (playerAttributes.GetPendingUpgradeCount() == 0)
         {
             feedbackMessage = "You haven't allocated any upgrades.";
+
+            if (playerAudio != null)
+                playerAudio.PlayUpgradeError();
+
             RefreshAttributeDescription();
             return;
         }
@@ -274,6 +296,9 @@ public class LevelUpUI : MonoBehaviour
             feedbackMessage =
                 "You don't have enough XP to purchase these upgrades.";
 
+            if (playerAudio != null)
+                playerAudio.PlayUpgradeError();
+
             RefreshAttributeDescription();
             return;
         }
@@ -281,11 +306,17 @@ public class LevelUpUI : MonoBehaviour
         if (playerAttributes.ConfirmUpgrades())
         {
             feedbackMessage = "Your upgrades have been purchased!";
+
+            if (playerAudio != null)
+                playerAudio.PlayUpgradeConfirm();
         }
         else
         {
             feedbackMessage =
                 "You don't have enough XP to purchase these upgrades.";
+
+            if (playerAudio != null)
+                playerAudio.PlayUpgradeError();
         }
 
         RefreshUI();
@@ -295,6 +326,9 @@ public class LevelUpUI : MonoBehaviour
     private void CancelUpgrades()
     {
         playerAttributes.CancelUpgrades();
+
+        if (playerAudio != null)
+            playerAudio.PlayUIBack();
 
         feedbackMessage = "Pending upgrades cancelled.";
 
@@ -323,12 +357,12 @@ public class LevelUpUI : MonoBehaviour
 
         // Update attribute levels.
         RefreshAttributeLevel(
-            AttributeType.Vigor,
+            AttributeType.Health,
             vigorLevelText
         );
 
         RefreshAttributeLevel(
-            AttributeType.Mind,
+            AttributeType.Magic,
             mindLevelText
         );
 
@@ -338,7 +372,7 @@ public class LevelUpUI : MonoBehaviour
         );
 
         RefreshAttributeLevel(
-            AttributeType.Endurance,
+            AttributeType.Stamina,
             enduranceLevelText
         );
 
