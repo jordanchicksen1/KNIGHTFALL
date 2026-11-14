@@ -17,7 +17,7 @@ TagManager:
   - Enemy
   - Player
   - Latern
-  - 
+  - Knight
   - 
   - 
   - 
@@ -52,3 +52,4 @@ TagManager:
   - Light Layer 5
   - Light Layer 6
   - Light Layer 7
+  - Knight
