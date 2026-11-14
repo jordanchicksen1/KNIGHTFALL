@@ -1106609,27 +1106609,27 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5334983586230935478, guid: 360bb92babea6704b9831a05c94b6c51, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -81.3
+      value: -31.485462
       objectReference: {fileID: 0}
     - target: {fileID: 5334983586230935478, guid: 360bb92babea6704b9831a05c94b6c51, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.235
+      value: 0.23499998
       objectReference: {fileID: 0}
     - target: {fileID: 5334983586230935478, guid: 360bb92babea6704b9831a05c94b6c51, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -20.7
+      value: -72.51974
       objectReference: {fileID: 0}
     - target: {fileID: 5334983586230935478, guid: 360bb92babea6704b9831a05c94b6c51, type: 3}
       propertyPath: m_LocalRotation.w
-      value: -0.9998219
+      value: 0.18622226
       objectReference: {fileID: 0}
     - target: {fileID: 5334983586230935478, guid: 360bb92babea6704b9831a05c94b6c51, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0.018870454
+      value: 0.98250765
       objectReference: {fileID: 0}
     - target: {fileID: 5334983586230935478, guid: 360bb92babea6704b9831a05c94b6c51, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 357.837
+      value: 158.535
       objectReference: {fileID: 0}
     - target: {fileID: 5768354173934383780, guid: 360bb92babea6704b9831a05c94b6c51, type: 3}
       propertyPath: m_fontAsset
