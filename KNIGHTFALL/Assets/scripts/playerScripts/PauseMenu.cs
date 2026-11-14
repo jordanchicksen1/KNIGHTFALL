@@ -1,35 +1,61 @@
+
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class PauseMenu : MonoBehaviour
 {
-    [SerializeField] private GameObject controlsPanel;
+    [Header("References")]
+    [SerializeField] private PauseMenuUI pauseMenuUI;
 
+    private PlayerMovement playerMovement;
     private bool isPaused = false;
 
-    private void Start()
+    private void Awake()
     {
-        controlsPanel.SetActive(false);
+        playerMovement = GetComponent<PlayerMovement>();
     }
 
     public void TogglePause(InputAction.CallbackContext context)
     {
-        Debug.Log("pause pressed");
-
         if (!context.performed)
             return;
 
-        isPaused = !isPaused;
-
-        controlsPanel.SetActive(isPaused);
-
         if (isPaused)
-        {
-            Time.timeScale = 0f;
-        }
+            ResumeGame();
         else
-        {
-            Time.timeScale = 1f;
-        }
+            OpenPauseMenu();
+    }
+
+    private void OpenPauseMenu()
+    {
+        isPaused = true;
+
+        Time.timeScale = 0f;
+
+        if (playerMovement != null)
+            playerMovement.movementLocked = true;
+
+        if (pauseMenuUI != null)
+            pauseMenuUI.OpenMenu();
+        else
+            Debug.LogWarning("PauseMenuUI reference is missing!");
+    }
+
+    public void ResumeGame()
+    {
+        isPaused = false;
+
+        Time.timeScale = 1f;
+
+        if (playerMovement != null)
+            playerMovement.movementLocked = false;
+
+        if (pauseMenuUI != null)
+            pauseMenuUI.ClosePauseMenu();
+    }
+
+    public bool IsPaused()
+    {
+        return isPaused;
     }
 }
