@@ -1477,6 +1477,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c667b113216bd04408022bd9ef04c4b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyHealth
+  enemyVariant: 0
+  variantHealthMultiplier: 1.5
+  outgoingDamageMultiplier: 1.5
+  blackSkeletonPhysicalResistance: 0.75
+  greySkeletonStatusResistance: 0.5
   maxHealth: 200
   health: 200
   knockbackForce: 3

@@ -1423,7 +1423,7 @@ MonoBehaviour:
   burningEffect: {fileID: 8487155102445701847}
   frozenEffect: {fileID: 4127328374645586537}
   shockedEffect: {fileID: 4556626972994709619}
-  xpReward: 25
+  xpReward: 50
   hitEffectPool: {fileID: 0}
   isStaggered: 0
 --- !u!114 &7407382345486195958

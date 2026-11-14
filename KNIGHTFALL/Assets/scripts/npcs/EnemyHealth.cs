@@ -203,18 +203,15 @@ public class EnemyHealth : MonoBehaviour
         return currentStatus == StatusEffect.Burning;
     }
 
+
     public void ApplyStatusBuildup(SpellType spell, int amount)
     {
-        if (currentStatus != StatusEffect.None)
+        // Grey Skeletons are completely immune to status effects.
+        if (enemyVariant == EnemyVariant.GreySkeleton)
             return;
 
-        if (enemyVariant == EnemyVariant.GreySkeleton)
-        {
-            amount = Mathf.RoundToInt(amount * (1f - greySkeletonStatusResistance));
-
-            if (amount <= 0)
-                return;
-        }
+        if (currentStatus != StatusEffect.None)
+            return;
 
         switch (spell)
         {
@@ -255,6 +252,7 @@ public class EnemyHealth : MonoBehaviour
                 break;
         }
     }
+
 
     private void SetStatusEffectVisual(GameObject effect, bool active)
     {
