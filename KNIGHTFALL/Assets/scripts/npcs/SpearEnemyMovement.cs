@@ -166,21 +166,20 @@ public class SpearEnemyMovement : MonoBehaviour
                 }
             }
 
+
             // MID RANGE
             else if (distance > attackRange)
             {
-                int decision =
-                    Random.Range(0, 100);
+                int decision = Random.Range(0, 100);
 
-                // LUNGE ATTACK
-                if (decision < 60)
+                // LUNGE ATTACK - 40%
+                if (decision < 40)
                 {
                     yield return StartCoroutine(
                         enemyAttack.Attack()
                     );
                 }
-
-                // STRAFE PRESSURE
+                // STRAFE - 60%
                 else
                 {
                     yield return StartCoroutine(
@@ -192,26 +191,23 @@ public class SpearEnemyMovement : MonoBehaviour
             // CLOSE RANGE
             else
             {
-                int decision =
-                    Random.Range(0, 100);
+                int decision = Random.Range(0, 100);
 
-                // ATTACK
-                if (decision < 50)
+                // ATTACK - 35%
+                if (decision < 35)
                 {
                     yield return StartCoroutine(
                         enemyAttack.Attack()
                     );
                 }
-
-                // STRAFE
-                else if (decision < 95)
+                // STRAFE - 45%
+                else if (decision < 80)
                 {
                     yield return StartCoroutine(
                         Strafe()
                     );
                 }
-
-                // BACKSTEP
+                // BACKSTEP - 20%
                 else
                 {
                     yield return StartCoroutine(
@@ -220,7 +216,8 @@ public class SpearEnemyMovement : MonoBehaviour
                 }
             }
 
-           
+
+
             yield return null;
             
         }
@@ -290,7 +287,7 @@ public class SpearEnemyMovement : MonoBehaviour
 
         
 
-        float duration = Random.Range(0.3f, 0.6f);
+        float duration = Random.Range(0.65f, 0.9f);
 
         float direction = Random.Range(0, 2) == 0 ? -1f : 1f;
 
