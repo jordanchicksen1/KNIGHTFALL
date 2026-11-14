@@ -395,7 +395,25 @@ public class EnemyRangeAI : MonoBehaviour
 
         Vector3 direction = (player.position - firePoint.position).normalized;
 
-        projectile.GetComponent<EnemyProjectile>().SetDirection(direction);
+        EnemyProjectile enemyProjectile = projectile.GetComponent<EnemyProjectile>();
+
+        if (enemyProjectile != null)
+        {
+            enemyProjectile.damage = enemyHealth != null
+                ? enemyHealth.GetOutgoingDamage(enemyProjectile.damage)
+                : enemyProjectile.damage;
+
+            enemyProjectile.SetDirection(direction);
+        }
+    }
+
+    public void ResetAfterShock()
+    {
+        isMakingDecision = false;
+        isAttacking = false;
+        isDodging = false;
+        isMoving = false;
+        canAttack = true;
     }
 
     IEnumerator DodgeAway()

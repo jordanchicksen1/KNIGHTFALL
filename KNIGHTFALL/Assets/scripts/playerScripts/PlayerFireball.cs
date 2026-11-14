@@ -1,3 +1,4 @@
+
 using UnityEngine;
 
 public class PlayerSpellProjectile : MonoBehaviour
@@ -51,7 +52,12 @@ public class PlayerSpellProjectile : MonoBehaviour
             Vector3 hitDirection =
                 (other.transform.position - transform.position).normalized;
 
-            enemy.TakeDamage(damage, hitDirection);
+            enemy.TakeDamage(
+                damage,
+                hitDirection,
+                EnemyDamageType.Magical
+            );
+
             enemy.ApplyStatusBuildup(spellType, statusBuildup);
         }
 

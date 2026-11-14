@@ -96,10 +96,9 @@ public class EnemyAttack : MonoBehaviour
                 Vector3 hitDirection =
                     (player.position - transform.position).normalized;
 
-                health.TakeDamage(
-                    attackDamage,
-                    hitDirection
-                );
+                int finalDamage = enemyHealth != null ? enemyHealth.GetOutgoingDamage(attackDamage): attackDamage;
+
+                health.TakeDamage(finalDamage, hitDirection);
 
                 hasHitPlayer = true;
                 break;

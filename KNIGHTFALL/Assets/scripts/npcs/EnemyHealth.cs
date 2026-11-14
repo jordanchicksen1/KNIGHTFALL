@@ -1,8 +1,32 @@
+
 using System.Collections;
 using UnityEngine;
 
+public enum EnemyVariant
+{
+    Normal,
+    BlackSkeleton,
+    GreySkeleton
+}
+
+public enum EnemyDamageType
+{
+    Physical,
+    Magical,
+    Status
+}
+
 public class EnemyHealth : MonoBehaviour
 {
+    [Header("Enemy Variant")]
+    public EnemyVariant enemyVariant = EnemyVariant.Normal;
+    public float variantHealthMultiplier = 1.5f;
+    public float outgoingDamageMultiplier = 1.5f;
+    [Range(0f, 1f)]
+    public float blackSkeletonPhysicalResistance = 0.75f;
+    [Range(0f, 1f)]
+    public float greySkeletonStatusResistance = 0.5f;
+
     public float maxHealth = 100f;
     public float health = 100f;
     public float knockbackForce = 5f;
@@ -62,6 +86,14 @@ public class EnemyHealth : MonoBehaviour
         deathEffectPool = FindFirstObjectByType<EnemyDeathEffectPool>();
         enemyAnimator = GetComponentInChildren<Animator>();
 
+        if (enemyVariant != EnemyVariant.Normal)
+        {
+            float healthRatio = maxHealth > 0f ? health / maxHealth : 1f;
+
+            maxHealth *= variantHealthMultiplier;
+            health = maxHealth * healthRatio;
+        }
+
         if (enemyMovement != null) originalMoveSpeed = enemyMovement.moveSpeed;
 
         else if (spearMovement != null) originalMoveSpeed = spearMovement.moveSpeed;
@@ -80,10 +112,32 @@ public class EnemyHealth : MonoBehaviour
             shockedEffect.SetActive(false);
     }
 
+    // Existing damage calls are treated as physical damage.
     public void TakeDamage(int damage, Vector3 hitDirection, bool canStagger = true)
+    {
+        TakeDamage(damage, hitDirection, EnemyDamageType.Physical, canStagger);
+    }
+
+    // Use this version when the damage source needs to be specified.
+    public void TakeDamage(
+        int damage,
+        Vector3 hitDirection,
+        EnemyDamageType damageType,
+        bool canStagger = true)
     {
         if (isStaggered)
             return;
+
+        float damageMultiplier = 1f;
+
+        if (enemyVariant == EnemyVariant.BlackSkeleton &&
+            damageType == EnemyDamageType.Physical &&
+            currentStatus == StatusEffect.None)
+        {
+            damageMultiplier = 1f - blackSkeletonPhysicalResistance;
+        }
+
+        int finalDamage = Mathf.Max(1, Mathf.RoundToInt(damage * damageMultiplier));
 
         if (hitEffectPool != null)
         {
@@ -93,15 +147,14 @@ public class EnemyHealth : MonoBehaviour
             );
         }
 
-        health -= damage;
+        health -= finalDamage;
 
-        if (healthUI != null) healthUI.ShowDamage(damage);
+        if (healthUI != null) healthUI.ShowDamage(finalDamage);
 
-        if (bossHealthUI != null && bossHealthUI.bossHealth == this) bossHealthUI.ShowDamage(damage);
+        if (bossHealthUI != null && bossHealthUI.bossHealth == this)
+            bossHealthUI.ShowDamage(finalDamage);
 
-        rb.AddForce( hitDirection * knockbackForce, ForceMode.Impulse);
-
-
+        rb.AddForce(hitDirection * knockbackForce, ForceMode.Impulse);
 
         if (canStagger && enemyAttack != null && enemyAttack.isAttacking)
         {
@@ -109,7 +162,7 @@ public class EnemyHealth : MonoBehaviour
             StartCoroutine(Stagger());
         }
 
-        Debug.Log(gameObject.name + " took damage.");
+        Debug.Log(gameObject.name + " took " + finalDamage + " damage.");
 
         if (health <= 0)
         {
@@ -122,6 +175,14 @@ public class EnemyHealth : MonoBehaviour
 
             return;
         }
+    }
+
+    public int GetOutgoingDamage(int baseDamage)
+    {
+        if (enemyVariant == EnemyVariant.Normal)
+            return baseDamage;
+
+        return Mathf.RoundToInt(baseDamage * outgoingDamageMultiplier);
     }
 
     public void PlayDeathEffect()
@@ -140,14 +201,20 @@ public class EnemyHealth : MonoBehaviour
     public bool IsBurning()
     {
         return currentStatus == StatusEffect.Burning;
-
-
     }
 
     public void ApplyStatusBuildup(SpellType spell, int amount)
     {
         if (currentStatus != StatusEffect.None)
             return;
+
+        if (enemyVariant == EnemyVariant.GreySkeleton)
+        {
+            amount = Mathf.RoundToInt(amount * (1f - greySkeletonStatusResistance));
+
+            if (amount <= 0)
+                return;
+        }
 
         switch (spell)
         {
@@ -201,7 +268,7 @@ public class EnemyHealth : MonoBehaviour
         SetStatusEffectVisual(burningEffect, true);
         if (healthUI != null) healthUI.ShowStatus(currentStatus);
         if (bossHealthUI != null && bossHealthUI.bossHealth == this) bossHealthUI.ShowStatus(currentStatus);
-        TakeDamage(statusProcDamage, Vector3.zero, false);
+        TakeDamage(statusProcDamage, Vector3.zero, EnemyDamageType.Status, false);
         Debug.Log(gameObject.name + " is Burning!");
         yield return new WaitForSeconds(burnDuration);
         currentStatus = StatusEffect.None;
@@ -216,12 +283,12 @@ public class EnemyHealth : MonoBehaviour
         SetStatusEffectVisual(frozenEffect, true);
         if (healthUI != null) healthUI.ShowStatus(currentStatus);
         if (bossHealthUI != null && bossHealthUI.bossHealth == this) bossHealthUI.ShowStatus(currentStatus);
-        TakeDamage(statusProcDamage, Vector3.zero, false);
+        TakeDamage(statusProcDamage, Vector3.zero, EnemyDamageType.Status, false);
         Debug.Log(gameObject.name + " is Frozen!");
         if (enemyMovement != null) enemyMovement.moveSpeed = originalMoveSpeed * frozenSpeedMultiplier;
         if (spearMovement != null) spearMovement.moveSpeed = originalMoveSpeed * frozenSpeedMultiplier;
         if (rangedMovement != null) rangedMovement.moveSpeed = originalMoveSpeed * frozenSpeedMultiplier;
-        if(mageBossAI != null) mageBossAI.moveSpeed = originalMoveSpeed * frozenSpeedMultiplier;
+        if (mageBossAI != null) mageBossAI.moveSpeed = originalMoveSpeed * frozenSpeedMultiplier;
 
         yield return new WaitForSeconds(frozenDuration);
         if (enemyMovement != null) enemyMovement.moveSpeed = originalMoveSpeed;
@@ -249,7 +316,6 @@ public class EnemyHealth : MonoBehaviour
             spearMovement.canMove = false;
         }
 
-
         if (rangedMovement != null)
         {
             rangedMovement.StopAllCoroutines();
@@ -260,7 +326,6 @@ public class EnemyHealth : MonoBehaviour
 
             rangedMovement.enabled = false;
         }
-
 
         if (mageBossAI != null)
         {
@@ -277,33 +342,43 @@ public class EnemyHealth : MonoBehaviour
         SetStatusEffectVisual(shockedEffect, true);
         if (healthUI != null) healthUI.ShowStatus(currentStatus);
         if (bossHealthUI != null && bossHealthUI.bossHealth == this) bossHealthUI.ShowStatus(currentStatus);
-        TakeDamage(statusProcDamage, Vector3.zero, false);
+        TakeDamage(statusProcDamage, Vector3.zero, EnemyDamageType.Status, false);
         Debug.Log(gameObject.name + " is Shocked!");
+
         if (enemyMovement != null) enemyMovement.canMove = false;
         if (spearMovement != null) spearMovement.canMove = false;
+
         if (rangedMovement != null)
         {
             rangedMovement.enabled = false;
         }
+
         if (mageBossAI != null)
         {
             mageBossAI.enabled = false;
         }
+
         if (enemyAttack != null) enemyAttack.StopAllCoroutines();
+
         SpearEnemyAttack spearAttack = GetComponent<SpearEnemyAttack>();
         if (spearAttack != null) spearAttack.StopAllCoroutines();
 
         yield return new WaitForSeconds(shockedDuration);
+
         if (enemyMovement != null) enemyMovement.canMove = true;
         if (spearMovement != null) spearMovement.canMove = true;
+
         if (rangedMovement != null)
         {
             rangedMovement.enabled = true;
+            rangedMovement.ResetAfterShock();
         }
+
         if (mageBossAI != null)
         {
             mageBossAI.enabled = true;
         }
+
         currentStatus = StatusEffect.None;
         SetStatusEffectVisual(shockedEffect, false);
         if (healthUI != null) healthUI.HideStatus();

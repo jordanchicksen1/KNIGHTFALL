@@ -25,6 +25,7 @@ public class SpearEnemyAttack : MonoBehaviour
     public LayerMask playerLayer;
     private bool canAttack = true;
     private bool hasHitPlayer;
+    private EnemyHealth enemyHealth;
 
     [Header("Attack SFX")]
     public AudioClip attackSFX;
@@ -55,6 +56,8 @@ public class SpearEnemyAttack : MonoBehaviour
         {
             player = playerObject.transform;
         }
+
+        enemyHealth = GetComponent<EnemyHealth>();
     }
 
     public void PlayAttackSFX()
@@ -139,7 +142,9 @@ public class SpearEnemyAttack : MonoBehaviour
                         Vector3 hitDirection =
                             (playerCollider.transform.position - transform.position).normalized;
 
-                        playerHealth.TakeDamage(attackDamage, hitDirection);
+                        int finalDamage = enemyHealth != null ? enemyHealth.GetOutgoingDamage(attackDamage): attackDamage;
+
+                        playerHealth.TakeDamage(finalDamage, hitDirection);
 
                         hasHitPlayer = true;
                         break;
