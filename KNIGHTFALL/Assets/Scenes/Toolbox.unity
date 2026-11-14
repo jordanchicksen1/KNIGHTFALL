@@ -4399,6 +4399,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: EnemySpawnerSword (2)
       objectReference: {fileID: 0}
+    - target: {fileID: 81568199861565857, guid: 7528aded5acd8ce43bcc4d70ecd11c71, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6349414500300590258, guid: 7528aded5acd8ce43bcc4d70ecd11c71, type: 3}
       propertyPath: m_LocalPosition.x
       value: -16.45
@@ -4608,6 +4612,10 @@ PrefabInstance:
     - target: {fileID: 3277356522352252107, guid: 200801869b545a348b0bb23c03fdcfb0, type: 3}
       propertyPath: m_Name
       value: EnemySpawnerCrossbow (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 3277356522352252107, guid: 200801869b545a348b0bb23c03fdcfb0, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -6150,6 +6158,10 @@ PrefabInstance:
     - target: {fileID: 81568199861565857, guid: 7528aded5acd8ce43bcc4d70ecd11c71, type: 3}
       propertyPath: m_Name
       value: EnemySpawnerSword (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 81568199861565857, guid: 7528aded5acd8ce43bcc4d70ecd11c71, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6349414500300590258, guid: 7528aded5acd8ce43bcc4d70ecd11c71, type: 3}
       propertyPath: m_LocalPosition.x
@@ -10297,6 +10309,10 @@ PrefabInstance:
     - target: {fileID: 1933132810185616913, guid: 5a66268a2556e684fb24703e863de742, type: 3}
       propertyPath: m_Name
       value: EnemySpawnerSpear (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1933132810185616913, guid: 5a66268a2556e684fb24703e863de742, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6720586766826443865, guid: 5a66268a2556e684fb24703e863de742, type: 3}
       propertyPath: m_LocalPosition.x
@@ -17687,6 +17703,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: EnemySpawnerCrossbow (2)
       objectReference: {fileID: 0}
+    - target: {fileID: 3277356522352252107, guid: 200801869b545a348b0bb23c03fdcfb0, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -20293,7 +20313,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1933132810185616913, guid: 5a66268a2556e684fb24703e863de742, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6720586766826443865, guid: 5a66268a2556e684fb24703e863de742, type: 3}
       propertyPath: m_LocalPosition.x
@@ -20392,6 +20412,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: EnemySpawnerCrossbow
       objectReference: {fileID: 0}
+    - target: {fileID: 3277356522352252107, guid: 200801869b545a348b0bb23c03fdcfb0, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -20411,7 +20435,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 81568199861565857, guid: 7528aded5acd8ce43bcc4d70ecd11c71, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6349414500300590258, guid: 7528aded5acd8ce43bcc4d70ecd11c71, type: 3}
       propertyPath: m_LocalPosition.x
@@ -20529,7 +20553,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 834046727309560708, guid: 0beadfb04517e1246867d907b9cfee29, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2293636896113232745, guid: 0beadfb04517e1246867d907b9cfee29, type: 3}
       propertyPath: m_LocalPosition.x

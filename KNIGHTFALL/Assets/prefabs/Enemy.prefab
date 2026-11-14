@@ -1495,6 +1495,7 @@ MonoBehaviour:
   burningEffect: {fileID: 1521314558848153026}
   frozenEffect: {fileID: 6454663583363908988}
   shockedEffect: {fileID: 6910985875392141158}
+  xpReward: 25
   hitEffectPool: {fileID: 0}
   isStaggered: 0
 --- !u!114 &7803052097154173528
@@ -1511,7 +1512,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyAttack
   attackRange: 1.5
   attackDamage: 20
-  attackCooldown: 1.5
+  attackCooldown: 1.75
   attackDuration: 1.5
   isAttacking: 0
   lungeForce: 10
@@ -1815,7 +1816,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1744486730140933327, guid: 25c065f2030d66b448f01485eb69a32a, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6105456829765430385, guid: 25c065f2030d66b448f01485eb69a32a, type: 3}
       propertyPath: m_IsActive

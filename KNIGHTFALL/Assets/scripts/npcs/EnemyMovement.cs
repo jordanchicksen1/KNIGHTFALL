@@ -173,18 +173,16 @@ public class EnemyMovement : MonoBehaviour
             // MID RANGE
             else if (distance > attackRange)
             {
-                int decision =
-                    Random.Range(0, 100);
+                int decision = Random.Range(0, 100);
 
-                // LUNGE ATTACK
-                if (decision < 60)
+                // LUNGE ATTACK - 30%
+                if (decision < 30)
                 {
                     yield return StartCoroutine(
                         enemyAttack.Attack()
                     );
                 }
-
-                // STRAFE PRESSURE
+                // STRAFE - 70%
                 else
                 {
                     yield return StartCoroutine(
@@ -196,26 +194,23 @@ public class EnemyMovement : MonoBehaviour
             // CLOSE RANGE
             else
             {
-                int decision =
-                    Random.Range(0, 100);
+                int decision = Random.Range(0, 100);
 
-                // ATTACK
-                if (decision < 50)
+                // ATTACK - 25%
+                if (decision < 25)
                 {
                     yield return StartCoroutine(
                         enemyAttack.Attack()
                     );
                 }
-
-                // STRAFE
-                else if (decision < 95)
+                // STRAFE - 50%
+                else if (decision < 75)
                 {
                     yield return StartCoroutine(
                         Strafe()
                     );
                 }
-
-                // BACKSTEP
+                // BACKSTEP - 25%
                 else
                 {
                     yield return StartCoroutine(
@@ -224,13 +219,12 @@ public class EnemyMovement : MonoBehaviour
                 }
             }
 
-           
-            yield return null;
-            
+            yield return new WaitForSeconds(0.2f);
+
         }
     }
 
-    void MoveTowardsPlayer()
+   void MoveTowardsPlayer()
     {
         if (!canMove)
             return;
@@ -292,7 +286,7 @@ public class EnemyMovement : MonoBehaviour
 
         isMoving = true;
 
-        float duration = Random.Range(0.3f, 0.6f);
+        float duration = Random.Range(0.7f, 1f);
         float direction = Random.Range(0, 2) == 0 ? -1 : 1;
         float timer = 0;
 
@@ -321,7 +315,7 @@ public class EnemyMovement : MonoBehaviour
 
         isMoving = true;
 
-        float duration = Random.Range(0.2f, 0.45f);
+        float duration = Random.Range(0.4f, 0.65f);
         float timer = 0;
 
         while (timer < duration && canMove)
@@ -332,7 +326,7 @@ public class EnemyMovement : MonoBehaviour
             direction.y = 0;
 
             transform.position +=
-                direction * moveSpeed * 1.2f * Time.deltaTime;
+                direction * moveSpeed * 1.4f * Time.deltaTime;
 
             timer += Time.deltaTime;
 
