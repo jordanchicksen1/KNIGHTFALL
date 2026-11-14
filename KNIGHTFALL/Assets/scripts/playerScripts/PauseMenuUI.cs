@@ -34,6 +34,7 @@ public class PauseMenuUI : MonoBehaviour
     [SerializeField] private GameObject fireballButton;
     [SerializeField] private GameObject iceSpearButton;
     [SerializeField] private GameObject lightningBoltButton;
+    [SerializeField] private GameObject keyButton;
 
     [Header("Page Close Buttons")]
     public Button inventoryCloseButton;
@@ -114,6 +115,8 @@ public class PauseMenuUI : MonoBehaviour
         fireballButton.SetActive(playerInventory.HasSpell(SpellType.Fireball));
         iceSpearButton.SetActive(playerInventory.HasSpell(SpellType.IceSpear));
         lightningBoltButton.SetActive(playerInventory.HasSpell(SpellType.LightningBolt));
+
+        keyButton.SetActive(playerInventory.keys > 0);
     }
 
     private IEnumerator SelectInventoryButton()
