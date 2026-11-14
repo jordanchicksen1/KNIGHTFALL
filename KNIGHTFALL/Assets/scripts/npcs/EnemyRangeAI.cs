@@ -172,13 +172,19 @@ public class EnemyRangeAI : MonoBehaviour
     }
 
 
+
     IEnumerator MakeCombatDecision()
     {
         isMakingDecision = true;
-        float distance = Vector3.Distance(transform.position, player.position);
+
+        float distance = Vector3.Distance(
+            transform.position,
+            player.position
+        );
+
         int decision = Random.Range(0, 100);
 
-        // VERY FAR
+        // VERY FAR - CHASE THE PLAYER
         if (distance > chaseDistance)
         {
             float timer = 0;
@@ -186,9 +192,16 @@ public class EnemyRangeAI : MonoBehaviour
 
             while (timer < 1f)
             {
-                Vector3 direction = (player.position - transform.position).normalized;
+                Vector3 direction =
+                    (player.position - transform.position).normalized;
+
                 direction.y = 0;
-                rb.MovePosition(transform.position + direction * moveSpeed * Time.deltaTime);
+
+                rb.MovePosition(
+                    transform.position +
+                    direction * moveSpeed * Time.deltaTime
+                );
+
                 timer += Time.deltaTime;
                 yield return null;
             }
@@ -196,15 +209,24 @@ public class EnemyRangeAI : MonoBehaviour
             isMoving = false;
         }
 
-
         // TOO CLOSE
         else if (distance < retreatDistance)
         {
-            // MOSTLY DODGE
-            if (decision < 40)
+            // ATTACK - 35%
+            if (decision < 20)
+            {
+                yield return StartCoroutine(SingleShot());
+            }
+            else if (decision < 35)
+            {
+                yield return StartCoroutine(BurstShot());
+            }
+            // DODGE - 40%
+            else if (decision < 75)
             {
                 yield return StartCoroutine(DodgeAway());
             }
+            // STRAFE - 25%
             else
             {
                 yield return StartCoroutine(Strafe());
@@ -217,76 +239,66 @@ public class EnemyRangeAI : MonoBehaviour
             // PLAYER IS GETTING CLOSE
             if (distance < preferredCombatDistance)
             {
-                // DODGE
-                if (decision < 20)
+                // SINGLE SHOT - 50%
+                if (decision < 50)
                 {
-                    yield return StartCoroutine(
-                        DodgeAway()
-                    );
+                    yield return StartCoroutine(SingleShot());
                 }
-
-                // STRAFE
-                else if (decision < 35)
+                // BURST SHOT - 30%
+                else if (decision < 80)
                 {
-                    yield return StartCoroutine(
-                        Strafe()
-                    );
+                    yield return StartCoroutine(BurstShot());
                 }
-
-                // SINGLE SHOT
-                else if (decision < 65)
+                // DODGE - 10%
+                else if (decision < 90)
                 {
-                    yield return StartCoroutine(
-                        SingleShot()
-                    );
+                    yield return StartCoroutine(DodgeAway());
                 }
-
-                // BURST SHOT
+                // STRAFE - 10%
                 else
                 {
-                    yield return StartCoroutine(
-                        BurstShot()
-                    );
+                    yield return StartCoroutine(Strafe());
                 }
             }
 
             // PLAYER IS FARTHER AWAY
             else
             {
-                if (decision < 25)
+                // SINGLE SHOT - 55%
+                if (decision < 55)
+                {
+                    yield return StartCoroutine(SingleShot());
+                }
+                // BURST SHOT - 25%
+                else if (decision < 80)
+                {
+                    yield return StartCoroutine(BurstShot());
+                }
+                // STRAFE - 15%
+                else if (decision < 95)
                 {
                     yield return StartCoroutine(Strafe());
                 }
-                else if (decision < 40)
-                {
-                    yield return StartCoroutine(DodgeAway());
-                }
-                else if (decision < 85)
-                {
-                    yield return StartCoroutine(
-                        SingleShot()
-                    );
-                }
+                // DODGE - 5%
                 else
                 {
-                    yield return StartCoroutine(BurstShot() );
+                    yield return StartCoroutine(DodgeAway());
                 }
             }
         }
 
-        yield return new WaitForSeconds(
-            decisionCooldown
-        );
+        yield return new WaitForSeconds(decisionCooldown);
 
         isMakingDecision = false;
     }
+
 
     IEnumerator Strafe()
     {
         
         isMoving = true;
 
-        float duration = Random.Range(0.4f, 1f);
+        float duration = Random.Range(0.7f, 1f);
         float direction = Random.Range(0, 2) == 0 ? -1 : 1;
         float timer = 0;
 
@@ -294,7 +306,7 @@ public class EnemyRangeAI : MonoBehaviour
         {
             Vector3 strafeDirection = transform.right * direction;
 
-            rb.MovePosition(transform.position + strafeDirection * moveSpeed * 1.8f * Time.deltaTime);
+            rb.MovePosition(transform.position + strafeDirection * moveSpeed * 1.6f * Time.deltaTime);
 
             timer += Time.deltaTime;
 

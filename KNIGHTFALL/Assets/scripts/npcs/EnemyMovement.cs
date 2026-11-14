@@ -175,46 +175,47 @@ public class EnemyMovement : MonoBehaviour
             {
                 int decision = Random.Range(0, 100);
 
-                // LUNGE ATTACK - 30%
-                if (decision < 30)
+                // ATTACK - 45%
+                if (decision < 45)
                 {
                     yield return StartCoroutine(
                         enemyAttack.Attack()
                     );
                 }
-                // STRAFE - 70%
+                // STRAFE - 55%
                 else
                 {
                     yield return StartCoroutine(
                         Strafe()
                     );
                 }
-            }
+            
+        }
 
             // CLOSE RANGE
             else
             {
                 int decision = Random.Range(0, 100);
 
-                // ATTACK - 25%
-                if (decision < 25)
+                // ATTACK - 35%
+                if (decision < 35)
                 {
                     yield return StartCoroutine(
                         enemyAttack.Attack()
                     );
                 }
-                // STRAFE - 50%
+                // STRAFE - 40%
                 else if (decision < 75)
                 {
                     yield return StartCoroutine(
-                        Strafe()
+                        BackAway()
                     );
                 }
                 // BACKSTEP - 25%
                 else
                 {
                     yield return StartCoroutine(
-                        BackAway()
+                        Strafe()
                     );
                 }
             }
