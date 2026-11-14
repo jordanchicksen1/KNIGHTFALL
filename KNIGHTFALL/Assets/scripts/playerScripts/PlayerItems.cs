@@ -113,6 +113,7 @@ public class PlayerItems : MonoBehaviour
             );
     }
 
+
     void UseEmber()
     {
         if (isHealing)
@@ -121,10 +122,20 @@ public class PlayerItems : MonoBehaviour
         if (currentEmbers <= 0)
             return;
 
-        if (playerHealth.vitality >= playerHealth.maxVitality)
+        // Check whether the player needs vitality or status cleansing.
+        bool needsVitality =
+            playerHealth.vitality < playerHealth.maxVitality;
+
+        bool hasStatusBuildup =
+            playerHealth.fireBuildup > 0f ||
+            playerHealth.iceBuildup > 0f ||
+            playerHealth.lightningBuildup > 0f;
+
+        // Don't consume an Ember if there's nothing to restore or cleanse.
+        if (!needsVitality && !hasStatusBuildup)
         {
             InteractionUI.Instance.ShowNotification(
-                "Vitality is already full!"
+                "Nothing to restore or cleanse!"
             );
             return;
         }
@@ -137,6 +148,7 @@ public class PlayerItems : MonoBehaviour
 
         StartCoroutine(ConsumeEmber());
     }
+
 
     IEnumerator ConsumeEmber()
     {
@@ -153,6 +165,9 @@ public class PlayerItems : MonoBehaviour
 
         currentEmbers--;
 
+        // Clear all accumulated status buildup.
+        playerHealth.ClearAllStatusBuildup();
+
         playerHealth.vitality += emberVitalityRestore;
         playerHealth.vitality = Mathf.Min(
             playerHealth.vitality,
@@ -162,8 +177,9 @@ public class PlayerItems : MonoBehaviour
         playerHealth.ClampHealthToVitality();
 
         InteractionUI.Instance.ShowNotification(
-            "Vitality Restored +" + emberVitalityRestore
-        );
+     "Vitality Restored +" + emberVitalityRestore +
+     "\nStatus Buildup Cleared!"
+ );
 
         yield return new WaitForSeconds(healDuration);
 

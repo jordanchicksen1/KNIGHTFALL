@@ -5,14 +5,13 @@ public class SpearEnemyAttack : MonoBehaviour
 {
     [Header("Attack")]
     public float attackRange = 1.5f;
-
     public int attackDamage = 20;
-
     public float attackCooldown = 0.8f;
-
     public float attackDuration = 0.4f;
-
     public bool isAttacking;
+
+    [Header("Elemental Damage")]
+    public int lightningBuildupAmount = 25;
 
     [Header("Lunge")]
     public float lungeForce = 5f;
@@ -142,9 +141,11 @@ public class SpearEnemyAttack : MonoBehaviour
                         Vector3 hitDirection =
                             (playerCollider.transform.position - transform.position).normalized;
 
-                        int finalDamage = enemyHealth != null ? enemyHealth.GetOutgoingDamage(attackDamage): attackDamage;
+                        int finalDamage = enemyHealth != null ? enemyHealth.GetOutgoingDamage(attackDamage) : attackDamage;
 
                         playerHealth.TakeDamage(finalDamage, hitDirection);
+
+                        playerHealth.ApplyStatusBuildup(SpellType.LightningBolt, lightningBuildupAmount);
 
                         hasHitPlayer = true;
                         break;

@@ -10,6 +10,9 @@ public class EnemyProjectile : MonoBehaviour
 
     private Vector3 moveDirection;
 
+    [Header("Elemental Damage")]
+    public int iceBuildupAmount = 0;
+
     void Start()
     {
         Destroy(gameObject, lifeTime);
@@ -70,6 +73,12 @@ public class EnemyProjectile : MonoBehaviour
                 (other.transform.position - transform.position).normalized;
 
             player.TakeDamage(damage, hitDirection);
+
+            // Apply ice buildup if this projectile is elemental
+            if (iceBuildupAmount > 0)
+            {
+                player.ApplyStatusBuildup(SpellType.IceSpear, iceBuildupAmount);
+            }
 
             Destroy(gameObject);
             return;

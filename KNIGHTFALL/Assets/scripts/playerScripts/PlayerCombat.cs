@@ -275,7 +275,7 @@ public class PlayerCombat : MonoBehaviour
 
     void HandleAttack()
     {
-        if (attackPressed && playerHealth.stamina >= lightAttackCost && movement.currentState != PlayerState.Attacking && movement.currentState != PlayerState.Dodging && movement.currentState !=PlayerState.Staggered)
+        if (attackPressed && !playerHealth.IsStatusActive(StatusEffect.Shocked) && playerHealth.stamina >= lightAttackCost && movement.currentState != PlayerState.Attacking && movement.currentState != PlayerState.Dodging && movement.currentState !=PlayerState.Staggered)
         {
             if (isBlocking)
             {
@@ -305,8 +305,9 @@ public class PlayerCombat : MonoBehaviour
     void HandleHeavyAttack()
     {
         if (heavyAttackPressed &&
-            playerHealth.stamina >= heavyAttackCost &&
-            movement.currentState != PlayerState.Attacking &&
+     !playerHealth.IsStatusActive(StatusEffect.Shocked) &&
+     playerHealth.stamina >= heavyAttackCost &&
+             movement.currentState != PlayerState.Attacking &&
             movement.currentState != PlayerState.Dodging &&
             movement.currentState != PlayerState.Staggered)
         {
@@ -338,6 +339,18 @@ public class PlayerCombat : MonoBehaviour
 
     void HandleBlocking()
     {
+        if (playerHealth.IsStatusActive(StatusEffect.Shocked))
+        {
+            blockHeld = false;
+
+            if (isBlocking)
+            {
+                StopBlocking();
+            }
+
+            return;
+        }
+
         if (playerHealth.IsGuardBroken())
         {
             return;

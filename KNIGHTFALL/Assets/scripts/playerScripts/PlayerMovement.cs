@@ -134,8 +134,10 @@ public class PlayerMovement : MonoBehaviour
 
     void HandleMovement()
     {
-        if (movementLocked)
+        if (movementLocked || playerHealth.IsStatusActive(StatusEffect.Shocked))
+        {
             return;
+        }
 
         if (currentState == PlayerState.Dodging || currentState == PlayerState.Staggered)
         {
@@ -206,7 +208,13 @@ public class PlayerMovement : MonoBehaviour
 
             if (!combat.IsHeavyAttacking())
             {
-                float currentSpeed = isCommittedJump ? jumpMoveSpeed: (isSprinting ? sprintSpeed : moveSpeed);
+                float currentSpeed = isCommittedJump ? jumpMoveSpeed : (isSprinting ? sprintSpeed : moveSpeed);
+
+                // Frozen reduces all movement speed by 20%.
+                if (playerHealth.IsStatusActive(StatusEffect.Frozen))
+                {
+                    currentSpeed *= playerHealth.frozenSpeedMultiplier;
+                }
 
                 controller.Move(
                     moveDirection *
@@ -358,9 +366,10 @@ public class PlayerMovement : MonoBehaviour
 
         // Jump
         if (jumpPressed &&
-    !movementLocked &&
-    isGrounded &&
-    !isDodging &&
+     !movementLocked &&
+     !playerHealth.IsStatusActive(StatusEffect.Shocked) &&
+     isGrounded &&
+     !isDodging &&
     playerHealth.stamina >= jumpCost &&
     currentState != PlayerState.Staggered)
         {
@@ -431,7 +440,7 @@ public class PlayerMovement : MonoBehaviour
 
     void HandleDodge()
     {
-        if (dodgePressed && !movementLocked &&!isDodging && isGrounded &&  playerHealth.stamina >= dodgeCost &&  currentState != PlayerState.Staggered)
+        if (dodgePressed && !movementLocked && !playerHealth.IsStatusActive(StatusEffect.Shocked) && !isDodging  && isGrounded &&  playerHealth.stamina >= dodgeCost &&  currentState != PlayerState.Staggered)
         {
             PlayerAudio.PlayDodge();
 

@@ -37,6 +37,25 @@ public class PlayerHUD : MonoBehaviour
     public float xpGainDisplayDuration = 1.5f;
     public float xpCountAnimationDuration = 0.4f;
 
+    [Header("Status Buildup UI")]
+    public GameObject fireBuildupBar;
+    public Image fireBuildupFill;
+
+    public GameObject iceBuildupBar;
+    public Image iceBuildupFill;
+
+    public GameObject lightningBuildupBar;
+    public Image lightningBuildupFill;
+
+    [Header("Active Status UI")]
+    public Image activeStatusIcon;
+
+    public Sprite burningStatusIcon;
+    public Sprite frozenStatusIcon;
+    public Sprite shockedStatusIcon;
+
+    private PlayerHealth playerHealth;
+
     private PlayerXP playerXP;
     private int displayedXP;
     private int lastKnownXP;
@@ -54,6 +73,7 @@ public class PlayerHUD : MonoBehaviour
             combat = player.GetComponent<PlayerCombat>();
             playerXP = player.GetComponent<PlayerXP>();
             items = player.GetComponent<PlayerItems>();
+            playerHealth = player.GetComponent<PlayerHealth>();
         }
 
         if (playerXP != null)
@@ -77,6 +97,7 @@ public class PlayerHUD : MonoBehaviour
         UpdateWeapon();
         UpdateSpell();
         UpdateItem();
+        UpdateStatusUI();
     }
 
     void UpdateWeapon()
@@ -171,6 +192,59 @@ public class PlayerHUD : MonoBehaviour
             displayedXP = currentXP;
             xpCountText.text = displayedXP.ToString();
         }
+    }
+
+    void UpdateStatusUI()
+    {
+        if (playerHealth == null)
+            return;
+
+        // If a status is active, hide buildup bars
+        // and show only the active status icon.
+        if (playerHealth.currentStatus != StatusEffect.None)
+        {
+            fireBuildupBar.SetActive(false);
+            iceBuildupBar.SetActive(false);
+            lightningBuildupBar.SetActive(false);
+
+            activeStatusIcon.gameObject.SetActive(true);
+
+            switch (playerHealth.currentStatus)
+            {
+                case StatusEffect.Burning:
+                    activeStatusIcon.sprite = burningStatusIcon;
+                    break;
+
+                case StatusEffect.Frozen:
+                    activeStatusIcon.sprite = frozenStatusIcon;
+                    break;
+
+                case StatusEffect.Shocked:
+                    activeStatusIcon.sprite = shockedStatusIcon;
+                    break;
+            }
+
+            return;
+        }
+
+        // No active status: hide the icon.
+        activeStatusIcon.gameObject.SetActive(false);
+
+        // Update buildup bar values.
+        float threshold = playerHealth.statusThreshold;
+
+        float fire = playerHealth.fireBuildup / threshold;
+        float ice = playerHealth.iceBuildup / threshold;
+        float lightning = playerHealth.lightningBuildup / threshold;
+
+        fireBuildupFill.fillAmount = fire;
+        iceBuildupFill.fillAmount = ice;
+        lightningBuildupFill.fillAmount = lightning;
+
+        // Only show bars that have accumulated buildup.
+        fireBuildupBar.SetActive(playerHealth.fireBuildup > 0f);
+        iceBuildupBar.SetActive(playerHealth.iceBuildup > 0f);
+        lightningBuildupBar.SetActive(playerHealth.lightningBuildup > 0f);
     }
 
     IEnumerator AnimateXPGain(int amount, int targetXP)

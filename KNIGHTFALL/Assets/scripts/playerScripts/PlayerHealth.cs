@@ -1,3 +1,4 @@
+
 using System.Collections;
 using UnityEngine;
 
@@ -49,8 +50,36 @@ public class PlayerHealth : MonoBehaviour
     private Quaternion rightHandStartRot;
     private Quaternion leftHandStartRot;
 
+    [Header("Status Effects")]
+    public StatusEffect currentStatus = StatusEffect.None;
+
+    public float statusThreshold = 100f;
+    public float statusBuildupDecayRate = 10f;
+
+    public float fireBuildup;
+    public float iceBuildup;
+    public float lightningBuildup;
+
+    public float burningDuration = 5f;
+    public float burningDamageMultiplier = 1.35f;
+
+    public float frozenDuration = 5f;
+    public float frozenSpeedMultiplier = 0.8f;
+
+    public float shockedDuration = 3f;
+
+    [Header("Status Effect Particles")]
+    public GameObject burningEffect;
+    public GameObject frozenEffect;
+    public GameObject shockedEffect;
+
+    private Coroutine burningCoroutine;
+    private Coroutine frozenCoroutine;
+    private Coroutine shockedCoroutine;
+
     [Header("SFX")]
     private PlayerAudio playerAudio;
+
     private void Awake()
     {
         playerAudio = GetComponent<PlayerAudio>();
@@ -60,20 +89,32 @@ public class PlayerHealth : MonoBehaviour
         combat = GetComponent<PlayerCombat>();
 
         rightHandStartPos = rightHand.localPosition;
-
         leftHandStartPos = leftHand.localPosition;
 
         rightHandStartRot = rightHand.localRotation;
-
         leftHandStartRot = leftHand.localRotation;
 
         playerHitEffectPool = FindFirstObjectByType<PlayerHitEffectPool>();
+
+        if (burningEffect != null)
+            burningEffect.SetActive(false);
+
+        if (frozenEffect != null)
+            frozenEffect.SetActive(false);
+
+        if (shockedEffect != null)
+            shockedEffect.SetActive(false);
     }
 
     void Update()
     {
         RegenerateStamina();
+        UpdateStatusBuildupDecay();
     }
+
+    // --------------------------------------------------
+    // HEALTH
+    // --------------------------------------------------
 
     public float GetEffectiveMaxHealth()
     {
@@ -85,11 +126,10 @@ public class PlayerHealth : MonoBehaviour
         health = Mathf.Min(health, GetEffectiveMaxHealth());
     }
 
-    public void TakeDamage(int damage,Vector3 hitDirection)
+    public void TakeDamage(int damage, Vector3 hitDirection)
     {
         if (isDead)
             return;
-
 
         if (combat != null && combat.IsBlocking())
         {
@@ -118,20 +158,36 @@ public class PlayerHealth : MonoBehaviour
             return;
         }
 
-        health -= damage;
+        // Burning increases incoming damage by 35%.
+        int finalDamage = damage;
+
+        if (currentStatus == StatusEffect.Burning)
+        {
+            finalDamage = Mathf.RoundToInt(
+                damage * burningDamageMultiplier
+            );
+        }
+
+        health -= finalDamage;
 
         if (health <= 0)
         {
             isDead = true;
+
+            ClearStatusEffects();
+
             // Drop carried XP at the player's death position.
             if (playerXP != null)
             {
                 playerXP.DropXP(transform.position);
             }
+
             vitality -= vitalityLoss;
             vitality = Mathf.Max(minimumVitality, vitality);
+
             movement.currentState = PlayerState.Staggered;
             playerAudio.PlayDeath();
+
             StartCoroutine(DeathSequence());
             return;
         }
@@ -146,10 +202,206 @@ public class PlayerHealth : MonoBehaviour
             );
         }
 
-        
-
         StartCoroutine(Knockback(hitDirection));
     }
+
+    // --------------------------------------------------
+    // STATUS BUILDUP
+    // --------------------------------------------------
+
+    public void ApplyStatusBuildup(SpellType spell, int amount)
+    {
+        if (isDead)
+            return;
+
+        if (currentStatus != StatusEffect.None)
+            return;
+
+        // Blocking prevents elemental buildup.
+        if (combat != null && combat.IsBlocking())
+            return;
+
+        if (amount <= 0)
+            return;
+
+        switch (spell)
+        {
+            case SpellType.Fireball:
+
+                fireBuildup += amount;
+
+                if (fireBuildup >= statusThreshold)
+                {
+                    fireBuildup = 0f;
+                    burningCoroutine = StartCoroutine(Burning());
+                }
+
+                break;
+
+            case SpellType.IceSpear:
+
+                iceBuildup += amount;
+
+                if (iceBuildup >= statusThreshold)
+                {
+                    iceBuildup = 0f;
+                    frozenCoroutine = StartCoroutine(Frozen());
+                }
+
+                break;
+
+            case SpellType.LightningBolt:
+
+                lightningBuildup += amount;
+
+                if (lightningBuildup >= statusThreshold)
+                {
+                    lightningBuildup = 0f;
+                    shockedCoroutine = StartCoroutine(Shocked());
+                }
+
+                break;
+        }
+    }
+
+    private void UpdateStatusBuildupDecay()
+    {
+        if (statusBuildupDecayRate <= 0f)
+            return;
+
+        fireBuildup = Mathf.MoveTowards(
+            fireBuildup,
+            0f,
+            statusBuildupDecayRate * Time.deltaTime
+        );
+
+        iceBuildup = Mathf.MoveTowards(
+            iceBuildup,
+            0f,
+            statusBuildupDecayRate * Time.deltaTime
+        );
+
+        lightningBuildup = Mathf.MoveTowards(
+            lightningBuildup,
+            0f,
+            statusBuildupDecayRate * Time.deltaTime
+        );
+    }
+
+    // Clears all accumulated buildup. Used by Embers later.
+    public void ClearAllStatusBuildup()
+    {
+        fireBuildup = 0f;
+        iceBuildup = 0f;
+        lightningBuildup = 0f;
+    }
+
+    public bool IsStatusActive(StatusEffect status)
+    {
+        return currentStatus == status;
+    }
+
+    // --------------------------------------------------
+    // STATUS EFFECT COROUTINES
+    // --------------------------------------------------
+
+    IEnumerator Burning()
+    {
+        currentStatus = StatusEffect.Burning;
+
+        if (burningEffect != null)
+            burningEffect.SetActive(true);
+
+        Debug.Log("Player is Burning!");
+
+        yield return new WaitForSeconds(burningDuration);
+
+        if (currentStatus == StatusEffect.Burning)
+            currentStatus = StatusEffect.None;
+
+        if (burningEffect != null)
+            burningEffect.SetActive(false);
+
+        burningCoroutine = null;
+    }
+
+    IEnumerator Frozen()
+    {
+        currentStatus = StatusEffect.Frozen;
+
+        if (frozenEffect != null)
+            frozenEffect.SetActive(true);
+
+        Debug.Log("Player is Frozen!");
+
+        yield return new WaitForSeconds(frozenDuration);
+
+        if (currentStatus == StatusEffect.Frozen)
+            currentStatus = StatusEffect.None;
+
+        if (frozenEffect != null)
+            frozenEffect.SetActive(false);
+
+        frozenCoroutine = null;
+    }
+
+    IEnumerator Shocked()
+    {
+        currentStatus = StatusEffect.Shocked;
+
+        if (shockedEffect != null)
+            shockedEffect.SetActive(true);
+
+        Debug.Log("Player is Shocked!");
+
+        yield return new WaitForSeconds(shockedDuration);
+
+        if (currentStatus == StatusEffect.Shocked)
+            currentStatus = StatusEffect.None;
+
+        if (shockedEffect != null)
+            shockedEffect.SetActive(false);
+
+        shockedCoroutine = null;
+    }
+
+    private void ClearStatusEffects()
+    {
+        if (burningCoroutine != null)
+        {
+            StopCoroutine(burningCoroutine);
+            burningCoroutine = null;
+        }
+
+        if (frozenCoroutine != null)
+        {
+            StopCoroutine(frozenCoroutine);
+            frozenCoroutine = null;
+        }
+
+        if (shockedCoroutine != null)
+        {
+            StopCoroutine(shockedCoroutine);
+            shockedCoroutine = null;
+        }
+
+        currentStatus = StatusEffect.None;
+
+        ClearAllStatusBuildup();
+
+        if (burningEffect != null)
+            burningEffect.SetActive(false);
+
+        if (frozenEffect != null)
+            frozenEffect.SetActive(false);
+
+        if (shockedEffect != null)
+            shockedEffect.SetActive(false);
+    }
+
+    // --------------------------------------------------
+    // STAMINA
+    // --------------------------------------------------
 
     void RegenerateStamina()
     {
@@ -169,13 +421,17 @@ public class PlayerHealth : MonoBehaviour
         }
 
         stamina += regenRate * Time.deltaTime;
-        stamina = Mathf.Clamp( stamina, 0, maxStamina);
+        stamina = Mathf.Clamp(stamina, 0, maxStamina);
     }
 
     public void ResetStaminaRegenDelay()
     {
         staminaTimer = staminaRegenDelay;
     }
+
+    // --------------------------------------------------
+    // GUARD BREAK
+    // --------------------------------------------------
 
     IEnumerator GuardBreak()
     {
@@ -186,21 +442,22 @@ public class PlayerHealth : MonoBehaviour
 
         if (animator != null)
         {
-
-           
             animator.SetTrigger("BlockStagger");
         }
 
         combat.StartCoroutine(combat.WaitForBlockStagger());
 
-        // stop current sword attack
+        // Stop current sword attack.
         combat.InterruptAttack();
         combat.ForceStopBlocking();
 
+        // Lower hands.
+        rightHand.localPosition =
+            rightHandStartPos + new Vector3(0, -0.35f, 0);
 
-        // LOWER HANDS
-        rightHand.localPosition = rightHandStartPos + new Vector3(0, -0.35f, 0);
-        leftHand.localPosition = leftHandStartPos + new Vector3(0, -0.35f, 0);
+        leftHand.localPosition =
+            leftHandStartPos + new Vector3(0, -0.35f, 0);
+
         rightHand.localRotation = Quaternion.Euler(50, 0, 0);
         leftHand.localRotation = Quaternion.Euler(50, 0, 0);
 
@@ -208,18 +465,22 @@ public class PlayerHealth : MonoBehaviour
 
         combat.ClearBlockingAnimation();
 
-        // RESTORE RIGHT HAND
+        // Restore right hand.
         rightHand.localPosition = rightHandStartPos;
         rightHand.localRotation = rightHandStartRot;
 
-        // RESTORE LEFT HAND
+        // Restore left hand.
         leftHand.localPosition = leftHandStartPos;
         leftHand.localRotation = leftHandStartRot;
+
         stamina = 25f;
         movement.currentState = PlayerState.Idle;
         isGuardBroken = false;
-        
     }
+
+    // --------------------------------------------------
+    // KNOCKBACK
+    // --------------------------------------------------
 
     IEnumerator Knockback(Vector3 hitDirection)
     {
@@ -261,6 +522,9 @@ public class PlayerHealth : MonoBehaviour
         }
     }
 
+    // --------------------------------------------------
+    // OTHER
+    // --------------------------------------------------
 
     public bool IsGuardBroken()
     {
@@ -270,7 +534,9 @@ public class PlayerHealth : MonoBehaviour
     private IEnumerator DeathSequence()
     {
         yield return StartCoroutine(InteractionUI.Instance.DeathRoutine());
+
         CheckpointManager.Instance.RespawnPlayer(this);
+
         BossController boss = FindFirstObjectByType<BossController>();
 
         if (boss != null)
@@ -285,5 +551,4 @@ public class PlayerHealth : MonoBehaviour
             lockOn.ClearTarget();
         }
     }
-
 }

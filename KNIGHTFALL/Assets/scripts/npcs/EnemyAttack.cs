@@ -8,8 +8,10 @@ public class EnemyAttack : MonoBehaviour
     public int attackDamage = 20;
     public float attackCooldown = 0.8f;
     public float attackDuration = 1.5f;
-
     public bool isAttacking;
+
+    [Header("Elemental Attack")]
+    public int fireBuildupPerHit = 35;
 
     [Header("Lunge")]
     public float lungeForce = 5f;
@@ -96,9 +98,19 @@ public class EnemyAttack : MonoBehaviour
                 Vector3 hitDirection =
                     (player.position - transform.position).normalized;
 
-                int finalDamage = enemyHealth != null ? enemyHealth.GetOutgoingDamage(attackDamage): attackDamage;
+                int finalDamage = enemyHealth != null ? enemyHealth.GetOutgoingDamage(attackDamage)  : attackDamage;
 
                 health.TakeDamage(finalDamage, hitDirection);
+
+                // Grey Skeleton sword attacks apply Fire buildup.
+                if (enemyHealth != null &&
+                    enemyHealth.enemyVariant == EnemyVariant.GreySkeleton)
+                {
+                    health.ApplyStatusBuildup(
+                        SpellType.Fireball,
+                        fireBuildupPerHit
+                    );
+                }
 
                 hasHitPlayer = true;
                 break;

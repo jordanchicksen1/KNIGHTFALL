@@ -1054,7 +1054,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyRangeAI
   player: {fileID: 0}
   firePoint: {fileID: 8782815642952958679}
-  projectilePrefab: {fileID: 1997755983936812764, guid: e2f21eb1229c96d48b50cfd4b71f48e1, type: 3}
+  projectilePrefab: {fileID: 1997755983936812764, guid: 639ca3241dea7be489cf906903a8bc0c, type: 3}
   moveSpeed: 5
   preferredDistance: 10
   retreatDistance: 6
