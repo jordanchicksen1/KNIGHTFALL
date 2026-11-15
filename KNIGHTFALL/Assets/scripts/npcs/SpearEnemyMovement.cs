@@ -19,6 +19,8 @@ public class SpearEnemyMovement : MonoBehaviour
     private bool isDeciding;
     private EnemyNoticeSFX noticeSFX;
     private bool wasPlayerDetected;
+    private EnemyHealth enemyHealth;
+    private bool hasDied;
 
     [Header("Awareness")]
     public LayerMask obstacleLayer;
@@ -45,6 +47,7 @@ public class SpearEnemyMovement : MonoBehaviour
             player = playerObject.transform;
         }
 
+        enemyHealth = GetComponent<EnemyHealth>();
         enemyAttack = GetComponent<SpearEnemyAttack>();
         separation = GetComponent<EnemySeparation>();
         animator = GetComponentInChildren<Animator>();
@@ -54,6 +57,15 @@ public class SpearEnemyMovement : MonoBehaviour
 
     void Update()
     {
+        if (enemyHealth != null && enemyHealth.health <= 0)
+        {
+            StopForDeath();
+            return;
+        }
+
+        if (hasDied)
+            return;
+
         if (player == null || !canMove)
             return;
 
@@ -117,6 +129,13 @@ public class SpearEnemyMovement : MonoBehaviour
     {
         while (true)
         {
+            if (enemyHealth != null && enemyHealth.health <= 0)
+            {
+                StopForDeath();
+                yield break;
+            }
+
+
             if (player == null ||
                 !canMove ||
                 enemyAttack.isAttacking)
@@ -360,29 +379,22 @@ public class SpearEnemyMovement : MonoBehaviour
         }
     }
 
-    IEnumerator ShortRetreat()
+    void StopForDeath()
     {
-        float timer = 0;
+        if (hasDied)
+            return;
 
-        float retreatDuration = 0.25f;
+        hasDied = true;
+        canMove = false;
 
-        while (timer < retreatDuration)
+        // Stop CombatBehaviour, Strafe, BackAway, and other movement coroutines.
+        StopAllCoroutines();
+
+        if (animator != null)
         {
-            Vector3 direction =
-                (transform.position - player.position)
-                .normalized;
-
-            direction.y = 0;
-
-            transform.position +=
-                direction *
-                moveSpeed *
-                1.5f *
-                Time.deltaTime;
-
-            timer += Time.deltaTime;
-
-            yield return null;
+            animator.SetBool("IsMoving", false);
+            animator.SetBool("IsStrafing", false);
+            animator.SetBool("IsBackingAway", false);
         }
     }
 }

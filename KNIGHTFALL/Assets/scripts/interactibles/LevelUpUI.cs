@@ -347,7 +347,7 @@ public class LevelUpUI : MonoBehaviour
 
         // Player level includes pending upgrades in its preview.
         playerLevelText.text =
-            "Level " +
+            " " +
             (playerAttributes.overallLevel +
              playerAttributes.GetPendingUpgradeCount());
 

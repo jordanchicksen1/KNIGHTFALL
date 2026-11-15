@@ -145,7 +145,14 @@ public class SpearEnemyAttack : MonoBehaviour
 
                         playerHealth.TakeDamage(finalDamage, hitDirection);
 
-                        playerHealth.ApplyStatusBuildup(SpellType.LightningBolt, lightningBuildupAmount);
+                        // Only Grey Skeletons apply lightning buildup.
+                        if (enemyHealth != null && enemyHealth.enemyVariant == EnemyVariant.GreySkeleton)
+                        {
+                            playerHealth.ApplyStatusBuildup(
+                                SpellType.LightningBolt,
+                                lightningBuildupAmount
+                            );
+                        }
 
                         hasHitPlayer = true;
                         break;

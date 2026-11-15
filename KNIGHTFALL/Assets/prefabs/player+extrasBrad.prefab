@@ -13247,7 +13247,6 @@ GameObject:
   - component: {fileID: 2610560291283917206}
   - component: {fileID: 7859595365409541290}
   - component: {fileID: 4131748960664153628}
-  - component: {fileID: 1671855499446058600}
   m_Layer: 0
   m_Name: TorchStand
   m_TagString: Untagged
@@ -13328,29 +13327,6 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!136 &1671855499446058600
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1653430285925235158}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.50000006
-  m_Height: 1.9999999
-  m_Direction: 1
-  m_Center: {x: 0.000030577183, y: 0.000000014901161, z: -0.00000008940696}
 --- !u!1 &1674741935000220338
 GameObject:
   m_ObjectHideFlags: 0
@@ -15451,7 +15427,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &5855777221033948583
 RectTransform:
   m_ObjectHideFlags: 0
@@ -19030,8 +19006,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::InventoryItemButton
   itemName: Ember
   itemDescription: A mysterious consumable item with a connection to the ancient
-    flames of the castle. Use it to restore your vitality after death, or offer it
-    to a campfire to give it vitality restoring properties.
+    flames of the castle. Use it to restore your vitality after death, cleanse yourself
+    of status build up,  or offer it to a campfire to give it vitality restoring
+    properties.
   descriptionTitle: {fileID: 401626870066689548}
   descriptionText: {fileID: 7522090459022289197}
 --- !u!1 &3765861454475350233
@@ -21427,7 +21404,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &3450982033230795742
 RectTransform:
   m_ObjectHideFlags: 0
@@ -24362,7 +24339,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &3373557304304941525
 RectTransform:
   m_ObjectHideFlags: 0
@@ -25123,7 +25100,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &7291990737565093723
 RectTransform:
   m_ObjectHideFlags: 0
@@ -30162,7 +30139,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 1}
+  m_Color: {r: 0, g: 0, b: 0, a: 0.2901961}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -30342,7 +30319,6 @@ GameObject:
   - component: {fileID: 4990864749070599024}
   - component: {fileID: 7482257330654351913}
   - component: {fileID: 1928091021423763578}
-  - component: {fileID: 6853719074883779263}
   m_Layer: 0
   m_Name: TorchLight
   m_TagString: Untagged
@@ -30423,27 +30399,6 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!135 &6853719074883779263
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8709604709686892219}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 0.49999997
-  m_Center: {x: 0.000030517578, y: 0.000000014901161, z: 0}
 --- !u!1 &8723225988141196266
 GameObject:
   m_ObjectHideFlags: 0
@@ -31961,7 +31916,7 @@ PrefabInstance:
     - target: {fileID: 3027896407205900740, guid: e0add612185ec3241abf84a1e996cf22, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: c047f09b2feea07468dc5bac1c343aae, type: 2}
+      objectReference: {fileID: 2100000, guid: 44369fd5be59a6841b9960c2d63e9b78, type: 2}
     - target: {fileID: 3489147046320227629, guid: e0add612185ec3241abf84a1e996cf22, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
       value: 41.428955

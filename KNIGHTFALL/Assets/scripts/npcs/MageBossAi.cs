@@ -7,7 +7,12 @@ public class MageBossAI : MonoBehaviour
     [Header("References")]
     public Transform player;
     public Transform firePoint;
-    public GameObject projectilePrefab;
+
+    [Header("Magic Projectiles")]
+    public GameObject fireProjectilePrefab;
+    public GameObject iceProjectilePrefab;
+    public GameObject lightningProjectilePrefab;
+
     private Rigidbody rb;
     private EnemyHealth enemyHealth;
 
@@ -35,7 +40,7 @@ public class MageBossAI : MonoBehaviour
     private bool isMakingDecision;
 
     [Header("Summoning")]
-    public GameObject skeletonPrefab;
+    public GameObject[] summonPrefabs;
     public Transform[] summonPoints;
     public int maxSummons = 3;
     public float summonCooldown = 10f;
@@ -125,7 +130,10 @@ public class MageBossAI : MonoBehaviour
         float distance = Vector3.Distance(transform.position, player.position);
         int decision = Random.Range(0, 100);
 
-        if (summonTimer >= summonCooldown)
+        summonedSkeletons.RemoveAll(skeleton => skeleton == null);
+
+        if (summonTimer >= summonCooldown &&
+            summonedSkeletons.Count < maxSummons)
         {
             yield return StartCoroutine(SummonSkeletons());
 
@@ -187,17 +195,13 @@ public class MageBossAI : MonoBehaviour
                 // FIVE BURST SHOT
                 else if (decision < 65)
                 {
-                    yield return StartCoroutine(
-                        BurstShot()
-                    );
+                    yield return StartCoroutine(RandomBurstShot());
                 }
 
                 // BURST SHOT
                 else
                 {
-                    yield return StartCoroutine(
-                        FiveBurstShot()
-                    );
+                    yield return StartCoroutine(RandomBurstShot());
                 }
             }
 
@@ -214,13 +218,11 @@ public class MageBossAI : MonoBehaviour
                 }
                 else if (decision < 85)
                 {
-                    yield return StartCoroutine(
-                        BurstShot()
-                    );
+                    yield return StartCoroutine(RandomBurstShot());
                 }
                 else
                 {
-                    yield return StartCoroutine(FiveBurstShot());
+                    yield return StartCoroutine(RandomBurstShot());
                 }
             }
         }
@@ -236,8 +238,21 @@ public class MageBossAI : MonoBehaviour
     {
         summonedSkeletons.RemoveAll(skeleton => skeleton == null);
 
+        // Check whether we have room for another summon.
         if (summonedSkeletons.Count >= maxSummons)
+            yield break;
+
+        // Check that the prefab array is configured.
+        if (summonPrefabs == null || summonPrefabs.Length == 0)
         {
+            Debug.LogWarning("The Overseer has no summon prefabs assigned!");
+            yield break;
+        }
+
+        // Check that summon points are configured.
+        if (summonPoints == null || summonPoints.Length == 0)
+        {
+            Debug.LogWarning("The Overseer has no summon points assigned!");
             yield break;
         }
 
@@ -246,17 +261,25 @@ public class MageBossAI : MonoBehaviour
 
         yield return new WaitForSeconds(1f);
 
-        int summonsToCreate = Mathf.Min(maxSummons - summonedSkeletons.Count,summonPoints.Length);
+        // Select a random enemy.
+        int randomPrefabIndex = Random.Range(0, summonPrefabs.Length);
+        GameObject selectedPrefab = summonPrefabs[randomPrefabIndex];
 
-        for (int i = 0; i < summonsToCreate; i++)
+        // Select a random spawn point.
+        int randomPointIndex = Random.Range(0, summonPoints.Length);
+        Transform selectedPoint = summonPoints[randomPointIndex];
+
+        if (selectedPrefab != null && selectedPoint != null)
         {
             GameObject skeleton = Instantiate(
-                skeletonPrefab,
-                summonPoints[i].position,
-                summonPoints[i].rotation
+                selectedPrefab,
+                selectedPoint.position,
+                selectedPoint.rotation
             );
 
             summonedSkeletons.Add(skeleton);
+
+            Debug.Log("The Overseer summoned: " + selectedPrefab.name);
         }
 
         yield return new WaitForSeconds(1f);
@@ -335,20 +358,64 @@ public class MageBossAI : MonoBehaviour
         isDodging = false;
     }
 
-    
 
-    IEnumerator BurstShot()
+
+
+    IEnumerator RandomBurstShot()
     {
-        canAttack = false;
         isAttacking = true;
+        canAttack = false;
 
+        // Brief aiming/wind-up time.
         yield return new WaitForSeconds(0.35f);
 
-        for (int i = 0; i < 3; i++)
+        float healthPercentage =
+            enemyHealth.health / enemyHealth.maxHealth;
+
+        int projectileCount;
+
+        // PHASE 1: FIRE
+        if (healthPercentage > 0.75f)
+        {
+            int roll = Random.Range(0, 100);
+
+            if (roll < 55)
+                projectileCount = 1;
+            else if (roll < 90)
+                projectileCount = 2;
+            else
+                projectileCount = 3;
+        }
+        // PHASE 2: ICE
+        else if (healthPercentage > 0.20f)
+        {
+            int roll = Random.Range(0, 100);
+
+            if (roll < 15)
+                projectileCount = 1;
+            else if (roll < 65)
+                projectileCount = 2;
+            else
+                projectileCount = 3;
+        }
+        // PHASE 3: LIGHTNING
+        else
+        {
+            int roll = Random.Range(0, 100);
+
+            if (roll < 25)
+                projectileCount = 2;
+            else
+                projectileCount = 3;
+        }
+
+        // Fire the selected number of projectiles.
+        for (int i = 0; i < projectileCount; i++)
         {
             FireProjectile();
 
-            yield return new WaitForSeconds(0.18f);
+            if (i < projectileCount - 1)
+                yield return new WaitForSeconds(0.18f);
         }
 
         yield return new WaitForSeconds(attackCooldown + 1f);
@@ -357,33 +424,69 @@ public class MageBossAI : MonoBehaviour
         canAttack = true;
     }
 
-    IEnumerator FiveBurstShot()
-    {
-        canAttack = false;
-        isAttacking = true;
 
-        yield return new WaitForSeconds(0.35f);
-
-        for (int i = 0; i < 5; i++)
-        {
-            FireProjectile();
-
-            yield return new WaitForSeconds(0.18f);
-        }
-
-        yield return new WaitForSeconds(attackCooldown + 1f);
-
-        isAttacking = false;
-        canAttack = true;
-    }
 
     void FireProjectile()
     {
-        GameObject projectile = Instantiate(projectilePrefab, firePoint.position, Quaternion.identity);
-        Vector3 direction = (player.position - firePoint.position).normalized;
+        if (player == null || firePoint == null)
+            return;
 
-        projectile.GetComponent<EnemyProjectile>().SetDirection(direction);
+        // Calculate the boss's current health percentage.
+        float healthPercentage =
+            enemyHealth.health / enemyHealth.maxHealth;
+
+        GameObject selectedProjectile = null;
+
+        // PHASE 1: FIRE
+        if (healthPercentage > 0.75f)
+        {
+            selectedProjectile = fireProjectilePrefab;
+        }
+        // PHASE 2: ICE
+        else if (healthPercentage > 0.20f)
+        {
+            selectedProjectile = iceProjectilePrefab;
+        }
+        // PHASE 3: LIGHTNING
+        else
+        {
+            selectedProjectile = lightningProjectilePrefab;
+        }
+
+        if (selectedProjectile == null)
+        {
+            Debug.LogWarning("The Overseer is missing a projectile prefab!");
+            return;
+        }
+
+        // Aim towards the player.
+        Vector3 direction =
+            (player.position - firePoint.position).normalized;
+
+        // Spawn the selected magical projectile.
+        GameObject projectile = Instantiate(
+            selectedProjectile,
+            firePoint.position,
+            Quaternion.identity
+        );
+
+        // Set its direction.
+        BossProjectile bossProjectile =
+            projectile.GetComponent<BossProjectile>();
+
+        if (bossProjectile != null)
+        {
+            bossProjectile.SetDirection(direction);
+        }
+        else
+        {
+            Debug.LogWarning(
+                selectedProjectile.name +
+                " is missing the BossProjectile component!"
+            );
+        }
     }
+
 
     IEnumerator DodgeAway()
     {

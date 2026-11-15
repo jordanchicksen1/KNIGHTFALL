@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 543495633701159740}
   - component: {fileID: 2064648539067922408}
   - component: {fileID: 1541767062323390282}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: enemyProjectileIce
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -171,6 +171,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: StatusEffectParticles
       objectReference: {fileID: 0}
+    - target: {fileID: 34027901749665398, guid: 25c065f2030d66b448f01485eb69a32a, type: 3}
+      propertyPath: m_Layer
+      value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 1537809796551337304, guid: 25c065f2030d66b448f01485eb69a32a, type: 3}
+      propertyPath: m_Layer
+      value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 1744486730140933327, guid: 25c065f2030d66b448f01485eb69a32a, type: 3}
+      propertyPath: m_Layer
+      value: 12
+      objectReference: {fileID: 0}
     - target: {fileID: 1744486730140933327, guid: 25c065f2030d66b448f01485eb69a32a, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -190,6 +202,10 @@ PrefabInstance:
     - target: {fileID: 3623097261125093009, guid: 25c065f2030d66b448f01485eb69a32a, type: 3}
       propertyPath: m_MaxParticleSize
       value: 0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 6208807052278063957, guid: 25c065f2030d66b448f01485eb69a32a, type: 3}
+      propertyPath: m_Layer
+      value: 12
       objectReference: {fileID: 0}
     - target: {fileID: 8495203332401721399, guid: 25c065f2030d66b448f01485eb69a32a, type: 3}
       propertyPath: m_LocalScale.x
@@ -326,6 +342,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: aaba2a5128439c8429ad8fc89da7a1ce, type: 3}
       propertyPath: m_Name
       value: arrow
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: aaba2a5128439c8429ad8fc89da7a1ce, type: 3}
+      propertyPath: m_Layer
+      value: 12
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

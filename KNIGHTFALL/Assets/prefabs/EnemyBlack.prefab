@@ -1500,7 +1500,7 @@ MonoBehaviour:
   burningEffect: {fileID: 1521314558848153026}
   frozenEffect: {fileID: 6454663583363908988}
   shockedEffect: {fileID: 6910985875392141158}
-  xpReward: 50
+  xpReward: 100
   hitEffectPool: {fileID: 0}
   isStaggered: 0
 --- !u!114 &7803052097154173528
@@ -1520,6 +1520,7 @@ MonoBehaviour:
   attackCooldown: 1.75
   attackDuration: 1.5
   isAttacking: 0
+  fireBuildupPerHit: 35
   lungeForce: 10
   lungeDuration: 0.3
   attackSFX: {fileID: 8300000, guid: 4fb85d766696d1845b1fba01fb92f060, type: 3}
