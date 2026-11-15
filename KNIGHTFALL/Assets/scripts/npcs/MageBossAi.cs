@@ -7,6 +7,7 @@ public class MageBossAI : MonoBehaviour
     [Header("References")]
     public Transform player;
     public Transform firePoint;
+    public BoxCollider arenaBounds;
 
     [Header("Magic Projectiles")]
     public GameObject fireProjectilePrefab;
@@ -60,6 +61,16 @@ public class MageBossAI : MonoBehaviour
     private Quaternion relaxedRotation;
     private Quaternion aimingRotation;
 
+    [Header("Fake Projectiles")]
+    public Transform fakeProjectileHolder;
+
+    public GameObject fakeFireProjectilePrefab;
+    public GameObject fakeIceProjectilePrefab;
+    public GameObject fakeLightningProjectilePrefab;
+
+    private GameObject currentFakeProjectile;
+    private bool fakeProjectileHiddenForCast;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
@@ -91,6 +102,8 @@ public class MageBossAI : MonoBehaviour
        
 
         summonTimer += Time.deltaTime;
+
+        UpdateFakeProjectile();
 
         if (player == null)
             return;
@@ -126,9 +139,67 @@ public class MageBossAI : MonoBehaviour
         }
     }
 
-   
+    void UpdateFakeProjectile()
+    {
+        if (fakeProjectileHolder == null || enemyHealth == null)
+            return;
 
-   
+        if (fakeProjectileHiddenForCast)
+            return;
+
+        float healthPercentage =
+            (float)enemyHealth.health / enemyHealth.maxHealth;
+
+        GameObject selectedFakeProjectile = null;
+
+        if (healthPercentage > 0.75f)
+            selectedFakeProjectile = fakeFireProjectilePrefab;
+        else if (healthPercentage > 0.20f)
+            selectedFakeProjectile = fakeIceProjectilePrefab;
+        else
+            selectedFakeProjectile = fakeLightningProjectilePrefab;
+
+        if (selectedFakeProjectile == null)
+            return;
+
+        // If the correct projectile already exists, make sure it is visible.
+        if (currentFakeProjectile != null &&
+            currentFakeProjectile.name.StartsWith(selectedFakeProjectile.name))
+        {
+            currentFakeProjectile.SetActive(true);
+            return;
+        }
+
+        // Remove the previous magic projectile.
+        if (currentFakeProjectile != null)
+            Destroy(currentFakeProjectile);
+
+        // Create the new one.
+        currentFakeProjectile = Instantiate(
+            selectedFakeProjectile,
+            fakeProjectileHolder
+        );
+
+        currentFakeProjectile.transform.localPosition = Vector3.zero;
+        
+        
+    }
+
+    void HideFakeProjectile()
+    {
+        fakeProjectileHiddenForCast = true;
+
+        if (currentFakeProjectile != null)
+            currentFakeProjectile.SetActive(false);
+    }
+
+    void ShowFakeProjectile()
+    {
+        fakeProjectileHiddenForCast = false;
+        UpdateFakeProjectile();
+    }
+
+
 
     public void AnimationFireProjectile()
     {
@@ -136,6 +207,9 @@ public class MageBossAI : MonoBehaviour
             return;
 
         castProjectileFired = true;
+
+        HideFakeProjectile();
+
         FireProjectile();
 
         projectilesRemaining--;
@@ -158,17 +232,32 @@ public class MageBossAI : MonoBehaviour
         bossAnimator.SetFloat("MoveY", localDirection.z, 0.2f, Time.deltaTime);
     }
 
-    void ResetMovementAnimation()
+    IEnumerator ResetMovementAnimation()
     {
         if (bossAnimator == null)
-            return;
+            yield break;
 
-        bossAnimator.SetFloat("MoveX", 0f, 0.2f, Time.deltaTime);
-        bossAnimator.SetFloat("MoveY", 0f, 0.2f, Time.deltaTime);
+        float elapsed = 0f;
+        float blendDuration = 0.25f;
+
+        while (elapsed < blendDuration)
+        {
+            bossAnimator.SetFloat("MoveX", 0f, 0.2f, Time.deltaTime);
+            bossAnimator.SetFloat("MoveY", 0f, 0.2f, Time.deltaTime);
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        // Ensure the values finish at zero.
+        bossAnimator.SetFloat("MoveX", 0f);
+        bossAnimator.SetFloat("MoveY", 0f);
     }
 
     void FixedUpdate()
     {
+        
+
         if (player == null || enemyHealth == null || enemyHealth.health <= 0)
             return;
 
@@ -268,7 +357,7 @@ public class MageBossAI : MonoBehaviour
         isMakingDecision = false;
     }
 
-    
+
 
     void MoveBoss(Vector3 direction)
     {
@@ -278,10 +367,37 @@ public class MageBossAI : MonoBehaviour
         direction.y = 0f;
         direction.Normalize();
 
-        rb.MovePosition(
-            rb.position +
-            direction * moveSpeed * Time.fixedDeltaTime
+        Vector3 targetPosition =
+            rb.position + direction * moveSpeed * Time.fixedDeltaTime;
+
+        targetPosition = ClampToArena(targetPosition);
+
+        rb.MovePosition(targetPosition);
+    }
+
+    Vector3 ClampToArena(Vector3 targetPosition)
+    {
+        if (arenaBounds == null)
+            return targetPosition;
+
+        Bounds bounds = arenaBounds.bounds;
+
+        // Keep a little distance from the actual edge.
+        float padding = 0.5f;
+
+        targetPosition.x = Mathf.Clamp(
+            targetPosition.x,
+            bounds.min.x + padding,
+            bounds.max.x - padding
         );
+
+        targetPosition.z = Mathf.Clamp(
+            targetPosition.z,
+            bounds.min.z + padding,
+            bounds.max.z - padding
+        );
+
+        return targetPosition;
     }
 
     IEnumerator WalkTowardsPlayer(float duration)
@@ -512,18 +628,15 @@ public class MageBossAI : MonoBehaviour
 
 
 
-
-
-
-
     IEnumerator RandomBurstShot()
     {
         isAttacking = true;
         canAttack = false;
         isCastingBurst = true;
 
-        float healthPercentage =
-            enemyHealth.health / enemyHealth.maxHealth;
+        StartCoroutine(ResetMovementAnimation());
+
+        float healthPercentage = enemyHealth.health / enemyHealth.maxHealth;
 
         // Determine burst size.
         if (healthPercentage > 0.75f)
@@ -616,11 +729,16 @@ public class MageBossAI : MonoBehaviour
                 break;
             }
 
+            
+            ShowFakeProjectile();
+
             projectilesRemaining--;
         }
 
         isCastingBurst = false;
         projectilesRemaining = 0;
+
+        ShowFakeProjectile();
 
         while (isHitReacting)
             yield return null;
@@ -714,7 +832,8 @@ public class MageBossAI : MonoBehaviour
         {
             float progress = timer / duration;
             Vector3 targetPosition = startPosition + dodgeDirection * dodgeDistance;
-            rb.MovePosition(Vector3.Lerp(startPosition, targetPosition, progress));
+            Vector3 dodgePosition = Vector3.Lerp(startPosition, targetPosition, progress);
+            rb.MovePosition(ClampToArena(dodgePosition));
             timer += Time.deltaTime;
 
             yield return null;
