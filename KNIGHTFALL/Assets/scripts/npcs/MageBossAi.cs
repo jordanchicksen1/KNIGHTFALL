@@ -515,6 +515,7 @@ public class MageBossAI : MonoBehaviour
 
 
 
+
     IEnumerator RandomBurstShot()
     {
         isAttacking = true;
@@ -540,18 +541,37 @@ public class MageBossAI : MonoBehaviour
             projectilesRemaining = Random.Range(0, 100) < 25 ? 2 : 3;
         }
 
-        int safetyCounter = 0;
         const float animationTimeout = 4f;
 
         while (projectilesRemaining > 0 && !isHitReacting)
         {
+            float timer = 0f;
+
+            // IMPORTANT: Wait until the PREVIOUS cast has fully exited.
+            while (bossAnimator.GetCurrentAnimatorStateInfo(0).IsName("Cast Spell"))
+            {
+                timer += Time.deltaTime;
+
+                if (timer >= animationTimeout)
+                {
+                    Debug.LogError("The Overseer timed out waiting for the previous cast to finish.");
+                    break;
+                }
+
+                yield return null;
+            }
+
+            if (timer >= animationTimeout || isHitReacting)
+                break;
+
+            // Prepare the next projectile.
             castProjectileFired = false;
 
             bossAnimator.ResetTrigger("CastSpell");
             bossAnimator.SetTrigger("CastSpell");
 
-            // Wait for the casting animation to begin.
-            float timer = 0f;
+            // Wait for the NEW casting animation to begin.
+            timer = 0f;
 
             while (!bossAnimator.GetCurrentAnimatorStateInfo(0).IsName("Cast Spell"))
             {
@@ -582,23 +602,21 @@ public class MageBossAI : MonoBehaviour
                 yield return null;
             }
 
-            if (isHitReacting)
+            if (isHitReacting || timer >= animationTimeout)
                 break;
 
-            // Check that the Animation Event actually fired.
+            // Confirm the Animation Event fired.
             if (!castProjectileFired)
             {
                 Debug.LogError(
                     "The Overseer failed to fire a projectile! " +
                     "Check the castSpell Animation Event."
                 );
+
                 break;
             }
 
-            safetyCounter++;
-
-            if (safetyCounter >= 3)
-                break;
+            projectilesRemaining--;
         }
 
         isCastingBurst = false;
@@ -612,6 +630,7 @@ public class MageBossAI : MonoBehaviour
         isAttacking = false;
         canAttack = true;
     }
+
 
 
 
