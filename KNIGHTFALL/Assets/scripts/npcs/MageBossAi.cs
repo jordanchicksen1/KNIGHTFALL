@@ -514,6 +514,7 @@ public class MageBossAI : MonoBehaviour
 
 
 
+
     IEnumerator RandomBurstShot()
     {
         isAttacking = true;
@@ -527,36 +528,21 @@ public class MageBossAI : MonoBehaviour
         if (healthPercentage > 0.75f)
         {
             int roll = Random.Range(0, 100);
-
-            if (roll < 55)
-                projectilesRemaining = 1;
-            else if (roll < 90)
-                projectilesRemaining = 2;
-            else
-                projectilesRemaining = 3;
+            projectilesRemaining = roll < 55 ? 1 : roll < 90 ? 2 : 3;
         }
         else if (healthPercentage > 0.20f)
         {
             int roll = Random.Range(0, 100);
-
-            if (roll < 15)
-                projectilesRemaining = 1;
-            else if (roll < 65)
-                projectilesRemaining = 2;
-            else
-                projectilesRemaining = 3;
+            projectilesRemaining = roll < 15 ? 1 : roll < 65 ? 2 : 3;
         }
         else
         {
-            int roll = Random.Range(0, 100);
-
-            if (roll < 25)
-                projectilesRemaining = 2;
-            else
-                projectilesRemaining = 3;
+            projectilesRemaining = Random.Range(0, 100) < 25 ? 2 : 3;
         }
 
-        // Play one casting animation per projectile.
+        int safetyCounter = 0;
+        const float animationTimeout = 4f;
+
         while (projectilesRemaining > 0 && !isHitReacting)
         {
             castProjectileFired = false;
@@ -565,35 +551,59 @@ public class MageBossAI : MonoBehaviour
             bossAnimator.SetTrigger("CastSpell");
 
             // Wait for the casting animation to begin.
+            float timer = 0f;
+
             while (!bossAnimator.GetCurrentAnimatorStateInfo(0).IsName("Cast Spell"))
             {
-                if (isHitReacting)
+                if (isHitReacting || timer >= animationTimeout)
                     break;
 
+                timer += Time.deltaTime;
                 yield return null;
             }
 
-            if (isHitReacting)
+            if (isHitReacting || timer >= animationTimeout)
                 break;
 
             // Wait for the casting animation to finish.
+            timer = 0f;
+
             while (bossAnimator.GetCurrentAnimatorStateInfo(0).IsName("Cast Spell") &&
                    bossAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1f)
             {
                 if (isHitReacting)
                     break;
 
+                timer += Time.deltaTime;
+
+                if (timer >= animationTimeout)
+                    break;
+
                 yield return null;
             }
 
             if (isHitReacting)
+                break;
+
+            // Check that the Animation Event actually fired.
+            if (!castProjectileFired)
+            {
+                Debug.LogError(
+                    "The Overseer failed to fire a projectile! " +
+                    "Check the castSpell Animation Event."
+                );
+                break;
+            }
+
+            safetyCounter++;
+
+            if (safetyCounter >= 3)
                 break;
         }
 
         isCastingBurst = false;
         projectilesRemaining = 0;
 
-        // Allow the boss to finish reacting to damage.
         while (isHitReacting)
             yield return null;
 
@@ -602,6 +612,7 @@ public class MageBossAI : MonoBehaviour
         isAttacking = false;
         canAttack = true;
     }
+
 
 
 
