@@ -149,6 +149,14 @@ public class EnemyHealth : MonoBehaviour
 
         health -= finalDamage;
 
+        // Play the boss hit reaction when he takes direct damage.
+        if (health > 0 &&
+            damageType != EnemyDamageType.Status &&
+            mageBossAI != null)
+        {
+            mageBossAI.PlayHitAnimation();
+        }
+
         if (healthUI != null) healthUI.ShowDamage(finalDamage);
 
         if (bossHealthUI != null && bossHealthUI.bossHealth == this)
@@ -330,11 +338,22 @@ public class EnemyHealth : MonoBehaviour
             mageBossAI.enabled = false;
         }
 
+        // Reset the appropriate animation parameters.
         if (enemyAnimator != null)
         {
-            enemyAnimator.SetBool("IsMoving", false);
-            enemyAnimator.SetBool("IsStrafing", false);
-            enemyAnimator.SetBool("IsBackingAway", false);
+            // Existing enemy animation system.
+            if (mageBossAI == null)
+            {
+                enemyAnimator.SetBool("IsMoving", false);
+                enemyAnimator.SetBool("IsStrafing", false);
+                enemyAnimator.SetBool("IsBackingAway", false);
+            }
+            // The Overseer's animation system.
+            else
+            {
+                enemyAnimator.SetFloat("MoveX", 0f);
+                enemyAnimator.SetFloat("MoveY", 0f);
+            }
         }
 
         SetStatusEffectVisual(shockedEffect, true);

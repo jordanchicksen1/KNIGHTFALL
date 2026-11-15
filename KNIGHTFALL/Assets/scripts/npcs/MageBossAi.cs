@@ -12,9 +12,13 @@ public class MageBossAI : MonoBehaviour
     public GameObject fireProjectilePrefab;
     public GameObject iceProjectilePrefab;
     public GameObject lightningProjectilePrefab;
+    private bool castProjectileFired;
+    private int projectilesRemaining;
+    private bool isCastingBurst;
 
     private Rigidbody rb;
     private EnemyHealth enemyHealth;
+    private Animator bossAnimator;
 
     [Header("Movement")]
     public float moveSpeed = 3f;
@@ -36,8 +40,12 @@ public class MageBossAI : MonoBehaviour
     private bool canAttack = true;
     public bool isAttacking;
     private bool isDodging;
-    public float decisionCooldown = 0.4f;
+    private bool isMoving;
+    private bool isHitReacting;
+    private Coroutine hitReactionCoroutine;
+    public float decisionCooldown = 0.2f;
     private bool isMakingDecision;
+
 
     [Header("Summoning")]
     public GameObject[] summonPrefabs;
@@ -55,7 +63,14 @@ public class MageBossAI : MonoBehaviour
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
-        enemyHealth = GetComponent<EnemyHealth>();
+        bossAnimator = GetComponentInChildren<Animator>();
+        enemyHealth = GetComponentInChildren<EnemyHealth>();
+        if (bossAnimator == null)
+        {
+            Debug.LogWarning("The Overseer is missing an Animator!");
+        }
+
+        
         GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
 
         if (playerObject != null)
@@ -73,6 +88,8 @@ public class MageBossAI : MonoBehaviour
 
     void Update()
     {
+       
+
         summonTimer += Time.deltaTime;
 
         if (player == null)
@@ -100,21 +117,79 @@ public class MageBossAI : MonoBehaviour
             return;
         }
 
-        HandleRotation();
+        
         HandleCrossbowVisual();
 
-        if (!isAttacking && !isDodging && !isMakingDecision)
+        if (!isAttacking && !isDodging && !isMoving && !isMakingDecision && !isHitReacting)
         {
             StartCoroutine(MakeCombatDecision());
         }
     }
 
-    void HandleRotation()
+   
+
+   
+
+    public void AnimationFireProjectile()
     {
-        Vector3 direction = player.position - transform.position;
-        direction.y = 0;
+        if (!isCastingBurst || castProjectileFired)
+            return;
+
+        castProjectileFired = true;
+        FireProjectile();
+
+        projectilesRemaining--;
+    }
+
+    void SetMovementAnimation(Vector3 worldDirection)
+    {
+        if (bossAnimator == null)
+            return;
+
+        worldDirection.y = 0f;
+
+        if (worldDirection.sqrMagnitude > 0.01f)
+            worldDirection.Normalize();
+
+        Vector3 localDirection =
+            transform.InverseTransformDirection(worldDirection);
+
+        bossAnimator.SetFloat("MoveX", localDirection.x, 0.2f, Time.deltaTime);
+        bossAnimator.SetFloat("MoveY", localDirection.z, 0.2f, Time.deltaTime);
+    }
+
+    void ResetMovementAnimation()
+    {
+        if (bossAnimator == null)
+            return;
+
+        bossAnimator.SetFloat("MoveX", 0f, 0.2f, Time.deltaTime);
+        bossAnimator.SetFloat("MoveY", 0f, 0.2f, Time.deltaTime);
+    }
+
+    void FixedUpdate()
+    {
+        if (player == null || enemyHealth == null || enemyHealth.health <= 0)
+            return;
+
+        if (aggroTimer <= 0)
+            return;
+
+        Vector3 direction = player.position - rb.position;
+        direction.y = 0f;
+
+        if (direction.sqrMagnitude < 0.001f)
+            return;
+
         Quaternion targetRotation = Quaternion.LookRotation(direction);
-        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+
+        rb.MoveRotation(
+            Quaternion.Slerp(
+                rb.rotation,
+                targetRotation,
+                rotationSpeed * Time.fixedDeltaTime
+            )
+        );
     }
 
     void HandleCrossbowVisual()
@@ -127,111 +202,136 @@ public class MageBossAI : MonoBehaviour
     IEnumerator MakeCombatDecision()
     {
         isMakingDecision = true;
-        float distance = Vector3.Distance(transform.position, player.position);
-        int decision = Random.Range(0, 100);
+
+        float distance = Vector3.Distance(
+            transform.position,
+            player.position
+        );
 
         summonedSkeletons.RemoveAll(skeleton => skeleton == null);
 
+        // Summon if the cooldown has finished and there is room.
         if (summonTimer >= summonCooldown &&
             summonedSkeletons.Count < maxSummons)
         {
             yield return StartCoroutine(SummonSkeletons());
-
             summonTimer = 0f;
         }
 
-        // VERY FAR
+        int decision = Random.Range(0, 100);
+
+        // VERY FAR: Walk towards the player.
         if (distance > chaseDistance)
         {
-            float timer = 0;
-
-            while (timer < 1f)
-            {
-                Vector3 direction = (player.position - transform.position).normalized;
-                direction.y = 0;
-                rb.MovePosition(transform.position + direction * moveSpeed * Time.deltaTime);
-                timer += Time.deltaTime;
-                yield return null;
-            }
+            yield return StartCoroutine(WalkTowardsPlayer(1.5f));
         }
 
-
-        // TOO CLOSE
-        else if (distance < retreatDistance)
+        // FAR: Attack while occasionally closing the distance.
+        else if (distance > preferredCombatDistance + 2f)
         {
-            // MOSTLY DODGE
-            if (decision < 70)
-            {
-                yield return StartCoroutine(DodgeAway());
-            }
+            if (decision < 50)
+                yield return StartCoroutine(WalkTowardsPlayer(1.2f));
+            else if (decision < 75)
+                yield return StartCoroutine(RandomBurstShot());
             else
-            {
                 yield return StartCoroutine(Strafe());
-            }
         }
 
-        // COMBAT RANGE
+        // IDEAL COMBAT DISTANCE: Prioritise attacking.
+        else if (distance >= retreatDistance + 1f)
+        {
+            if (decision < 65)
+                yield return StartCoroutine(RandomBurstShot());
+            else if (decision < 85)
+                yield return StartCoroutine(Strafe());
+            else if (decision < 95)
+                yield return StartCoroutine(WalkTowardsPlayer(0.8f));
+            else
+                yield return StartCoroutine(WalkAwayFromPlayer(0.8f));
+        }
+
+        // TOO CLOSE: Create space, but still attack occasionally.
         else
         {
-            // PLAYER IS GETTING CLOSE
-            if (distance < preferredCombatDistance)
-            {
-                // DODGE
-                if (decision < 20)
-                {
-                    yield return StartCoroutine(
-                        DodgeAway()
-                    );
-                }
-
-                // STRAFE
-                else if (decision < 35)
-                {
-                    yield return StartCoroutine(
-                        Strafe()
-                    );
-                }
-
-                // FIVE BURST SHOT
-                else if (decision < 65)
-                {
-                    yield return StartCoroutine(RandomBurstShot());
-                }
-
-                // BURST SHOT
-                else
-                {
-                    yield return StartCoroutine(RandomBurstShot());
-                }
-            }
-
-            // PLAYER IS FARTHER AWAY
+            if (decision < 50)
+                yield return StartCoroutine(WalkAwayFromPlayer(1.2f));
+            else if (decision < 75)
+                yield return StartCoroutine(RandomBurstShot());
+            else if (decision < 95)
+                yield return StartCoroutine(Strafe());
             else
-            {
-                if (decision < 25)
-                {
-                    yield return StartCoroutine(Strafe());
-                }
-                else if (decision < 40)
-                {
-                    yield return StartCoroutine(DodgeAway());
-                }
-                else if (decision < 85)
-                {
-                    yield return StartCoroutine(RandomBurstShot());
-                }
-                else
-                {
-                    yield return StartCoroutine(RandomBurstShot());
-                }
-            }
+                yield return StartCoroutine(DodgeAway());
         }
 
-        yield return new WaitForSeconds(
-            decisionCooldown
-        );
+        yield return new WaitForSeconds(decisionCooldown);
 
         isMakingDecision = false;
+    }
+
+    
+
+    void MoveBoss(Vector3 direction)
+    {
+        if (rb == null)
+            return;
+
+        direction.y = 0f;
+        direction.Normalize();
+
+        rb.MovePosition(
+            rb.position +
+            direction * moveSpeed * Time.fixedDeltaTime
+        );
+    }
+
+    IEnumerator WalkTowardsPlayer(float duration)
+    {
+        isMoving = true;
+
+        float timer = 0f;
+
+        while (timer < duration && !isHitReacting)
+        {
+            Vector3 direction = player.position - rb.position;
+            direction.y = 0f;
+            direction.Normalize();
+
+            SetMovementAnimation(direction);
+
+            MoveBoss(direction);
+
+            timer += Time.fixedDeltaTime;
+
+            yield return new WaitForFixedUpdate();
+        }
+
+        ResetMovementAnimation();
+        isMoving = false;
+    }
+
+    IEnumerator WalkAwayFromPlayer(float duration)
+    {
+        isMoving = true;
+
+        float timer = 0f;
+
+        while (timer < duration && !isHitReacting)
+        {
+            Vector3 direction = rb.position - player.position;
+            direction.y = 0f;
+            direction.Normalize();
+
+            SetMovementAnimation(direction);
+
+            MoveBoss(direction);
+
+            timer += Time.fixedDeltaTime;
+
+            yield return new WaitForFixedUpdate();
+        }
+
+        ResetMovementAnimation();
+        isMoving = false;
     }
 
     IEnumerator SummonSkeletons()
@@ -335,28 +435,81 @@ public class MageBossAI : MonoBehaviour
         }
     }
 
-   
-
-    IEnumerator Strafe()
+    public void PlayHitAnimation()
     {
-        isDodging = true;
-        float duration = Random.Range(0.4f, 1f);
-        float direction = Random.Range(0, 2) == 0 ? -1 : 1;
-        float timer = 0;
+        if (bossAnimator == null)
+            return;
 
-        while (timer < duration)
+        if (hitReactionCoroutine != null)
+            StopCoroutine(hitReactionCoroutine);
+
+        hitReactionCoroutine = StartCoroutine(HitReactionRoutine());
+    }
+
+    IEnumerator HitReactionRoutine()
+    {
+        isHitReacting = true;
+        isMoving = false;
+
+        bossAnimator.SetFloat("MoveX", 0f);
+        bossAnimator.SetFloat("MoveY", 0f);
+
+        bossAnimator.SetTrigger("Hit");
+
+        // Wait until the Hit animation becomes the active state.
+        while (!bossAnimator.GetCurrentAnimatorStateInfo(0).IsName("Hit"))
         {
-            Vector3 strafeDirection = transform.right * direction;
-
-            rb.MovePosition(transform.position + strafeDirection * moveSpeed * 1.8f * Time.deltaTime);
-
-            timer += Time.deltaTime;
+            if (bossAnimator.IsInTransition(0) &&
+                bossAnimator.GetNextAnimatorStateInfo(0).IsName("Hit"))
+            {
+                break;
+            }
 
             yield return null;
         }
 
-        isDodging = false;
+        // Wait for the Hit animation to finish.
+        while (true)
+        {
+            AnimatorStateInfo state = bossAnimator.GetCurrentAnimatorStateInfo(0);
+
+            if (state.IsName("Hit") && state.normalizedTime >= 1f)
+                break;
+
+            yield return null;
+        }
+
+        isHitReacting = false;
+        hitReactionCoroutine = null;
     }
+
+
+    IEnumerator Strafe()
+    {
+        isMoving = true;
+
+        float duration = Random.Range(1f, 1.6f);
+        float direction = Random.Range(0, 2) == 0 ? -1f : 1f;
+
+        float timer = 0f;
+
+        while (timer < duration && !isHitReacting) 
+        {
+            Vector3 strafeDirection = transform.right * direction;
+
+            SetMovementAnimation(strafeDirection);
+
+            MoveBoss(strafeDirection);
+
+            timer += Time.fixedDeltaTime;
+
+            yield return new WaitForFixedUpdate();
+        }
+
+        ResetMovementAnimation();
+        isMoving = false;
+    }
+
 
 
 
@@ -365,64 +518,91 @@ public class MageBossAI : MonoBehaviour
     {
         isAttacking = true;
         canAttack = false;
-
-        // Brief aiming/wind-up time.
-        yield return new WaitForSeconds(0.35f);
+        isCastingBurst = true;
 
         float healthPercentage =
             enemyHealth.health / enemyHealth.maxHealth;
 
-        int projectileCount;
-
-        // PHASE 1: FIRE
+        // Determine burst size.
         if (healthPercentage > 0.75f)
         {
             int roll = Random.Range(0, 100);
 
             if (roll < 55)
-                projectileCount = 1;
+                projectilesRemaining = 1;
             else if (roll < 90)
-                projectileCount = 2;
+                projectilesRemaining = 2;
             else
-                projectileCount = 3;
+                projectilesRemaining = 3;
         }
-        // PHASE 2: ICE
         else if (healthPercentage > 0.20f)
         {
             int roll = Random.Range(0, 100);
 
             if (roll < 15)
-                projectileCount = 1;
+                projectilesRemaining = 1;
             else if (roll < 65)
-                projectileCount = 2;
+                projectilesRemaining = 2;
             else
-                projectileCount = 3;
+                projectilesRemaining = 3;
         }
-        // PHASE 3: LIGHTNING
         else
         {
             int roll = Random.Range(0, 100);
 
             if (roll < 25)
-                projectileCount = 2;
+                projectilesRemaining = 2;
             else
-                projectileCount = 3;
+                projectilesRemaining = 3;
         }
 
-        // Fire the selected number of projectiles.
-        for (int i = 0; i < projectileCount; i++)
+        // Play one casting animation per projectile.
+        while (projectilesRemaining > 0 && !isHitReacting)
         {
-            FireProjectile();
+            castProjectileFired = false;
 
-            if (i < projectileCount - 1)
-                yield return new WaitForSeconds(0.18f);
+            bossAnimator.ResetTrigger("CastSpell");
+            bossAnimator.SetTrigger("CastSpell");
+
+            // Wait for the casting animation to begin.
+            while (!bossAnimator.GetCurrentAnimatorStateInfo(0).IsName("Cast Spell"))
+            {
+                if (isHitReacting)
+                    break;
+
+                yield return null;
+            }
+
+            if (isHitReacting)
+                break;
+
+            // Wait for the casting animation to finish.
+            while (bossAnimator.GetCurrentAnimatorStateInfo(0).IsName("Cast Spell") &&
+                   bossAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1f)
+            {
+                if (isHitReacting)
+                    break;
+
+                yield return null;
+            }
+
+            if (isHitReacting)
+                break;
         }
 
-        yield return new WaitForSeconds(attackCooldown + 1f);
+        isCastingBurst = false;
+        projectilesRemaining = 0;
+
+        // Allow the boss to finish reacting to damage.
+        while (isHitReacting)
+            yield return null;
+
+        yield return new WaitForSeconds(attackCooldown);
 
         isAttacking = false;
         canAttack = true;
     }
+
 
 
 
