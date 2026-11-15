@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4330887594368710826}
   - component: {fileID: 7223815880035854827}
-  m_Layer: 0
+  m_Layer: 13
   m_Name: Trail
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -165,7 +165,7 @@ GameObject:
   - component: {fileID: 3673456479206187951}
   - component: {fileID: 3506354171848671909}
   - component: {fileID: 5930073284108511110}
-  m_Layer: 0
+  m_Layer: 13
   m_Name: playerIceSpear
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -325,7 +325,7 @@ GameObject:
   - component: {fileID: 1666497249382865609}
   - component: {fileID: 5358855931141944025}
   - component: {fileID: 2393022436136589319}
-  m_Layer: 0
+  m_Layer: 13
   m_Name: Point Light
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -453,7 +453,7 @@ GameObject:
   - component: {fileID: 2428274793840047291}
   - component: {fileID: 3500767105939601107}
   - component: {fileID: 4096695179386364419}
-  m_Layer: 0
+  m_Layer: 13
   m_Name: Sphere
   m_TagString: Untagged
   m_Icon: {fileID: 0}

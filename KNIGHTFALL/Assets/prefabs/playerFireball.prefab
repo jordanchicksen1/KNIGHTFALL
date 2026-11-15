@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 4532678777624255925}
   - component: {fileID: 3485302298499425842}
   - component: {fileID: 8678527869368990419}
-  m_Layer: 0
+  m_Layer: 13
   m_Name: Sphere
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -123,7 +123,7 @@ GameObject:
   - component: {fileID: 5746633977633469080}
   - component: {fileID: 3434972344435429200}
   - component: {fileID: 3277115304647232644}
-  m_Layer: 0
+  m_Layer: 13
   m_Name: Point Light
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -249,7 +249,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1405950658935970460}
   - component: {fileID: 4789583215775341970}
-  m_Layer: 0
+  m_Layer: 13
   m_Name: Trail
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -404,7 +404,7 @@ GameObject:
   - component: {fileID: 3673456479206187951}
   - component: {fileID: 3506354171848671909}
   - component: {fileID: 5930073284108511110}
-  m_Layer: 0
+  m_Layer: 13
   m_Name: playerFireball
   m_TagString: Untagged
   m_Icon: {fileID: 0}

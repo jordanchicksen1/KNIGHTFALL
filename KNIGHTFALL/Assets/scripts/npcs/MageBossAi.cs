@@ -46,6 +46,7 @@ public class MageBossAI : MonoBehaviour
     private Coroutine hitReactionCoroutine;
     public float decisionCooldown = 0.2f;
     private bool isMakingDecision;
+    private bool isDead;
 
 
     [Header("Summoning")]
@@ -199,7 +200,75 @@ public class MageBossAI : MonoBehaviour
         UpdateFakeProjectile();
     }
 
+    public void Die()
+    {
+        if (isDead)
+            return;
 
+        isDead = true;
+
+        // Stop all active combat routines.
+        StopAllCoroutines();
+
+        // Stop combat behaviour.
+        isAttacking = false;
+        isDodging = false;
+        isMoving = false;
+        isMakingDecision = false;
+        isCastingBurst = false;
+        canAttack = false;
+
+        // Stop movement animations.
+        if (bossAnimator != null)
+        {
+            bossAnimator.SetFloat("MoveX", 0f);
+            bossAnimator.SetFloat("MoveY", 0f);
+            bossAnimator.SetTrigger("Dying");
+        }
+
+        // Remove fake projectile.
+        if (currentFakeProjectile != null)
+            Destroy(currentFakeProjectile);
+
+        // Remove summoned enemies.
+        KillSummons();
+        StartCoroutine(DeathSequence());
+    }
+
+    IEnumerator DeathSequence()
+    {
+        // Wait for the Dying animation to become active.
+        while (!bossAnimator.GetCurrentAnimatorStateInfo(0).IsName("Dying"))
+        {
+            yield return null;
+        }
+
+        // Wait for the animation to finish.
+        while (bossAnimator.GetCurrentAnimatorStateInfo(0).IsName("Dying") &&
+               bossAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1f)
+        {
+            yield return null;
+        }
+
+        // Play the death effect.
+        enemyHealth.PlayDeathEffect();
+
+        // Disable physics and collisions.
+        if (rb != null)
+        {
+            rb.isKinematic = true;
+            rb.detectCollisions = false;
+        }
+
+        // Disable all colliders on the boss.
+        foreach (Collider col in GetComponentsInChildren<Collider>())
+        {
+            col.enabled = false;
+        }
+
+        // Disable the boss.
+        gameObject.SetActive(false);
+    }
 
     public void AnimationFireProjectile()
     {

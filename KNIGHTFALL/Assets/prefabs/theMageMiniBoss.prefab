@@ -689,8 +689,8 @@ MonoBehaviour:
   outgoingDamageMultiplier: 1.5
   blackSkeletonPhysicalResistance: 0.75
   greySkeletonStatusResistance: 0.5
-  maxHealth: 1100
-  health: 1100
+  maxHealth: 1600
+  health: 1600
   knockbackForce: 1.5
   staggerDuration: 0.25
   currentStatus: 0

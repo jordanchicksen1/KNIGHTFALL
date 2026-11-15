@@ -45,6 +45,9 @@ public class PlayerSpellProjectile : MonoBehaviour
         if (other.CompareTag("Player"))
             return;
 
+        if (other.isTrigger)
+            return;
+
         EnemyHealth enemy = other.GetComponent<EnemyHealth>();
 
         if (enemy != null)

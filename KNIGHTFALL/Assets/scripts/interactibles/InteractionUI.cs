@@ -28,6 +28,10 @@ public class InteractionUI : MonoBehaviour
     public GameObject strengthRegainedText;
     public float strengthRegainedDuration = 2f;
 
+    [Header("Boss Defeated Announcement")]
+    public GameObject greatEnemyDefeatedText;
+    public float greatEnemyDefeatedDuration = 4f;
+
     private void Awake()
     {
         Instance = this;
@@ -94,5 +98,23 @@ public class InteractionUI : MonoBehaviour
         yield return new WaitForSeconds(strengthRegainedDuration);
 
         strengthRegainedText.SetActive(false);
+    }
+
+    public void ShowGreatEnemyDefeated()
+    {
+        if (greatEnemyDefeatedText == null)
+            return;
+
+        greatEnemyDefeatedText.SetActive(true);
+
+        StopCoroutine(nameof(HideGreatEnemyDefeatedText));
+        StartCoroutine(HideGreatEnemyDefeatedText());
+    }
+
+    IEnumerator HideGreatEnemyDefeatedText()
+    {
+        yield return new WaitForSeconds(greatEnemyDefeatedDuration);
+
+        greatEnemyDefeatedText.SetActive(false);
     }
 }

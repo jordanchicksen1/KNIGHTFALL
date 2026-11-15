@@ -23,16 +23,21 @@ public class BossController : MonoBehaviour
 
         if (mageBoss != null)
         {
-            mageBoss.KillSummons();
+            mageBoss.Die();
         }
 
         if (bossHealthUI != null)
         {
             bossHealthUI.HideBoss();
         }
+
+        if (InteractionUI.Instance != null)
+        {
+            InteractionUI.Instance.ShowGreatEnemyDefeated();
+        }
     }
 
-    
+
 
     public void StartBossFight()
     {
