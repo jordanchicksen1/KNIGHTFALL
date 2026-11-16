@@ -21,6 +21,12 @@ public class MageBossAudio : MonoBehaviour
     [Range(0f, 1f)]
     public float deathVolume = 1f;
 
+    [Header("Dodge")]
+    public AudioClip dodgeSFX;
+
+    [Range(0f, 1f)]
+    public float dodgeVolume = 1f;
+
     private void Awake()
     {
         if (audioSource == null)
@@ -54,5 +60,10 @@ public class MageBossAudio : MonoBehaviour
             return;
 
         audioSource.PlayOneShot(clip, volume);
+    }
+
+    public void PlayDodge()
+    {
+        PlaySFX(dodgeSFX, dodgeVolume);
     }
 }

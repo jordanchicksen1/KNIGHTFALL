@@ -703,6 +703,8 @@ MonoBehaviour:
   summonVolume: 1
   deathSFX: {fileID: 8300000, guid: 0788013504b6ded48a1d495b8a376604, type: 3}
   deathVolume: 1
+  dodgeSFX: {fileID: 8300000, guid: 81db0cf02675ea04a907ac70920bbb13, type: 3}
+  dodgeVolume: 1
 --- !u!1 &6180709236229842826
 GameObject:
   m_ObjectHideFlags: 0
@@ -880,13 +882,13 @@ TrailRenderer:
         inWeight: 0.33333334
         outWeight: 0.33333334
       - serializedVersion: 3
-        time: 0.6428888
-        value: 0.16477439
-        inSlope: -0.8456439
-        outSlope: -0.8456439
+        time: 0.586355
+        value: 0.09543845
+        inSlope: 0.1614672
+        outSlope: 0.1614672
         tangentMode: 0
         weightedMode: 0
-        inWeight: 0.19694398
+        inWeight: 0.3503669
         outWeight: 0.33333334
       - serializedVersion: 3
         time: 1

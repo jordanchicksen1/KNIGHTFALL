@@ -1212,6 +1212,12 @@ public class MageBossAI : MonoBehaviour
         // Begin dodge.
         isDodging = true;
 
+        // Play dodge sound effect.
+        if (bossAudio != null)
+        {
+            bossAudio.PlayDodge();
+        }
+
         // Start the dodge trail.
         if (dodgeTrail != null)
         {

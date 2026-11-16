@@ -28,6 +28,7 @@ public class PlayerMovement : MonoBehaviour
     private PlayerHealth playerHealth;
     private PlayerItems items;
     private PauseMenu pauseMenu;
+    private PlayerInteraction playerInteraction;
 
     [Header("Stamina Costs")]
     public float dodgeCost = 25f;
@@ -73,6 +74,7 @@ public class PlayerMovement : MonoBehaviour
     private void Awake()
     {
         controller = GetComponent<CharacterController>();
+        playerInteraction = GetComponent<PlayerInteraction>();
         lockOn = GetComponent<PlayerLockOn>();
         combat = GetComponent<PlayerCombat>();
         playerHealth = GetComponent<PlayerHealth>();
@@ -129,6 +131,19 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
+        // Lock movement and combat-related movement inputs during dialogue.
+        if (playerInteraction != null &&
+            playerInteraction.isReadingMessage)
+        {
+            moveInput = Vector2.zero;
+            jumpPressed = false;
+            dodgePressed = false;
+            sprintHeld = false;
+
+            HandleGravity();
+            return;
+        }
+
         landingRecoveryTimer -= Time.deltaTime;
         HandleMovement();
         HandleGravity();
