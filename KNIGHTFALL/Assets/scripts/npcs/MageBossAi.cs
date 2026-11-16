@@ -35,6 +35,10 @@ public class MageBossAI : MonoBehaviour
     public float aggroMemoryTime = 4f;
     private float aggroTimer;
 
+    [Header("Boss Music")]
+    public AudioSource bossMusic;
+    private bool isBossMusicPlaying;
+
     [Header("Combat")]
     public float attackCooldown = 2f;
     public float rotationSpeed = 8f;
@@ -47,6 +51,16 @@ public class MageBossAI : MonoBehaviour
     public float decisionCooldown = 0.2f;
     private bool isMakingDecision;
     private bool isDead;
+
+    [Header("Hit Retaliation")]
+    public int retaliationHitThreshold = 3;
+    public float retaliationHitWindow = 2.5f;
+    public float retaliationCooldown = 8f;
+
+    private List<float> recentHitTimes = new List<float>();
+    private float nextRetaliationTime;
+    private bool isRetaliating;
+    private bool retaliationPending;
 
 
     [Header("Summoning")]
@@ -128,10 +142,14 @@ public class MageBossAI : MonoBehaviour
         // LOST PLAYER
         if (aggroTimer <= 0)
         {
+            StopBossMusic();
             return;
         }
 
-        
+        // Player is still detected or within aggro memory.
+        StartBossMusic();
+
+
         HandleCrossbowVisual();
 
         if (!isAttacking && !isDodging && !isMoving && !isMakingDecision && !isHitReacting)
@@ -200,12 +218,97 @@ public class MageBossAI : MonoBehaviour
         UpdateFakeProjectile();
     }
 
+    public void RegisterHitTaken()
+    {
+        if (isDead || enemyHealth.health <= 0)
+            return;
+
+        float currentTime = Time.time;
+
+        // Remove hits outside the retaliation window.
+        recentHitTimes.RemoveAll(
+            hitTime => currentTime - hitTime > retaliationHitWindow
+        );
+
+        recentHitTimes.Add(currentTime);
+
+        if (recentHitTimes.Count < retaliationHitThreshold)
+            return;
+
+        recentHitTimes.Clear();
+
+        // Don't retaliate again while on cooldown.
+        if (currentTime < nextRetaliationTime)
+            return;
+
+        // Queue retaliation if currently casting.
+        if (isCastingBurst || IsCastingSpellAnimation())
+        {
+            retaliationPending = true;
+            return;
+        }
+
+        BeginRetaliation();
+    }
+
+    void BeginRetaliation()
+    {
+        if (isDead || isRetaliating)
+            return;
+
+        // Never interrupt a spell cast.
+        if (isCastingBurst || IsCastingSpellAnimation())
+        {
+            retaliationPending = true;
+            return;
+        }
+
+        retaliationPending = false;
+        nextRetaliationTime = Time.time + retaliationCooldown;
+
+        // Interrupt the current combat behaviour.
+        StopAllCoroutines();
+
+        isHitReacting = false;
+        isMoving = false;
+        isDodging = false;
+        isMakingDecision = false;
+
+        isCastingBurst = false;
+        projectilesRemaining = 0;
+
+        if (bossAnimator != null)
+        {
+            bossAnimator.ResetTrigger("Hit");
+            bossAnimator.SetFloat("MoveX", 0f);
+            bossAnimator.SetFloat("MoveY", 0f);
+        }
+
+        StartCoroutine(RetaliationRoutine());
+    }
+
+    IEnumerator RetaliationRoutine()
+    {
+        isRetaliating = true;
+        isAttacking = true;
+        canAttack = false;
+
+        // First, create some distance.
+        yield return StartCoroutine(DodgeAway());
+
+        // Then immediately fire a guaranteed three-shot burst.
+        yield return StartCoroutine(RandomBurstShot(3));
+
+        isRetaliating = false;
+    }
+
     public void Die()
     {
         if (isDead)
             return;
 
         isDead = true;
+        StopBossMusic();
 
         // Stop all active combat routines.
         StopAllCoroutines();
@@ -590,6 +693,7 @@ public class MageBossAI : MonoBehaviour
     {
         // Forget the player
         aggroTimer = 0f;
+        StopBossMusic();
 
         // Stop combat
         StopAllCoroutines();
@@ -622,11 +726,16 @@ public class MageBossAI : MonoBehaviour
 
     public void PlayHitAnimation()
     {
-        if (bossAnimator == null)
+        if (bossAnimator == null || isDead || isRetaliating)
             return;
 
-        if (hitReactionCoroutine != null)
-            StopCoroutine(hitReactionCoroutine);
+        // Don't interrupt an existing hit reaction.
+        if (isHitReacting)
+            return;
+
+        // Hyperarmour while casting.
+        if (isCastingBurst || IsCastingSpellAnimation())
+            return;
 
         hitReactionCoroutine = StartCoroutine(HitReactionRoutine());
     }
@@ -668,6 +777,26 @@ public class MageBossAI : MonoBehaviour
         hitReactionCoroutine = null;
     }
 
+    bool IsCastingSpellAnimation()
+    {
+        AnimatorStateInfo currentState =
+            bossAnimator.GetCurrentAnimatorStateInfo(0);
+
+        if (currentState.IsName("Cast Spell"))
+            return true;
+
+        if (bossAnimator.IsInTransition(0))
+        {
+            AnimatorStateInfo nextState =
+                bossAnimator.GetNextAnimatorStateInfo(0);
+
+            if (nextState.IsName("Cast Spell"))
+                return true;
+        }
+
+        return false;
+    }
+
 
     IEnumerator Strafe()
     {
@@ -697,7 +826,7 @@ public class MageBossAI : MonoBehaviour
 
 
 
-    IEnumerator RandomBurstShot()
+    IEnumerator RandomBurstShot(int forcedProjectileCount = 0)
     {
         isAttacking = true;
         canAttack = false;
@@ -708,7 +837,12 @@ public class MageBossAI : MonoBehaviour
         float healthPercentage = enemyHealth.health / enemyHealth.maxHealth;
 
         // Determine burst size.
-        if (healthPercentage > 0.75f)
+        // Use a forced burst size when specified.
+        if (forcedProjectileCount > 0)
+        {
+            projectilesRemaining = forcedProjectileCount;
+        }
+        else if (healthPercentage > 0.75f)
         {
             int roll = Random.Range(0, 100);
             projectilesRemaining = roll < 55 ? 1 : roll < 90 ? 2 : 3;
@@ -816,10 +950,32 @@ public class MageBossAI : MonoBehaviour
 
         isAttacking = false;
         canAttack = true;
+
+        // If retaliation was queued during a spell cast, perform it now.
+        if (retaliationPending)
+        {
+            BeginRetaliation();
+        }
     }
 
 
+    void StartBossMusic()
+    {
+        if (bossMusic == null || isBossMusicPlaying)
+            return;
 
+        bossMusic.Play();
+        isBossMusicPlaying = true;
+    }
+
+    void StopBossMusic()
+    {
+        if (bossMusic == null || !isBossMusicPlaying)
+            return;
+
+        bossMusic.Stop();
+        isBossMusicPlaying = false;
+    }
 
 
 

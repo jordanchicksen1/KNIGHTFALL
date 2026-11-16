@@ -150,10 +150,9 @@ public class EnemyHealth : MonoBehaviour
         health -= finalDamage;
 
         // Play the boss hit reaction when he takes direct damage.
-        if (health > 0 &&
-            damageType != EnemyDamageType.Status &&
-            mageBossAI != null)
+        if (health > 0 && damageType != EnemyDamageType.Status && mageBossAI != null)
         {
+            mageBossAI.RegisterHitTaken();
             mageBossAI.PlayHitAnimation();
         }
 
