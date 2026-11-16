@@ -2688233,6 +2688233,14 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 6568543062629805794, guid: ecb32ecca9f58da45b8538c1d3c65f2c, type: 3}
+      propertyPath: firstDialogue
+      value: 'A curse of Knights '
+      objectReference: {fileID: 0}
+    - target: {fileID: 6568543062629805794, guid: ecb32ecca9f58da45b8538c1d3c65f2c, type: 3}
+      propertyPath: secondDialogue
+      value: Strength at cost
+      objectReference: {fileID: 0}
     - target: {fileID: 8970346369834113942, guid: ecb32ecca9f58da45b8538c1d3c65f2c, type: 3}
       propertyPath: m_IsActive
       value: 1
