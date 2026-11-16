@@ -21,6 +21,7 @@ public class Bonfire : Interactable
     private PlayerAudio playerAudio;
 
     private bool flameRestored = false;
+    public bool IsLit => flameRestored;
 
     public bool IsKindled { get; private set; } = false;
 

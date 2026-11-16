@@ -8,6 +8,7 @@ public class PlayerItems : MonoBehaviour
     public int maxHealingFlasks = 5;
     public int currentHealingFlasks = 5;
     public ParticleSystem healEffect;
+    public GameObject healingFlaskModel;
 
     [Header("Mana Flask")]
     public int maxManaFlasks = 5;
@@ -36,11 +37,12 @@ public class PlayerItems : MonoBehaviour
     private PlayerMovement movement;
     private PlayerHealth playerHealth;
     private PlayerAudio playerAudio;
+    private PlayerCombat combat;
 
     void Awake()
     {
         controls = new PlayerControls();
-
+        combat = GetComponent<PlayerCombat>();
         movement = GetComponent<PlayerMovement>();
 
         playerHealth = GetComponent<PlayerHealth>();
@@ -74,6 +76,19 @@ public class PlayerItems : MonoBehaviour
         HandleItemSwitch();
 
         HandleUseItem();
+    }
+
+    private void SetHealingVisuals(bool healing)
+    {
+        // Hide both weapons while healing.
+        combat.swordModel.SetActive(!healing &&
+            combat.currentWeapon == WeaponType.Sword);
+
+        combat.staffModel.SetActive(!healing &&
+            combat.currentWeapon == WeaponType.Staff);
+
+        // Show the healing flask while healing.
+        healingFlaskModel.SetActive(healing);
     }
 
     void UseHealingFlask()
@@ -150,6 +165,7 @@ public class PlayerItems : MonoBehaviour
     }
 
 
+
     IEnumerator ConsumeEmber()
     {
         isHealing = true;
@@ -157,9 +173,28 @@ public class PlayerItems : MonoBehaviour
         movement.movementLocked = true;
         movement.currentState = PlayerState.Attacking;
 
-        movement.KnightAnim.ResetTrigger("Walk");
-        movement.KnightAnim.SetTrigger("Idle");
+        // Hide the weapon and show the healing flask.
+        SetHealingVisuals(true);
 
+        // Clear any pending walking animation.
+        movement.KnightAnim.ResetTrigger("Walk");
+
+        // Play the Heal animation.
+        movement.KnightAnim.SetTrigger("Heal");
+
+        // Wait until the Heal animation actually starts.
+        while (!movement.KnightAnim.GetCurrentAnimatorStateInfo(0).IsName("Heal"))
+        {
+            yield return null;
+        }
+
+        // Wait until the drinking portion of the animation.
+        while (movement.KnightAnim.GetCurrentAnimatorStateInfo(0).normalizedTime < 0.7f)
+        {
+            yield return null;
+        }
+
+        // Play the original Ember effects and SFX.
         emberEffect.Play();
         playerAudio.PlayPotionDrink();
 
@@ -176,18 +211,30 @@ public class PlayerItems : MonoBehaviour
 
         playerHealth.ClampHealthToVitality();
 
+        // Preserve the original notification.
         InteractionUI.Instance.ShowNotification(
-     "Vitality Restored +" + emberVitalityRestore +
-     "\nStatus Buildup Cleared!"
- );
+            "Vitality Restored +" + emberVitalityRestore +
+            "\nStatus Buildup Cleared!"
+        );
 
-        yield return new WaitForSeconds(healDuration);
+        // Wait for the rest of the animation.
+        while (movement.KnightAnim.GetCurrentAnimatorStateInfo(0).normalizedTime < 1f)
+        {
+            yield return null;
+        }
+
+        // Brief recovery pause.
+        yield return new WaitForSeconds(0.5f);
+
+        // Restore the weapon and hide the flask.
+        SetHealingVisuals(false);
 
         movement.movementLocked = false;
         movement.currentState = PlayerState.Idle;
 
         isHealing = false;
     }
+
 
     public bool UseEmberAtBonfire()
     {
@@ -255,6 +302,8 @@ public class PlayerItems : MonoBehaviour
             healingCoroutine = null;
         }
 
+        SetHealingVisuals(false);
+
         movement.movementLocked = false;
         movement.currentState = PlayerState.Idle;
 
@@ -281,6 +330,8 @@ public class PlayerItems : MonoBehaviour
         return isHealing;
     }
 
+
+
     IEnumerator DrinkHealingFlask()
     {
         isHealing = true;
@@ -288,47 +339,60 @@ public class PlayerItems : MonoBehaviour
         movement.movementLocked = true;
         movement.currentState = PlayerState.Attacking;
 
-        // Clear any pending walking animation
+        // Hide the weapon and show the healing flask.
+        SetHealingVisuals(true);
+
+        // Clear any pending walking animation.
         movement.KnightAnim.ResetTrigger("Walk");
 
-        // Transition into Idle
-        movement.KnightAnim.SetTrigger("Idle");
+        // Start the healing animation.
+        movement.KnightAnim.SetTrigger("Heal");
 
-        playerAudio.PlayPotionDrink();
-        healEffect.Play();
-
-        currentHealingFlasks--;
-
-        float totalHealTime = 0.7f;
-        float timer = 0f;
-
-        int totalHealing = healAmount;
-
-        while (timer < totalHealTime)
+        // Wait until the Heal animation actually starts.
+        while (!movement.KnightAnim.GetCurrentAnimatorStateInfo(0).IsName("Heal"))
         {
-            float healPerSecond = totalHealing / totalHealTime;
-
-            playerHealth.health += healPerSecond * Time.deltaTime;
-
-            if (playerHealth.health > playerHealth.GetEffectiveMaxHealth())
-            {
-                playerHealth.health = playerHealth.GetEffectiveMaxHealth();
-            }
-
-            timer += Time.deltaTime;
-
             yield return null;
         }
 
-        yield return new WaitForSeconds(
-            healDuration - totalHealTime
+        // Wait until the character reaches the drinking portion
+        // of the animation.
+        while (movement.KnightAnim.GetCurrentAnimatorStateInfo(0).normalizedTime < 0.7f)
+        {
+            yield return null;
+        }
+
+        // Play the effects at the drinking moment.
+        healEffect.Play();
+        playerAudio.PlayPotionDrink();
+
+        currentHealingFlasks--;
+
+        playerHealth.health += healAmount;
+        playerHealth.health = Mathf.Min(
+            playerHealth.health,
+            playerHealth.GetEffectiveMaxHealth()
         );
+
+        // Wait for the rest of the animation to finish.
+        while (movement.KnightAnim.GetCurrentAnimatorStateInfo(0).normalizedTime < 1f)
+        {
+            yield return null;
+        }
+
+        // Brief recovery pause.
+        yield return new WaitForSeconds(0.5f);
+
+
+        // Restore the weapon and hide the flask.
+        SetHealingVisuals(false);
 
         movement.movementLocked = false;
         movement.currentState = PlayerState.Idle;
 
         isHealing = false;
     }
+
+
 
     public void SetMenuInputLocked(bool locked)
     {
@@ -347,6 +411,7 @@ public class PlayerItems : MonoBehaviour
         }
     }
 
+
     IEnumerator DrinkManaFlask()
     {
         isHealing = true;
@@ -354,45 +419,55 @@ public class PlayerItems : MonoBehaviour
         movement.movementLocked = true;
         movement.currentState = PlayerState.Attacking;
 
-        // Clear any pending walking animation
+        // Hide the weapon and show the healing flask.
+        SetHealingVisuals(true);
+
+        // Clear any pending walking animation.
         movement.KnightAnim.ResetTrigger("Walk");
 
-        // Transition into Idle
-        movement.KnightAnim.SetTrigger("Idle");
+        // Start the healing animation.
+        movement.KnightAnim.SetTrigger("Heal");
 
-        playerAudio.PlayPotionDrink();
-        manaEffect.Play();
-
-        currentManaFlasks--;
-
-        float totalHealTime = 0.7f;
-        float timer = 0f;
-
-        int totalHealing = manaRestoreAmount;
-
-        while (timer < totalHealTime)
+        // Wait until the Heal animation actually starts.
+        while (!movement.KnightAnim.GetCurrentAnimatorStateInfo(0).IsName("Heal"))
         {
-            float healPerSecond = totalHealing / totalHealTime;
-
-            playerHealth.mp += healPerSecond * Time.deltaTime;
-
-            if (playerHealth.mp > playerHealth.maxMP)
-            {
-                playerHealth.mp = playerHealth.maxMP;
-            }
-
-            timer += Time.deltaTime;
-
             yield return null;
         }
 
-        yield return new WaitForSeconds(
-            healDuration - totalHealTime
+        // Wait until the drinking portion of the animation.
+        while (movement.KnightAnim.GetCurrentAnimatorStateInfo(0).normalizedTime < 0.7f)
+        {
+            yield return null;
+        }
+
+        // Play the effects at the drinking moment.
+        manaEffect.Play();
+        playerAudio.PlayPotionDrink();
+
+        currentManaFlasks--;
+
+        playerHealth.mp += manaRestoreAmount;
+        playerHealth.mp = Mathf.Min(
+            playerHealth.mp,
+            playerHealth.maxMP
         );
+
+        // Wait for the rest of the animation.
+        while (movement.KnightAnim.GetCurrentAnimatorStateInfo(0).normalizedTime < 1f)
+        {
+            yield return null;
+        }
+
+        // Brief recovery pause.
+        yield return new WaitForSeconds(0.5f);
+
+        // Restore the weapon and hide the flask.
+        SetHealingVisuals(false);
 
         movement.movementLocked = false;
         movement.currentState = PlayerState.Idle;
 
         isHealing = false;
     }
+
 }

@@ -131,9 +131,12 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
+        
+
         // Lock movement and combat-related movement inputs during dialogue.
         if (playerInteraction != null &&
-            playerInteraction.isReadingMessage)
+    (playerInteraction.activeTalkingStatue != null ||
+     playerInteraction.activeEndingStatue != null))
         {
             moveInput = Vector2.zero;
             jumpPressed = false;
@@ -184,6 +187,8 @@ public class PlayerMovement : MonoBehaviour
 
         Vector3 moveDirection = forward * moveInput.y + right * moveInput.x;
 
+        
+
         // Lock movement direction during a deliberate jump
         if (isCommittedJump)
         {
@@ -218,7 +223,7 @@ public class PlayerMovement : MonoBehaviour
      currentState != PlayerState.Attacking &&
      currentState != PlayerState.Dodging &&
      currentState != PlayerState.Blocking &&
-     currentState != PlayerState.Staggered)
+     currentState != PlayerState.Staggered )
             {
                 currentState = PlayerState.Moving;
                 KnightAnim.SetTrigger("Walk");

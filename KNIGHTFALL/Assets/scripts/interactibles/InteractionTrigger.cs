@@ -4,6 +4,14 @@ public class InteractionTrigger : MonoBehaviour
 {
     public Interactable interactable;
 
+    private void Awake()
+    {
+        if (interactable == null)
+        {
+            interactable = GetComponent<Interactable>();
+        }
+    }
+
     void OnTriggerEnter(Collider other)
     {
         Debug.Log("Message trigger detected: " + other.name);

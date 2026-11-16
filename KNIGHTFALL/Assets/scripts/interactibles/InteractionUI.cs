@@ -32,11 +32,24 @@ public class InteractionUI : MonoBehaviour
     public GameObject greatEnemyDefeatedText;
     public AudioSource victoryAudioSource;
     public AudioClip victoryFanfare;
-
+    private EndingStatue endingStatue;
+    private Coroutine notificationCoroutine;
 
     private void Awake()
     {
         Instance = this;
+        endingStatue = FindFirstObjectByType<EndingStatue>(
+    FindObjectsInactive.Include
+);
+
+        if (endingStatue != null)
+        {
+            Debug.Log("Ending statue successfully found!");
+        }
+        else
+        {
+            Debug.LogError("Ending statue could not be found in the scene!");
+        }
     }
 
     public void ShowPrompt(string text)
@@ -52,8 +65,12 @@ public class InteractionUI : MonoBehaviour
 
     public void ShowNotification(string message)
     {
-        StopAllCoroutines();
-        StartCoroutine(NotificationRoutine(message));
+        if (notificationCoroutine != null)
+        {
+            StopCoroutine(notificationCoroutine);
+        }
+
+        notificationCoroutine = StartCoroutine(NotificationRoutine(message));
     }
 
     public void ShowMessage(string message)
@@ -72,8 +89,11 @@ public class InteractionUI : MonoBehaviour
         notificationObject.SetActive(true);
         notificationText.text = message;
         HidePrompt();
+
         yield return new WaitForSeconds(notificationDuration);
+
         notificationObject.SetActive(false);
+        notificationCoroutine = null;
     }
 
     public IEnumerator DeathRoutine()
@@ -120,10 +140,24 @@ public class InteractionUI : MonoBehaviour
 
     private IEnumerator HideGreatEnemyDefeatedText()
     {
+        Debug.Log("Waiting for victory fanfare to finish...");
+
         yield return new WaitForSecondsRealtime(victoryFanfare.length);
 
+        Debug.Log("Victory fanfare finished. Hiding announcement.");
+
         greatEnemyDefeatedText.SetActive(false);
+
+        if (endingStatue != null)
+        {
+            endingStatue.gameObject.SetActive(true);
+            Debug.Log("Ending statue activated!");
+        }
+        else
+        {
+            Debug.LogError("Ending statue reference is missing!");
+        }
     }
 
-   
+
 }
