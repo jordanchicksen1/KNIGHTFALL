@@ -30,11 +30,6 @@ public class BossController : MonoBehaviour
         {
             bossHealthUI.HideBoss();
         }
-
-        if (InteractionUI.Instance != null)
-        {
-            InteractionUI.Instance.ShowGreatEnemyDefeated();
-        }
     }
 
 

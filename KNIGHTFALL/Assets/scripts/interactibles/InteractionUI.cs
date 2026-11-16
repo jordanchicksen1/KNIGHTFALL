@@ -30,7 +30,9 @@ public class InteractionUI : MonoBehaviour
 
     [Header("Boss Defeated Announcement")]
     public GameObject greatEnemyDefeatedText;
-    public float greatEnemyDefeatedDuration = 4f;
+    public AudioSource victoryAudioSource;
+    public AudioClip victoryFanfare;
+
 
     private void Awake()
     {
@@ -102,19 +104,26 @@ public class InteractionUI : MonoBehaviour
 
     public void ShowGreatEnemyDefeated()
     {
-        if (greatEnemyDefeatedText == null)
+        if (greatEnemyDefeatedText == null ||
+            victoryAudioSource == null ||
+            victoryFanfare == null)
             return;
+
+        StopCoroutine(nameof(HideGreatEnemyDefeatedText));
 
         greatEnemyDefeatedText.SetActive(true);
 
-        StopCoroutine(nameof(HideGreatEnemyDefeatedText));
+        victoryAudioSource.PlayOneShot(victoryFanfare);
+
         StartCoroutine(HideGreatEnemyDefeatedText());
     }
 
-    IEnumerator HideGreatEnemyDefeatedText()
+    private IEnumerator HideGreatEnemyDefeatedText()
     {
-        yield return new WaitForSeconds(greatEnemyDefeatedDuration);
+        yield return new WaitForSecondsRealtime(victoryFanfare.length);
 
         greatEnemyDefeatedText.SetActive(false);
     }
+
+   
 }

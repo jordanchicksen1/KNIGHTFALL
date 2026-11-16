@@ -125,7 +125,7 @@ public class EnemyHealth : MonoBehaviour
         EnemyDamageType damageType,
         bool canStagger = true)
     {
-        if (isStaggered)
+        if (isStaggered || (mageBossAI != null && mageBossAI.IsDodging()))
             return;
 
         float damageMultiplier = 1f;
@@ -213,6 +213,9 @@ public class EnemyHealth : MonoBehaviour
 
     public void ApplyStatusBuildup(SpellType spell, int amount)
     {
+        if (mageBossAI != null && mageBossAI.IsDodging())
+            return;
+
         // Grey Skeletons are completely immune to status effects.
         if (enemyVariant == EnemyVariant.GreySkeleton)
             return;

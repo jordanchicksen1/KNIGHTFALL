@@ -17,8 +17,15 @@ public class MageBossAI : MonoBehaviour
     private int projectilesRemaining;
     private bool isCastingBurst;
 
+    [Header("Dodge Visuals")]
+    public Transform bossVisualRoot;
+    private Renderer[] bossRenderers;
+    public TrailRenderer dodgeTrail;
+    public Light dodgeTrailLight;
+
     private Rigidbody rb;
     private EnemyHealth enemyHealth;
+    private bool deathSequenceFinished;
     private Animator bossAnimator;
 
     [Header("Movement")]
@@ -35,9 +42,11 @@ public class MageBossAI : MonoBehaviour
     public float aggroMemoryTime = 4f;
     private float aggroTimer;
 
-    [Header("Boss Music")]
+    [Header("Boss Music and SFX")]
     public AudioSource bossMusic;
     private bool isBossMusicPlaying;
+    private MageBossAudio bossAudio;
+
 
     [Header("Combat")]
     public float attackCooldown = 2f;
@@ -75,11 +84,7 @@ public class MageBossAI : MonoBehaviour
     public float summonRaycastDistance = 15f;
     public LayerMask groundLayer;
 
-    [Header("Crossbow Visual")]
-    public Transform crossbowHolder;
-    private Quaternion relaxedRotation;
-    private Quaternion aimingRotation;
-
+    
     [Header("Fake Projectiles")]
     public Transform fakeProjectileHolder;
 
@@ -95,12 +100,32 @@ public class MageBossAI : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         bossAnimator = GetComponentInChildren<Animator>();
         enemyHealth = GetComponentInChildren<EnemyHealth>();
+        bossAudio = GetComponent<MageBossAudio>();
+
         if (bossAnimator == null)
         {
             Debug.LogWarning("The Overseer is missing an Animator!");
         }
 
-        
+        if (bossVisualRoot != null)
+        {
+            Renderer[] allRenderers =
+                bossVisualRoot.GetComponentsInChildren<Renderer>(true);
+
+            List<Renderer> visualRenderers = new List<Renderer>();
+
+            foreach (Renderer rend in allRenderers)
+            {
+                if (rend != dodgeTrail)
+                {
+                    visualRenderers.Add(rend);
+                }
+            }
+
+            bossRenderers = visualRenderers.ToArray();
+        }
+
+
         GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
 
         if (playerObject != null)
@@ -108,9 +133,7 @@ public class MageBossAI : MonoBehaviour
             player = playerObject.transform;
         }
 
-        relaxedRotation = Quaternion.Euler(35f, 0f, 0f);
-        aimingRotation = Quaternion.Euler(0f, 0f, 0f);
-        crossbowHolder.localRotation = relaxedRotation;
+       
         startPosition = transform.position;
         startRotation = transform.rotation;
 
@@ -154,7 +177,7 @@ public class MageBossAI : MonoBehaviour
         StartBossMusic();
 
 
-        HandleCrossbowVisual();
+       
 
         if (!isAttacking && !isDodging && !isMoving && !isMakingDecision && !isHitReacting)
         {
@@ -220,6 +243,28 @@ public class MageBossAI : MonoBehaviour
     {
         fakeProjectileHiddenForCast = false;
         UpdateFakeProjectile();
+    }
+
+    void HideBossVisuals()
+    {
+        if (bossRenderers == null)
+            return;
+
+        foreach (Renderer rend in bossRenderers)
+        {
+            rend.enabled = false;
+        }
+    }
+
+    void ShowBossVisuals()
+    {
+        if (bossRenderers == null)
+            return;
+
+        foreach (Renderer rend in bossRenderers)
+        {
+            rend.enabled = true;
+        }
     }
 
     public void RegisterHitTaken()
@@ -331,6 +376,9 @@ public class MageBossAI : MonoBehaviour
             bossAnimator.SetFloat("MoveX", 0f);
             bossAnimator.SetFloat("MoveY", 0f);
             bossAnimator.SetTrigger("Dying");
+
+            if (bossAudio != null)
+                bossAudio.PlayDeath();
         }
 
         // Remove fake projectile.
@@ -340,24 +388,20 @@ public class MageBossAI : MonoBehaviour
         // Remove summoned enemies.
         KillSummons(); 
         SetAllSummonMarkers(false);
-        StartCoroutine(DeathSequence());
+        
     }
 
-    IEnumerator DeathSequence()
+    public void DeathAnimationFinished()
     {
-        // Wait for the Dying animation to become active.
-        while (!bossAnimator.GetCurrentAnimatorStateInfo(0).IsName("Dying"))
-        {
-            yield return null;
-        }
+        if (deathSequenceFinished)
+            return;
 
-        // Wait for the animation to finish.
-        while (bossAnimator.GetCurrentAnimatorStateInfo(0).IsName("Dying") &&
-               bossAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1f)
-        {
-            yield return null;
-        }
+        deathSequenceFinished = true;
 
+        FinishDeathSequence();
+    }
+    private void FinishDeathSequence()
+    {
         // Play the death effect.
         enemyHealth.PlayDeathEffect();
 
@@ -374,7 +418,11 @@ public class MageBossAI : MonoBehaviour
             col.enabled = false;
         }
 
-        // Disable the boss.
+        // Trigger the victory announcement and fanfare.
+        if (InteractionUI.Instance != null)
+            InteractionUI.Instance.ShowGreatEnemyDefeated();
+
+        // Finally, disable the boss.
         gameObject.SetActive(false);
     }
 
@@ -458,11 +506,7 @@ public class MageBossAI : MonoBehaviour
         );
     }
 
-    void HandleCrossbowVisual()
-    {
-        Quaternion targetRotation = isAttacking ? aimingRotation : relaxedRotation;
-        crossbowHolder.localRotation = Quaternion.Slerp(crossbowHolder.localRotation, targetRotation, 12f * Time.deltaTime);
-    }
+   
 
 
     IEnumerator MakeCombatDecision()
@@ -685,6 +729,8 @@ public class MageBossAI : MonoBehaviour
 
             bossAnimator.ResetTrigger("Summon");
             bossAnimator.SetTrigger("Summon");
+            if (bossAudio != null)
+                bossAudio.PlaySummon();
         }
 
         // Wait for the Summon animation to become active.
@@ -735,7 +781,7 @@ public class MageBossAI : MonoBehaviour
             yield return null;
         }
 
-        Vector3 enemySpawnPosition = selectedPoint.position + Vector3.down * 1f;
+        Vector3 enemySpawnPosition = selectedPoint.position + Vector3.down * 0.75f;
 
         GameObject skeleton = Instantiate(
             selectedPrefab,
@@ -1000,6 +1046,8 @@ public class MageBossAI : MonoBehaviour
 
             bossAnimator.ResetTrigger("CastSpell");
             bossAnimator.SetTrigger("CastSpell");
+            if (bossAudio != null)
+                bossAudio.PlaySpellCast();
 
             // Wait for the NEW casting animation to begin.
             timer = 0f;
@@ -1155,30 +1203,91 @@ public class MageBossAI : MonoBehaviour
         }
     }
 
-
+    public bool IsDodging()
+    {
+        return isDodging;
+    }
     IEnumerator DodgeAway()
     {
+        // Begin dodge.
         isDodging = true;
-        Vector3 dodgeDirection = (transform.position - player.position).normalized;
+
+        // Start the dodge trail.
+        if (dodgeTrail != null)
+        {
+            dodgeTrail.gameObject.SetActive(true);
+            dodgeTrail.Clear();
+            dodgeTrail.emitting = true;
+        }
+
+        if (dodgeTrailLight != null)
+        {
+            dodgeTrailLight.enabled = true;
+        }
+
+        // Hide the boss's visual model.
+        HideBossVisuals();
+        HideFakeProjectile();
+
+        // Break the player's lock-on.
+        PlayerLockOn playerLockOn = player.GetComponent<PlayerLockOn>();
+
+        if (playerLockOn != null)
+        {
+            playerLockOn.ClearTarget();
+        }
+
+        // Calculate dodge direction.
+        Vector3 dodgeDirection =
+            (transform.position - player.position).normalized;
+
         dodgeDirection += transform.right * Random.Range(-1.5f, 1.5f);
+
         dodgeDirection.y = 0;
         dodgeDirection.Normalize();
+
         Vector3 startPosition = transform.position;
+
         float dodgeDistance = 5f;
-        float duration = 0.22f;
+        float duration = 0.55f;
         float timer = 0;
 
+        // Move the boss.
         while (timer < duration)
         {
             float progress = timer / duration;
-            Vector3 targetPosition = startPosition + dodgeDirection * dodgeDistance;
-            Vector3 dodgePosition = Vector3.Lerp(startPosition, targetPosition, progress);
+
+            Vector3 targetPosition =
+                startPosition + dodgeDirection * dodgeDistance;
+
+            Vector3 dodgePosition =
+                Vector3.Lerp(startPosition, targetPosition, progress);
+
             rb.MovePosition(ClampToArena(dodgePosition));
+
             timer += Time.deltaTime;
 
             yield return null;
         }
 
+        // Stop creating new trail points.
+        // Leave the object active so the existing trail can fade.
+        if (dodgeTrail != null)
+        {
+            dodgeTrail.emitting = false;
+
+        }
+
+        if (dodgeTrailLight != null)
+        {
+            dodgeTrailLight.enabled = false;
+        }
+
+        // Make the boss visible again.
+        ShowBossVisuals();
+        ShowFakeProjectile();
+
+        // End dodge and restore vulnerability.
         isDodging = false;
     }
 }
