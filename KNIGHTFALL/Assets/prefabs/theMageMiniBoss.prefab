@@ -277,7 +277,7 @@ Transform:
   m_GameObject: {fileID: 4294981490806092775}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.1, y: 0, z: 9.5}
+  m_LocalPosition: {x: 20.2, y: 1.8, z: 1.59}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -308,7 +308,7 @@ Transform:
   m_GameObject: {fileID: 4351973326416035932}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -10.2, y: 0, z: -0.5}
+  m_LocalPosition: {x: -0.22, y: 1.57, z: 0.72}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -758,6 +758,12 @@ MonoBehaviour:
   - {fileID: 3594153236414999182}
   maxSummons: 2
   summonCooldown: 10
+  summonSignPrefab: {fileID: 8195627101931721363, guid: f50ff01ce90d66444a55351896fe67b1, type: 3}
+  summonRaycastHeight: 5
+  summonRaycastDistance: 15
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 64
   crossbowHolder: {fileID: 1600427164526940682}
   fakeProjectileHolder: {fileID: 7332828361950106551}
   fakeFireProjectilePrefab: {fileID: 2334510223131853242}
@@ -877,7 +883,7 @@ Transform:
   m_GameObject: {fileID: 6570133288045694243}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.1, y: 0, z: -10.3}
+  m_LocalPosition: {x: 7.14, y: 0, z: -10.3}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -908,7 +914,7 @@ Transform:
   m_GameObject: {fileID: 8541222203606669281}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 10, y: 0, z: -0.5}
+  m_LocalPosition: {x: 10, y: 0, z: 0.86}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

@@ -70,6 +70,10 @@ public class MageBossAI : MonoBehaviour
     public float summonCooldown = 10f;
     private float summonTimer;
     private List<GameObject> summonedSkeletons = new List<GameObject>();
+    public GameObject summonSignPrefab;
+    public float summonRaycastHeight = 5f;
+    public float summonRaycastDistance = 15f;
+    public LayerMask groundLayer;
 
     [Header("Crossbow Visual")]
     public Transform crossbowHolder;
@@ -334,7 +338,8 @@ public class MageBossAI : MonoBehaviour
             Destroy(currentFakeProjectile);
 
         // Remove summoned enemies.
-        KillSummons();
+        KillSummons(); 
+        SetAllSummonMarkers(false);
         StartCoroutine(DeathSequence());
     }
 
@@ -622,59 +627,168 @@ public class MageBossAI : MonoBehaviour
         isMoving = false;
     }
 
+
+
+
+
+
     IEnumerator SummonSkeletons()
     {
         summonedSkeletons.RemoveAll(skeleton => skeleton == null);
 
-        // Check whether we have room for another summon.
         if (summonedSkeletons.Count >= maxSummons)
             yield break;
 
-        // Check that the prefab array is configured.
         if (summonPrefabs == null || summonPrefabs.Length == 0)
         {
             Debug.LogWarning("The Overseer has no summon prefabs assigned!");
             yield break;
         }
 
-        // Check that summon points are configured.
         if (summonPoints == null || summonPoints.Length == 0)
         {
             Debug.LogWarning("The Overseer has no summon points assigned!");
             yield break;
         }
 
+        // Select a random enemy and spawn point.
+        GameObject selectedPrefab =
+            summonPrefabs[Random.Range(0, summonPrefabs.Length)];
+
+        Transform selectedPoint =
+            summonPoints[Random.Range(0, summonPoints.Length)];
+
+        if (selectedPrefab == null || selectedPoint == null)
+            yield break;
+
+        // Find the ground below the selected summon point.
+        Vector3 rayOrigin =
+            selectedPoint.position + Vector3.up * summonRaycastHeight;
+
+        bool foundGround = Physics.Raycast(
+            rayOrigin,
+            Vector3.down,
+            out RaycastHit hit,
+            summonRaycastDistance,
+            groundLayer
+        );
+
+        // Stop the Overseer moving and prepare to summon.
         isAttacking = true;
         canAttack = false;
+        isMoving = false;
 
-        yield return new WaitForSeconds(1f);
-
-        // Select a random enemy.
-        int randomPrefabIndex = Random.Range(0, summonPrefabs.Length);
-        GameObject selectedPrefab = summonPrefabs[randomPrefabIndex];
-
-        // Select a random spawn point.
-        int randomPointIndex = Random.Range(0, summonPoints.Length);
-        Transform selectedPoint = summonPoints[randomPointIndex];
-
-        if (selectedPrefab != null && selectedPoint != null)
+        if (bossAnimator != null)
         {
-            GameObject skeleton = Instantiate(
-                selectedPrefab,
-                selectedPoint.position,
-                selectedPoint.rotation
-            );
+            bossAnimator.SetFloat("MoveX", 0f);
+            bossAnimator.SetFloat("MoveY", 0f);
 
-            summonedSkeletons.Add(skeleton);
-
-            Debug.Log("The Overseer summoned: " + selectedPrefab.name);
+            bossAnimator.ResetTrigger("Summon");
+            bossAnimator.SetTrigger("Summon");
         }
 
-        yield return new WaitForSeconds(1f);
+        // Wait for the Summon animation to become active.
+        while (!bossAnimator.GetCurrentAnimatorStateInfo(0).IsName("Summon"))
+        {
+            if (isDead)
+                yield break;
+
+            yield return null;
+        }
+
+        // Create the summon sign on the ground.
+        GameObject summonSign = null;
+
+        if (foundGround && summonSignPrefab != null)
+        {
+            Quaternion signRotation =
+                Quaternion.FromToRotation(Vector3.up, hit.normal) *
+                summonSignPrefab.transform.rotation;
+
+            Vector3 signPosition = hit.point + hit.normal * 0.075f;
+
+            summonSign = Instantiate(
+                summonSignPrefab,
+                signPosition,
+                signRotation
+            );
+        }
+        else
+        {
+            Debug.LogWarning(
+                "Could not place summon sign at " + selectedPoint.name
+            );
+        }
+
+        // Wait for the Summon animation to finish.
+        while (bossAnimator.GetCurrentAnimatorStateInfo(0).IsName("Summon") &&
+               bossAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1f)
+        {
+            if (isDead)
+            {
+                if (summonSign != null)
+                    Destroy(summonSign);
+
+                yield break;
+            }
+
+            yield return null;
+        }
+
+        Vector3 enemySpawnPosition = selectedPoint.position + Vector3.down * 1f;
+
+        GameObject skeleton = Instantiate(
+            selectedPrefab,
+            enemySpawnPosition,
+            selectedPoint.rotation
+        );
+
+        summonedSkeletons.Add(skeleton);
+
+        // Play the spawn effect using the existing effect pool.
+        EnemyDeathEffectPool effectPool =
+            FindFirstObjectByType<EnemyDeathEffectPool>();
+
+        if (effectPool != null)
+            effectPool.PlaySpawnEffect(selectedPoint.position);
+        else
+            Debug.LogWarning("EnemyDeathEffectPool not found!");
+
+        // Remove the summon sign.
+        if (summonSign != null)
+            Destroy(summonSign);
+
+        Debug.Log("The Overseer summoned: " + selectedPrefab.name);
+
+        yield return new WaitForSeconds(0.5f);
 
         isAttacking = false;
         canAttack = true;
     }
+
+
+
+
+
+
+    void SetAllSummonMarkers(bool active)
+    {
+        if (summonPoints == null)
+            return;
+
+        foreach (Transform point in summonPoints)
+        {
+            if (point == null)
+                continue;
+
+            Transform marker = point.Find("SpawnMarker");
+
+            if (marker != null)
+                marker.gameObject.SetActive(active);
+        }
+    }
+
+
 
     public void KillSummons()
     {
@@ -708,6 +822,7 @@ public class MageBossAI : MonoBehaviour
 
         // Kill summons
         KillSummons();
+        SetAllSummonMarkers(false);
 
         // Reset transform
         transform.position = startPosition;

@@ -8,11 +8,13 @@ public class PauseMenu : MonoBehaviour
     [SerializeField] private PauseMenuUI pauseMenuUI;
 
     private PlayerMovement playerMovement;
+    private PlayerItems playerItems;
     private bool isPaused = false;
 
     private void Awake()
     {
         playerMovement = GetComponent<PlayerMovement>();
+        playerItems = GetComponent<PlayerItems>();
     }
 
     public void TogglePause(InputAction.CallbackContext context)
@@ -33,7 +35,10 @@ public class PauseMenu : MonoBehaviour
         Time.timeScale = 0f;
 
         if (playerMovement != null)
-            playerMovement.movementLocked = true;
+            playerMovement.SetMenuInputLocked(true);
+
+        if (playerItems != null)
+            playerItems.SetMenuInputLocked(true);
 
         if (pauseMenuUI != null)
             pauseMenuUI.OpenMenu();
@@ -48,7 +53,10 @@ public class PauseMenu : MonoBehaviour
         Time.timeScale = 1f;
 
         if (playerMovement != null)
-            playerMovement.movementLocked = false;
+            playerMovement.SetMenuInputLocked(false);
+
+        if (playerItems != null)
+            playerItems.SetMenuInputLocked(false);
 
         if (pauseMenuUI != null)
             pauseMenuUI.ClosePauseMenu();

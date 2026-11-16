@@ -330,6 +330,23 @@ public class PlayerItems : MonoBehaviour
         isHealing = false;
     }
 
+    public void SetMenuInputLocked(bool locked)
+    {
+        switchItemPressed = false;
+        useItemPressed = false;
+
+        if (locked)
+        {
+            controls.Player.SwitchItem.Disable();
+            controls.Player.UseItem.Disable();
+        }
+        else
+        {
+            controls.Player.SwitchItem.Enable();
+            controls.Player.UseItem.Enable();
+        }
+    }
+
     IEnumerator DrinkManaFlask()
     {
         isHealing = true;

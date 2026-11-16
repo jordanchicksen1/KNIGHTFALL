@@ -13,6 +13,10 @@ public class PlayerHealthUI : MonoBehaviour
 
     private PlayerAttributes playerAttributes;
 
+    private float baseMaxHealth;
+    private float baseMaxMP;
+    private float baseMaxStamina;
+
     // Store the original dimensions and positions of each HUD element.
     private class BarPart
     {
@@ -49,13 +53,27 @@ public class PlayerHealthUI : MonoBehaviour
         manaBarParts = GetManaBarParts();
         staminaBarParts = GetStaminaBarParts();
 
+       
+        // Remember the original maximum resource values.
+        baseMaxHealth = playerHealth.maxHealth -
+            (playerAttributes.healthPerVigor * (playerAttributes.vigor - 1));
+
+        baseMaxMP = playerHealth.maxMP -
+            (playerAttributes.mpPerMind * (playerAttributes.mind - 1));
+
+        baseMaxStamina = playerHealth.maxStamina -
+            (playerAttributes.staminaPerEndurance * (playerAttributes.endurance - 1));
+
         // Remember the current attribute levels.
         lastVigor = playerAttributes.vigor;
         lastMind = playerAttributes.mind;
         lastEndurance = playerAttributes.endurance;
 
+        // Apply the correct initial bar sizes.
+        UpdateBarSizes();
+
         // Apply the initial bar sizes.
-       // UpdateBarSizes();
+        // UpdateBarSizes();
     }
 
     private void Update()
@@ -227,13 +245,13 @@ public class PlayerHealthUI : MonoBehaviour
     private void UpdateBarSizes()
     {
         float healthMultiplier =
-            GetBarMultiplier(playerAttributes.vigor);
+            playerHealth.maxHealth / baseMaxHealth;
 
         float manaMultiplier =
-            GetBarMultiplier(playerAttributes.mind);
+            playerHealth.maxMP / baseMaxMP;
 
         float staminaMultiplier =
-            GetBarMultiplier(playerAttributes.endurance);
+            playerHealth.maxStamina / baseMaxStamina;
 
         ResizeBar(healthBarParts, healthMultiplier);
         ResizeBar(manaBarParts, manaMultiplier);

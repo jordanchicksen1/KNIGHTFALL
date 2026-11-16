@@ -29,6 +29,26 @@ public class EnemyDeathEffectPool : MonoBehaviour
         }
     }
 
+
+    public void PlaySpawnEffect(Vector3 position)
+    {
+        for (int i = 0; i < effectsPerDeath; i++)
+        {
+            foreach (EnemyDeathEffect effect in pool)
+            {
+                if (!effect.gameObject.activeSelf)
+                {
+                    Vector3 randomDirection =
+                        Random.insideUnitSphere.normalized;
+
+                    effect.Play(position, randomDirection);
+                    break;
+                }
+            }
+        }
+    }
+
+
     public void PlayDeathEffect(Vector3 position, int xpReward)
     {
         // Spawn the normal death particles.

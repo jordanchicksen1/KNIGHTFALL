@@ -51,8 +51,11 @@ public class BonfireUI : MonoBehaviour
 
         activeBonfire = bonfire;
 
-        // Lock gameplay movement.
-        playerMovement.movementLocked = true;
+        // Lock gameplay and item inputs.
+        playerMovement.SetMenuInputLocked(true);
+
+        if (playerItems != null)
+            playerItems.SetMenuInputLocked(true);
 
         // Open the menu.
         menuPanel.SetActive(true);
@@ -150,7 +153,10 @@ public class BonfireUI : MonoBehaviour
             menuPanel.SetActive(false);
 
         if (playerMovement != null)
-            playerMovement.movementLocked = false;
+            playerMovement.SetMenuInputLocked(false);
+
+        if (playerItems != null)
+            playerItems.SetMenuInputLocked(false);
 
         // Clear the current UI selection.
         if (EventSystem.current != null)

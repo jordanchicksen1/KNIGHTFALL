@@ -91,6 +91,9 @@ public class PlayerMovement : MonoBehaviour
         };
         controls.Player.Dodge.performed += ctx =>
         {
+            if (movementLocked)
+                return;
+
             dodgePressed = true;
             sprintHeld = true;
         };
@@ -466,6 +469,30 @@ public class PlayerMovement : MonoBehaviour
         }
 
         dodgePressed = false;
+    }
+
+    public void SetMenuInputLocked(bool locked)
+    {
+        movementLocked = locked;
+
+        if (locked)
+        {
+            moveInput = Vector2.zero;
+            jumpPressed = false;
+            dodgePressed = false;
+            sprintHeld = false;
+            isSprinting = false;
+
+            controls.Player.Move.Disable();
+            controls.Player.Jump.Disable();
+            controls.Player.Dodge.Disable();
+        }
+        else
+        {
+            controls.Player.Move.Enable();
+            controls.Player.Jump.Enable();
+            controls.Player.Dodge.Enable();
+        }
     }
 
     IEnumerator DodgeRoll()
