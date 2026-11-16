@@ -33,11 +33,12 @@ Material:
     m_Ints: []
     m_Floats:
     - _Cull: 0
-    - _Smoothness: 0.797
+    - _Metallic: 0.12
+    - _Smoothness: 0.485
     m_Colors:
     - _BaseColor: {r: 0.71612036, g: 0.679441, b: 0.8628383, a: 1}
     - _Color: {r: 0.71612036, g: 0.679441, b: 0.8628383, a: 1}
-    - _EmissionColor: {r: 11.434545, g: 1.1959035, b: 0.6294153, a: 1}
+    - _EmissionColor: {r: 4.237095, g: 0.44314462, b: 0.23323117, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
 --- !u!114 &5823833337913215750
