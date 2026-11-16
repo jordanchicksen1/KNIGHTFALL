@@ -73,6 +73,10 @@ public class PlayerMovement : MonoBehaviour
     private PlayerAudio PlayerAudio;
     private void Awake()
     {
+        // Cap the game at 30 FPS.
+        Application.targetFrameRate = 60;
+        QualitySettings.vSyncCount = 0;
+
         controller = GetComponent<CharacterController>();
         playerInteraction = GetComponent<PlayerInteraction>();
         lockOn = GetComponent<PlayerLockOn>();
