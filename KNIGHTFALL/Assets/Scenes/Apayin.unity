@@ -1640203,7 +1640203,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2413880344880159609, guid: 0beadfb04517e1246867d907b9cfee29, type: 3}
       propertyPath: dialogue
-      value: The curse has eben lifted ...
+      value: The curse has been lifted ...
       objectReference: {fileID: 0}
     - target: {fileID: 5750680406055062415, guid: 0beadfb04517e1246867d907b9cfee29, type: 3}
       propertyPath: m_LocalPosition.x
